@@ -1,0 +1,90 @@
+#
+# WineDbg test - expression testing
+#
+# Copyright (C) 2005 Eric Pouech
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# TODO
+# - better test the x and print commands (especially modifiers /x...)
+# - casts (integers, pointers)
+
+DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
+EXECUTABLE	"wdtp.exe.so"
+
+START "expr foo bar"
+	BREAK	"b test_expr"
+	COMMAND	"cont"
+
+     	# FIXME step after function frame setup (at least for native dbghelp),
+	#       so that we can access local vars
+	# also needed for -O0 dwarf, but not -O0 stabs ;-/ would need conditions or something
+	COMMAND	"step" ss_step
+
+	# simple expression test
+	EVAL 	"p argc" mv_integer 2
+
+	EVAL	"p ((argc + 22) * 3) / 4" mv_integer 18
+	# EVAL "p *&argc" mv_integer 2
+	EVAL	"p ptr[0]" mv_string "foo"
+	EVAL	"p ptr[1]" mv_string "bar"
+	EVAL	"p ptr[0][0]" mv_char 'f'
+	# EVAL "p (unsigned)ptr[0][0]" mv_integer 'f'
+	EVAL	"p 0xffffffff" mv_integer 0xffffffff
+	EVAL	"p (short unsigned)0xffffffff" mv_integer 0xffff
+	EVAL	"p (unsigned char)0x61616161" mv_integer 'a'
+	EVAL	"p (char)0x61616161" mv_char 'a'
+	EVAL	"p /x 0xffffffff" mv_hexa 0xffffffff
+	EVAL	"p 3 - 2 - 4" mv_integer -3
+	EVAL	"p 2 + 3 << 4" mv_integer 80
+	EVAL	"p 2 + -3" mv_integer -1
+	EVAL	"p 2 - +3" mv_integer -1
+	EVAL	"p 2 - -3" mv_integer 5
+	# EVAL "p (char*)(unsigned)ptr[0]" mv_string "foo"
+
+	# examine test
+
+	COMMAND "next" ss_step
+	COMMAND "next" ss_step
+	COMMAND "next" ss_step
+	COMMAND "next" ss_step
+
+	# setting some values
+	EVAL "set myint1=45" mv_null 0
+	EVAL "p myint1" mv_integer 45
+
+	COMMAND "next" ss_step
+
+	# testing values inside structure
+	EVAL	"p t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
+	EVAL	"p /x t.s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
+	EVAL	"p t.u" mv_struct "i=-1431655766, u=2863311530"
+	EVAL	"p /x t.u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
+	EVAL	"p t.toto_a" mv_integer 3
+	EVAL	"p t.toto_b" mv_integer 18
+	EVAL	"p t.bf1" mv_integer 12
+	EVAL	"p t.bf2" mv_integer 63
+	EVAL	"p t.bf3" mv_integer -34
+	EVAL	"p t.bf4" mv_integer -4
+	EVAL	"p -t.bf4 * 12" mv_integer 48
+	EVAL	"p /x t.u.u" mv_hexa 0xaaaaaaaa
+
+	# test setting values inside structure
+	EVAL	"set t.toto_a=45" mv_null 0
+	EVAL	"p t.toto_a" mv_integer 45
+	EVAL	"set t.bf1=0" mv_null 0
+	# EVAL "p t.bf1" mv_integer 0
+	EVAL	"p t.bf2" mv_integer 63
+END
