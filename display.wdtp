@@ -1,0 +1,75 @@
+#
+# WineDbg test - display
+#
+# Copyright (C) 2005 Eric Pouech
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# TODO
+# - check for other functions (only display information from a given function or a given function & stack frame ??)
+# - enable / disable of display items
+
+DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
+EXECUTABLE	"wdtp.exe.so"
+
+START "display"
+	# stabs get lineno 20, dwarf 18
+	BREAK "break display_foo" 1 "display_foo" "wdtp_display.c" 20
+	COMMAND "cont" ss_xpoint 1
+	CHECK_LOCATION "wdtp_display.c" 20
+
+	COMMAND "step" ss_step
+
+	COMMAND "display xx"
+
+	COMMAND "cont" ss_xpoint 1
+	CHECK_LOCATION "wdtp_display.c" 20
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "wdtp_display.c" 21
+	CHECK_DISPLAY 1
+	CHECK_DISPLAY 0 "xx" mv_struct "v=22, string=\"first\""
+
+	COMMAND "cont" ss_xpoint 1
+	CHECK_LOCATION "wdtp_display.c" 20
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "wdtp_display.c" 21
+	CHECK_DISPLAY 1
+	CHECK_DISPLAY 0 "xx" mv_struct "v=14, string=\"left\""
+
+	COMMAND "display b"
+	COMMAND "display a"
+
+	COMMAND "cont" ss_xpoint 1
+	CHECK_LOCATION "wdtp_display.c" 20
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "wdtp_display.c" 21
+	CHECK_DISPLAY 3
+	CHECK_DISPLAY 0 "xx" mv_struct "v=14, string=\"left\""
+	CHECK_DISPLAY 1 "b" mv_integer 4
+	CHECK_DISPLAY 2 "a" mv_integer 0
+
+	COMMAND "cont" ss_xpoint 1
+	CHECK_LOCATION "wdtp_display.c" 20
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "wdtp_display.c" 21
+	CHECK_DISPLAY 3
+	CHECK_DISPLAY 0 "xx" mv_struct "v=22, string=\"first\""
+	CHECK_DISPLAY 1 "b" mv_integer 4
+	CHECK_DISPLAY 2 "a" mv_integer 1
+END
