@@ -27,10 +27,7 @@ START "wdtp.exe" "expr foo bar"
 	BREAK	"b test_expr"
 	COMMAND	"cont"
 
-     	# FIXME step after function frame setup (at least for native dbghelp),
-	#       so that we can access local vars
-	# also needed for -O0 dwarf, but not -O0 stabs ;-/ would need conditions or something
-	COMMAND	"step" ss_step
+	[dwarf]	COMMAND	"step" ss_step
 
 	# simple expression test
 	EVAL 	"p argc" mv_integer 2

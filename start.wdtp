@@ -20,7 +20,6 @@
 # TODO
 # - should also test that winedbg starts upon exception
 # - first chance & second chance exceptions should be tested
-# - winedbg invocation with a pid
 # - winedbg invocation with a set of commands passed on the command line
 # - winedbg invocation with a file as commands
 # - winedbg invocation in automatic mode
@@ -29,7 +28,7 @@
 DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
 
 START "wdtp.exe" "start"
-	BREAK "break start_real" 1 "start_real" "wdtp_start.c" 12
+	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
 
 # this should be a test for starting with a pid...
@@ -38,7 +37,7 @@ END
 LAUNCH "wdtp.exe.so start" $pid$
 
 START "$pid$"
-	BREAK "break start_real" 1 "start_real" "wdtp_start.c" 12
+	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
 
 # START "wdtp.exe" "start --crash"

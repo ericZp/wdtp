@@ -29,7 +29,6 @@ DLLFLAGS    = -D_REENTRANT -fPIC
 DEFS        = $(EXTRADEFS)
 ALL_LIBS    = $(DELAYIMPORTS:%=-l%) $(IMPORTS:%=-l%) $(EXTRALIBS) $(LIBPORT) $(LDFLAGS) $(LIBS)
 BASEMODULE  = $(MODULE:.exe=)
-RUNTESTFLAGS= -q -P wine -T $(TOPOBJDIR)
 INSTALLDIRS = $(DESTDIR)$(bindir) $(DESTDIR)$(dlldir) $(DESTDIR)$(mandir)/man$(prog_manext)
 
 # Global rules shared by all makefiles     -*-Makefile-*-
@@ -57,8 +56,7 @@ INSTALLDIRS = $(DESTDIR)$(bindir) $(DESTDIR)$(dlldir) $(DESTDIR)$(mandir)/man$(p
 
 SHELL     = /bin/sh
 CC        = gcc
-#CFLAGS    =  -gdwarf-2
-CFLAGS = -gstabs+ -O0
+CFLAGS    = -g
 CPPFLAGS  = 
 LIBS      = 
 BISON     = bison
@@ -98,10 +96,8 @@ MKINSTALLDIRS= $(TOPSRCDIR)/tools/mkinstalldirs -m 755
 WINAPI_CHECK = $(TOPSRCDIR)/tools/winapi/winapi_check
 WINEWRAPPER  = $(TOPSRCDIR)/tools/winewrapper
 C2MAN        = $(TOPSRCDIR)/tools/c2man.pl
-RUNTEST      = $(TOPSRCDIR)/tools/runtest
 WINEBUILD    = $(TOOLSDIR)/tools/winebuild/winebuild
 MAKEDEP      = $(TOOLSDIR)/tools/makedep
-MAKECTESTS   = $(TOOLSDIR)/tools/make_ctests
 WRC          = $(TOOLSDIR)/tools/wrc/wrc
 BIN2RES      = $(TOOLSDIR)/tools/bin2res
 WMC          = $(TOOLSDIR)/tools/wmc/wmc
@@ -203,9 +199,6 @@ LINTS  = $(C_SRCS:.c=.ln)
 .c.ln:
 	$(LINT) -c $(ALLLINTFLAGS) $< || ( $(RM) $@ && exit 1 )
 
-.c.ok:
-	$(RUNTEST) $(RUNTESTFLAGS) $< && touch $@
-
 .sfd.ttf:
 	$(FONTFORGE) -script $(TOPSRCDIR)/fonts/genttf.ff $< $@
 
@@ -285,25 +278,6 @@ $(INSTALLDIRS):
 	$(SUBDIRS:%=%/__install__) $(SUBDIRS:%=%/__uninstall__) \
 	$(SUBDIRS:%=%/__install-lib__) $(SUBDIRS:%=%/__install-dev__)
 
-# Rules for testing
-
-$(TESTSUBDIRS:%=%/__test__): dummy
-	@cd `dirname $@` && $(MAKE) test
-
-$(TESTSUBDIRS:%=%/__crosstest__): dummy
-	@cd `dirname $@` && $(MAKE) crosstest
-
-$(TESTSUBDIRS:%=%/__testclean__): dummy
-	@cd `dirname $@` && $(MAKE) testclean
-
-check test:: $(TESTSUBDIRS:%=%/__test__)
-
-crosstest:: $(TESTSUBDIRS:%=%/__crosstest__)
-
-testclean:: $(TESTSUBDIRS:%=%/__testclean__)
-
-.PHONY: check test testclean crosstest $(TESTSUBDIRS:%=%/__test__) $(TESTSUBDIRS:%=%/__crosstest__) $(TESTSUBDIRS:%=%/__testclean__) 
-
 # Rules for auto documentation
 
 $(DOCSUBDIRS:%=%/__man__): dummy
@@ -360,8 +334,35 @@ WDTP_SRCS= \
         wdtp_type.c \
         wdtp_xpoint.c
 
-wdtp.exe$(DLLEXT): $(WDTP_SRCS:.c=.o)
-	$(WINEGCC) -B$(TOOLSDIR)/tools/winebuild -mconsole -o $@ $(WDTP_SRCS:.c=.o) -L../../../libs -L../../../dlls -lkernel32
+wdtp: wdtp_stabspO0.exe$(DLLEXT) wdtp_dwarfO0.exe$(DLLEXT)
+	@echo Done compiling the various test programs
+
+wdtp_stabspO0.exe$(DLLEXT): $(WDTP_SRCS)
+	$(WINEGCC) $(ALLCFLAGS) -gstabs+ -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -L../../../libs -L../../../dlls -lkernel32
+	mv wdtp.exe.so $@
+
+wdtp_dwarfO0.exe$(DLLEXT): $(WDTP_SRCS)
+	$(WINEGCC) $(ALLCFLAGS) -gdwarf-2 -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -L../../../libs -L../../../dlls -lkernel32
+	mv wdtp.exe.so $@
+
+WDTPS= \
+	start.wdtp
+
+#	display.wdtp \
+#	execute.wdtp \
+#	expr.wdtp \
+#	stack.wdtp \
+#	start.wdtp \
+#	type.wdtp \
+#	xpoint.wdtp
+
+test: wdtp
+	ln -sf wdtp_stabspO0.exe.so wdtp.exe.so
+	for i in $(WDTPS); do ./wdbgtest --condition stabs $$i; done
+	ln -sf wdtp_dwarfO0.exe.so wdtp.exe.so
+	for i in $(WDTPS); do ./wdbgtest --condition dwarf $$i; done
+
+.PHONY: wdtp
 
 parse.tab.c: parse.tab.h   # for parallel makes
 

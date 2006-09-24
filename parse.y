@@ -33,6 +33,7 @@ static struct debuggee  dbg;
 static const char*      parse_file_name;
 extern FILE*            parse_in;
 extern int              parse_line;
+static const char*      condition;
 
 static int test_ok(int condition, const char *msg, ...)
 {
@@ -268,6 +269,18 @@ static void launch(const char* cmd, struct id* id)
     else id->mval.type = mv_error;
 }
 
+static unsigned do_command = TRUE;
+
+static void set_condition(const char* cond)
+{
+    do_command = !condition || !strcmp(condition, cond);
+}
+
+static unsigned doit(void)
+{
+    return do_command;
+}
+
 %}
 
 %union
@@ -280,7 +293,7 @@ static void launch(const char* cmd, struct id* id)
 %token tEOF tDEBUGGER tEXECUTABLE tSTART tEND
 %token tBACKTRACE tBREAK tCHECK_DISPLAY tCHECK_FRAME tCHECK_LOCATION tCOMMAND tEVAL
 %token tLAUNCH
-%token <string> tSTRING
+%token <string> tSTRING tCONDITION
 %token <integer> tNUM tEVAL_STATUS tEXEC_STATUS
 %token <id> tID
 
@@ -301,27 +314,32 @@ item:
 
 
 command: 
-      tBACKTRACE {test_ok(wdt_backtrace(&dbg) == 0, dbg.err_msg);}
-    | tBREAK tSTRING {set_break($2, 0, NULL, NULL, 0);}
-    | tBREAK tSTRING tNUM {set_break($2, $3, NULL, NULL, 0);}
-    | tBREAK tSTRING tNUM tSTRING {set_break($2, $3, $4, NULL, 0);}
-    | tBREAK tSTRING tNUM tSTRING tSTRING tNUM {set_break($2, $3, $4, $5, $6);}
-    | tCHECK_DISPLAY tNUM {test_ok(dbg.num_display == $2, "Wrong number of displays (%d)", $2);}
-    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {check_display($2, $3, $4, $5, NULL);}
-    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {check_display($2, $3, $4, 0, $5);}
-    | tCHECK_FRAME tNUM tSTRING tSTRING tNUM tSTRING {check_frame($2, $3, $4, $5, $6);}
-    | tCHECK_LOCATION tSTRING tNUM {check_location(&dbg.loc, NULL, $2, $3);}
-    | tCHECK_LOCATION tSTRING tSTRING tNUM {check_location(&dbg.loc, $2, $3, $4);}
-    | tCOMMAND tSTRING {command($2, NULL);}
-    | tCOMMAND tSTRING tSTRING {command($2, $3);}
-    | tCOMMAND tSTRING tEXEC_STATUS {command_run($2, $3, -1);}
-    | tCOMMAND tSTRING tEXEC_STATUS tNUM {command_run($2, $3, $4);}
-    | tEVAL tSTRING tEVAL_STATUS tNUM {test_eval($2, $3, $4, NULL);}
-    | tEVAL tSTRING tEVAL_STATUS tSTRING {test_eval($2, $3, 0, $4);}
-    | tEVAL tSTRING tID {set_eval($2, $3);}
+      tBACKTRACE {if (doit()) test_ok(wdt_backtrace(&dbg) == 0, dbg.err_msg);}
+    | tBREAK tSTRING {if (doit()) set_break($2, 0, NULL, NULL, 0);}
+    | tBREAK tSTRING tNUM {if (doit()) set_break($2, $3, NULL, NULL, 0);}
+    | tBREAK tSTRING tNUM tSTRING {if (doit()) set_break($2, $3, $4, NULL, 0);}
+    | tBREAK tSTRING tNUM tSTRING tSTRING tNUM {if (doit()) set_break($2, $3, $4, $5, $6);}
+    | tCHECK_DISPLAY tNUM {if (doit()) test_ok(dbg.num_display == $2, "Wrong number of displays (%d)", $2);}
+    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {if (doit()) check_display($2, $3, $4, $5, NULL);}
+    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {if (doit()) check_display($2, $3, $4, 0, $5);}
+    | tCHECK_FRAME tNUM tSTRING tSTRING tNUM tSTRING {if (doit()) check_frame($2, $3, $4, $5, $6);}
+    | tCHECK_LOCATION tSTRING tNUM {if (doit()) check_location(&dbg.loc, NULL, $2, $3);}
+    | tCHECK_LOCATION tSTRING tSTRING tNUM {if (doit()) check_location(&dbg.loc, $2, $3, $4);}
+    | tCOMMAND tSTRING {if (doit()) command($2, NULL);}
+    | tCOMMAND tSTRING tSTRING {if (doit()) command($2, $3);}
+    | tCOMMAND tSTRING tEXEC_STATUS {if (doit()) command_run($2, $3, -1);}
+    | tCOMMAND tSTRING tEXEC_STATUS tNUM {if (doit()) command_run($2, $3, $4);}
+    | tEVAL tSTRING tEVAL_STATUS tNUM {if (doit()) test_eval($2, $3, $4, NULL);}
+    | tEVAL tSTRING tEVAL_STATUS tSTRING {if (doit()) test_eval($2, $3, 0, $4);}
+    | tEVAL tSTRING tID {if (doit()) set_eval($2, $3);}
 ;
 
-list_commands: command list_commands | ;
+cond_command: 
+      command
+    | tCONDITION {set_condition($1);} command {do_command = TRUE;}
+;
+
+list_commands: cond_command list_commands | ;
 
 start_test:     
       tSTART tSTRING {start_test($2, "");}
@@ -369,6 +387,13 @@ int main(int argc, char* argv[])
         if (argc && !strcmp(argv[0], "--dump"))
         {
             do_dump = 1;
+            argc--; argv++;
+            continue;
+        }
+        if (argc > 1 && !strcmp(argv[0], "--condition"))
+        {
+            argc--; argv++;
+            condition = argv[0];
             argc--; argv++;
             continue;
         }

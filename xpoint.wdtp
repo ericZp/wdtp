@@ -29,7 +29,7 @@ DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
 
 # simple break point test without hardware assistance
 START "wdtp.exe" "xpoint"
-	BREAK "break test_xpoint" 1 "test_xpoint" "wdtp_xpoint.c" 31
+	BREAK "break test_xpoint : 31" 1 "test_xpoint" "wdtp_xpoint.c" 31
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 31
 
@@ -50,7 +50,7 @@ END
 
 # simple break point test with hardware assistance
 START "wdtp.exe" "xpoint"
-	BREAK "break test_xpoint" 1 "test_xpoint" "wdtp_xpoint.c" 31
+	BREAK "break test_xpoint : 31" 1 "test_xpoint" "wdtp_xpoint.c" 31
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 31
 
@@ -97,7 +97,7 @@ END
 
 # watch test
 START "wdtp.exe" "xpoint"
-	BREAK "break test_xpoint" 1
+	BREAK "break test_xpoint : 31" 1
 
 	COMMAND "cont" ss_xpoint 1
 	# COMMAND "step" ss_step

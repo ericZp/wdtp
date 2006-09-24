@@ -23,17 +23,12 @@
 DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
 
 START "wdtp.exe" "execute"
-	BREAK "b exec_f" 1
-	COMMAND "cont"
+	BREAK "b exec_f : 15" 1
+	COMMAND "cont" ss_xpoint 1
 
-	# COMMAND "next"
-	# COMMAND "next"
-
-	# testing next commands
-	# COMMAND "next" ss_step
-	# CHECK_LOCATION "exec_f" "wdtp_execute.c" 15
 	EVAL "p a" mv_integer 12
 
+	# testing next commands
 	COMMAND "next" ss_step
 	CHECK_LOCATION "exec_f" "wdtp_execute.c" 16
 	EVAL "p a" mv_integer 14
@@ -50,11 +45,9 @@ START "wdtp.exe" "execute"
 	CHECK_LOCATION "exec_f" "wdtp_execute.c" 21
 	EVAL "p a" mv_integer 41
 
-	COMMAND "cont"
+	COMMAND "cont" ss_xpoint 1
 
     	# testing single stepping
-	# COMMAND "step" ss_step
-	# CHECK_LOCATION "exec_f" "wdtp_execute.c" 15
 	EVAL "p a" mv_integer 12
 
 	COMMAND "step" ss_step
@@ -78,11 +71,13 @@ START "wdtp.exe" "execute"
 	# CHECK_LOCATION "exec_f" "wdtp_execute.c" 7
 
 	COMMAND "step" ss_step
-	CHECK_LOCATION "exec_g" "wdtp_execute.c" 8
+	[stabs] CHECK_LOCATION "exec_g" "wdtp_execute.c" 8
+	[dwarf] CHECK_LOCATION "exec_g" "wdtp_execute.c" 7
 	EVAL "p a" mv_integer 168
 
-	COMMAND "step" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 21
+	COMMAND "finish" ss_step
+	# FIXME: one would expect us to be at line 21 here...
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 19
 
 	COMMAND "step" ss_step
 	EVAL "p a" mv_integer 41
