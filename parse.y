@@ -152,7 +152,7 @@ static void set_break(const char* cmd, int bp, const char* name, const char* src
     wdt_free_location(&loc);
 }
 
-static void command(const char* c, int status, int bp)
+static void command_run(const char* c, int status, int bp)
 {
     int                 ret;
 
@@ -160,6 +160,16 @@ static void command(const char* c, int status, int bp)
     test_ok(ret != -1, dbg.err_msg);
     if (status != -1) test_ok(dbg.status == status, "%s\n", dbg.err_msg);
     if (status == ss_xpoint) test_ok(dbg.info == bp, "hit wrong bp number %d\n", dbg.info);
+}
+
+static void command(const char* c, const char* result)
+{
+    int                 ret;
+
+    ret = wdt_execute(&dbg, c);
+    test_ok(ret != -1, dbg.err_msg);
+    if (result) test_ok(!memcmp(dbg.cl.buf_ptr, result, strlen(result)),
+                        "Unexpected command result %s\n", dbg.cl.buf_ptr);
 }
 
 static void check_eval(struct mval* mv, int type, int val, const char* str)
@@ -264,9 +274,10 @@ command:
     | tCHECK_FRAME tNUM tSTRING tSTRING tNUM tSTRING {check_frame($2, $3, $4, $5, $6);}
     | tCHECK_LOCATION tSTRING tNUM {check_location(&dbg.loc, NULL, $2, $3);}
     | tCHECK_LOCATION tSTRING tSTRING tNUM {check_location(&dbg.loc, $2, $3, $4);}
-    | tCOMMAND tSTRING {command($2, -1, -1);}
-    | tCOMMAND tSTRING tEXEC_STATUS {command($2, $3, -1);}
-    | tCOMMAND tSTRING tEXEC_STATUS tNUM {command($2, $3, $4);}
+    | tCOMMAND tSTRING {command($2, NULL);}
+    | tCOMMAND tSTRING tSTRING {command($2, $3);}
+    | tCOMMAND tSTRING tEXEC_STATUS {command_run($2, $3, -1);}
+    | tCOMMAND tSTRING tEXEC_STATUS tNUM {command_run($2, $3, $4);}
     | tEVAL tSTRING tEVAL_STATUS tNUM {test_eval($2, $3, $4, NULL);}
     | tEVAL tSTRING tEVAL_STATUS tSTRING {test_eval($2, $3, 0, $4);}
     | tEVAL tSTRING tID {set_eval($2, $3);}

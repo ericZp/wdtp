@@ -102,23 +102,8 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...);
 int wdt_evaluate(struct debuggee* dbg, struct mval* mv, const char* expr, ...);
 int wdt_backtrace(struct debuggee* dbg);
 int wdt_backtrace_next(struct debuggee* dbg, int* frame, struct location* loc, char** args);
+int wdt_whatis(struct debuggee* dbg, const char* args);
 
 int wdt_stop(struct debuggee* dbg);
 
 struct id* fetch_id(const char* name);
-
-#if 0
-static inline int wdt_whatis(struct debuggee* dbg, const char* args)
-{
-    if (wtcl_execute(&dbg->cl, args) == -1) return -1;
-    trace("Got for cmd='%s': '%s'\n", args, dbg->cl.buf_ptr);
-    if (memcmp(dbg->cl.buf_ptr, "type = ", 7))
-    {
-        strcpy(dbg->err_msg, "Couldn't find 'type = :'");
-        return -1;
-    }
-    dbg->cl.buf_ptr += 7;
-    return 0;
-}
-        
-#endif

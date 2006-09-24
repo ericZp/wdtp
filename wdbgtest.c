@@ -572,7 +572,6 @@ int wdt_backtrace(struct debuggee* dbg)
     return 0;
 }
 
-
 int wdt_stop(struct debuggee* dbg)
 {
     int ret;
