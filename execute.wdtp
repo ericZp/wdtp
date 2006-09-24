@@ -21,9 +21,8 @@
 #
 
 DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-EXECUTABLE	"wdtp.exe.so"
 
-START "execute"
+START "wdtp.exe" "execute"
 	BREAK "b exec_f" 1
 	COMMAND "cont"
 

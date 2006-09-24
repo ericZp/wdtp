@@ -405,8 +405,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
               (int)(rm[1].rm_eo - rm[1].rm_so), &dbg->cl.buf_ptr[rm[1].rm_so],
               (int)(rm[2].rm_eo - rm[2].rm_so), &dbg->cl.buf_ptr[rm[2].rm_so],
               (int)(rm[3].rm_eo - rm[3].rm_so), &dbg->cl.buf_ptr[rm[3].rm_so]);
-        if (!dbg->num_display++)
-            dbg->display = realloc(dbg->display, dbg->num_display * sizeof(dbg->display[0]));
+        dbg->display = realloc(dbg->display, dbg->num_display * sizeof(dbg->display[0]));
         if (dbg->num_display != to_num(dbg, 1))
         {
             free_display(dbg);

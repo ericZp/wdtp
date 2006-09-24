@@ -3,6 +3,7 @@
 #include "wdtp.h"
 
 /* just to avoid to include all the Windows stuff */
+extern long __stdcall CreateEventA(void*, unsigned, unsigned, void*);
 extern int  __stdcall WaitForSingleObject(unsigned long, unsigned long);
 extern void __stdcall CloseHandle(unsigned long);
 
@@ -17,12 +18,9 @@ static int start_real(void)
  */
 int test_start(int argc, const char** argv)
 {
-    if (argc >= 1 && !memcmp(argv[0], "--event=", 8))
-    {
-        long event = atoi(argv[0] + 8);
-        WaitForSingleObject(event, 0xFFFFFFFF /* INFINITE */);
-        CloseHandle(event);
-        argc--; argv++;
-    }
+    long event = CreateEventA(NULL, FALSE, FALSE, NULL);
+    WaitForSingleObject(event, 0xFFFFFFFF /* INFINITE */);
+    CloseHandle(event);
+
     return start_real();
 }

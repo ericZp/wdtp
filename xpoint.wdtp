@@ -26,10 +26,9 @@
 # - late bp (rechecked when a DLL is loaded)
 
 DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-EXECUTABLE	"wdtp.exe.so"
 
 # simple break point test without hardware assistance
-START "xpoint"
+START "wdtp.exe" "xpoint"
 	BREAK "break test_xpoint" 1 "test_xpoint" "wdtp_xpoint.c" 31
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 31
@@ -50,7 +49,7 @@ START "xpoint"
 END
 
 # simple break point test with hardware assistance
-START "xpoint"
+START "wdtp.exe" "xpoint"
 	BREAK "break test_xpoint" 1 "test_xpoint" "wdtp_xpoint.c" 31
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 31
@@ -71,7 +70,7 @@ START "xpoint"
 END
 
 # test for testing a condition on a breakpoint
-START "xpoint"
+START "wdtp.exe" "xpoint"
 	BREAK "break xpoint_g : 17" 1 "xpoint_g" "wdtp_xpoint.c" 17
 
 	COMMAND "cond 1 ret == 20"
@@ -84,7 +83,7 @@ START "xpoint"
 END
 
 # test for testing a condition on a breakpoint with hw assisted bp
-START "xpoint"
+START "wdtp.exe" "xpoint"
 	BREAK "hbreak xpoint_g : 17" 1 "xpoint_g" "wdtp_xpoint.c" 17
 
 	COMMAND "cond 1 ret == 20"
@@ -97,7 +96,7 @@ START "xpoint"
 END
 
 # watch test
-START "xpoint"
+START "wdtp.exe" "xpoint"
 	BREAK "break test_xpoint" 1
 
 	COMMAND "cont" ss_xpoint 1

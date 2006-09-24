@@ -1,0 +1,83 @@
+#
+# WineDbg test - winedbg startup options
+#
+# Copyright (C) 2005 Eric Pouech
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# TODO
+# - should also test that winedbg starts upon exception
+# - first chance & second chance exceptions should be tested
+# - winedbg invocation with a pid
+# - winedbg invocation with a set of commands passed on the command line
+# - winedbg invocation with a file as commands
+# - winedbg invocation in automatic mode
+# - winedbg invocation in gdb mode
+
+DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
+
+START "wdtp.exe" "start"
+	BREAK "break start_real" 1 "start_real" "wdtp_start.c" 12
+END
+
+# this should be a test for starting with a pid...
+# but we need to create the process by hand :-(
+
+LAUNCH "wdtp.exe.so start" $pid$
+
+START "$pid$"
+	BREAK "break start_real" 1 "start_real" "wdtp_start.c" 12
+END
+
+# START "wdtp.exe" "start --crash"
+# END
+
+# this is a test from command line...
+# FIXME: we don't have commands for winedbg yet
+# START "--command \"break start_real\"" "wdtp.exe" "start"
+#    int                 ret;
+#    BOOL                eof;
+#    char                tmp[1024], *end;
+#    struct location     loc;
+
+#    /* FIXME: this whole test is ugly as hell... */
+#    memset(&dbg, 0, sizeof(dbg));
+#    /* cannot use wdt_start because we won't get the prompt for synchro */
+#    ret = wtcl_start(&dbg.cl, "../winedbg.exe.so --command \"break start_real\" wdtp.exe.so start");
+#    ok(ret != -1, "%s\n", dbg.err_msg);
+
+#    /* fetch whole buffer (FIXME overflow) */
+#    ret = _wtcl_recv_raw_b(&dbg.cl, tmp, sizeof(tmp), 10, &eof);
+
+#    /* some black magic incantation to get the string we're looking for */
+#    tmp[ret] = '\0';
+#    dbg.cl.buffer = tmp;
+#    dbg.cl.buf_ptr = strstr(tmp, "Breakp");
+#    ok(dbg.cl.buf_ptr != NULL, "Couldn't find Breakp [[[\n%s\n]]]\n", tmp);
+#    end = strchr(dbg.cl.buf_ptr, '\n');
+#    ok(end != NULL, "Couldn't find '\\n' [[[\n%s\n]]]\n", tmp);
+#    *end = '\0';
+    
+#    /* and doing the check by hand */
+#    if (_compare(re_set_break, dbg.cl.buf_ptr))
+#    {
+#        ok(_to_num(&dbg, 1) == 1, "wrong bp number");
+#        _grab_location(&dbg, &loc, 2, 3, 4, 5, 6);
+#    }
+#    else ok(0, "no RE found\n");
+#    ok(!strcmp("start_real", loc.name), "wrong bp name '%s'\n", loc.name);
+#    ok(wdt_ends_with(loc.srcfile, "wdtp_start.c"), "wrong src file %s\n", loc.srcfile);
+#    ok(loc.lineno == 11, "wrong lineno %d\n", loc.lineno);
+# END

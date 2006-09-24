@@ -29,7 +29,6 @@ static int parse_error(const char* s);
 int parse_lex(void);
 
 static const char*      debugger;
-static const char*      executable;
 static struct debuggee  dbg;
 static const char*      parse_file_name;
 extern FILE*            parse_in;
@@ -43,8 +42,9 @@ static int test_ok(int condition, const char *msg, ...)
     {
         fprintf(stdout, "%s:%d: Test failed", parse_file_name, parse_line);
         va_start(valist, msg);
-        fprintf( stdout,": ");
+        fprintf(stdout, ": ");
         vfprintf(stdout, msg, valist);
+        fprintf(stdout, "\n");
         va_end(valist);
     }
     return 1;
@@ -121,21 +121,31 @@ static const char* id_subst(const char* str)
     return ptr;
 }
 
-static void start_test(const char* args)
+static void start_test(const char* exec, const char* args)
 {
     int ret;
-    char* run = malloc(strlen(debugger) + 1 + strlen(executable) + 1
-                       + strlen(args) + 1);
-    sprintf(run, "%s %s %s", debugger, executable, args);
+    char* run;
+    const char* ext = ".so"; /* FIXME */
+
+    exec = id_subst(exec);
+    if (!debugger)
+    {
+        test_ok(debugger != NULL, "No debugger defined");
+        exit(0);
+    }
+    if (!wdt_ends_with(exec, ".exe")) ext = "";
+    run = malloc(strlen(debugger) + 1 + strlen(exec) + strlen(ext) + 1 +
+                 strlen(args) + 1);
+    sprintf(run, "%s %s%s %s", debugger, exec, ext, args);
     ret = wdt_start(&dbg, run);
     test_ok(ret != -1, dbg.err_msg);
 }
 
 static void check_location(const struct location* loc, const char* name, const char* src, int line)
 {
-    if (name) test_ok(!strcmp(name, loc->name), "wrong function name %s\n", loc->name);
-    if (src) test_ok(wdt_ends_with(loc->srcfile, src), "wrong src file %s\n", loc->srcfile);
-    if (line) test_ok(loc->lineno == line, "wrong lineno %d\n", loc->lineno);
+    if (name) test_ok(!strcmp(name, loc->name), "wrong function name %s", loc->name);
+    if (src) test_ok(wdt_ends_with(loc->srcfile, src), "wrong src file %s", loc->srcfile);
+    if (line) test_ok(loc->lineno == line, "wrong lineno %d", loc->lineno);
 }
 
 static void set_break(const char* cmd, int bp, const char* name, const char* src, int line)
@@ -146,8 +156,8 @@ static void set_break(const char* cmd, int bp, const char* name, const char* src
 
     ret = wdt_set_xpoint(&dbg, id_subst(cmd), &xp_num, &loc);
     test_ok(ret != -1, dbg.err_msg);
-    if (bp) test_ok(xp_num == bp, "Wrong bp number (%d)\n", xp_num);
-    if (name) test_ok(!strcmp(name, loc.name), "wrong bp name (%s)\n", loc.name);
+    if (bp) test_ok(xp_num == bp, "Wrong bp number (%d)", xp_num);
+    if (name) test_ok(!strcmp(name, loc.name), "wrong bp name (%s)", loc.name);
     check_location(&loc, NULL, src, line);
     wdt_free_location(&loc);
 }
@@ -158,8 +168,8 @@ static void command_run(const char* c, int status, int bp)
 
     ret = wdt_execute(&dbg, c);
     test_ok(ret != -1, dbg.err_msg);
-    if (status != -1) test_ok(dbg.status == status, "%s\n", dbg.err_msg);
-    if (status == ss_xpoint) test_ok(dbg.info == bp, "hit wrong bp number %d\n", dbg.info);
+    if (status != -1) test_ok(dbg.status == status, "%s", dbg.err_msg);
+    if (status == ss_xpoint) test_ok(dbg.info == bp, "hit wrong bp number %d", dbg.info);
 }
 
 static void command(const char* c, const char* result)
@@ -177,11 +187,11 @@ static void check_eval(struct mval* mv, int type, int val, const char* str)
     switch (type)
     {
     case mv_null: case mv_error: break;
-    case mv_integer: test_ok(val == mv->u.integer, "wrong int value (%d)\n", mv->u.integer); break;
-    case mv_hexa:    test_ok(val == mv->u.integer, "wrong hexa value (%d)\n", mv->u.integer); break;
-    case mv_char:    test_ok(val == mv->u.integer, "wrong char value (%d)\n", mv->u.integer); break;
-    case mv_string:  test_ok(!strcmp(str, mv->u.str), "wrong string value (%s)\n", mv->u.str); break;
-    case mv_struct:  test_ok(!strcmp(str, mv->u.str), "wrong struct value (%s)\n", mv->u.str); break;
+    case mv_integer: test_ok(val == mv->u.integer, "wrong int value (%d)", mv->u.integer); break;
+    case mv_hexa:    test_ok(val == mv->u.integer, "wrong hexa value (%d)", mv->u.integer); break;
+    case mv_char:    test_ok(val == mv->u.integer, "wrong char value (%d)", mv->u.integer); break;
+    case mv_string:  test_ok(!strcmp(str, mv->u.str), "wrong string value (%s)", mv->u.str); break;
+    case mv_struct:  test_ok(!strcmp(str, mv->u.str), "wrong struct value (%s)", mv->u.str); break;
     default: printf("Unsupported type %d\n", type);
     }
 }
@@ -203,7 +213,7 @@ static void test_eval(const char* cmd, int type, int val, const char* str)
 
 static void set_eval(const char* cmd, struct id* id)
 {
-    test_ok(id != NULL, "Unknown id\n");
+    test_ok(id != NULL, "Unknown id");
     if (!id) return;
     if (wdt_evaluate(&dbg, &id->mval, cmd) != 0)
     {
@@ -214,8 +224,8 @@ static void set_eval(const char* cmd, struct id* id)
 
 static void check_display(int num, const char* name, int type, int val, const char* str)
 {
-    test_ok(dbg.num_display > num, "display number (%u) out of bounds (%u)\n", num, dbg.num_display);
-    test_ok(!strcmp(dbg.display[num].expr, name), "wrong display (%s)\n", dbg.display[num].expr);
+    test_ok(dbg.num_display > num, "display number (%u) out of bounds (%u)", num, dbg.num_display);
+    test_ok(!strcmp(dbg.display[num].expr, name), "wrong display (%s)", dbg.display[num].expr);
     check_eval(&dbg.display[num].mval, type, val, str);
 }
 
@@ -226,14 +236,36 @@ static void check_frame(int num, const char* name, const char* file, int lineno,
     char*               args;
 
     ret = wdt_backtrace_next(&dbg, &idx, &loc, &args);
-    test_ok(ret != -1, "%s\n", dbg.err_msg);
-    test_ok(idx == num, "Wrong bt index (%d)\n", idx);
+    test_ok(ret != -1, "%s", dbg.err_msg);
+    test_ok(idx == num, "Wrong bt index (%d)", idx);
     check_location(&loc, name, file, lineno);
     if (wdt_ends_with(ref_args, "...")) ret = memcmp(ref_args, args, strlen(ref_args) - 3);
     else ret = strcmp(ref_args, args);
-    test_ok(!ret, "Wrong args in bt (%s)\n", args);
+    test_ok(!ret, "Wrong args in bt (%s)", args);
     wdt_free_location(&loc);
     free(args);
+}
+
+static void launch(const char* cmd, struct id* id)
+{
+    STARTUPINFOA        startup;
+    PROCESS_INFORMATION info;
+    BOOL                ret;
+
+    memset(&startup, 0, sizeof(startup));
+    startup.cb = sizeof(startup);
+
+    ret = CreateProcessA(NULL, (char*)cmd, NULL, NULL, TRUE, 0*DETACHED_PROCESS,
+                         NULL, NULL, &startup, &info);
+    test_ok(ret, "Couldn't create process with command line '%s'", cmd);
+    if (ret)
+    {
+        id->mval.type = mv_integer;
+        id->mval.u.integer = info.dwProcessId;
+        CloseHandle(info.hProcess);
+        CloseHandle(info.hThread);
+    }
+    else id->mval.type = mv_error;
 }
 
 %}
@@ -247,20 +279,26 @@ static void check_frame(int num, const char* name, const char* file, int lineno,
 
 %token tEOF tDEBUGGER tEXECUTABLE tSTART tEND
 %token tBACKTRACE tBREAK tCHECK_DISPLAY tCHECK_FRAME tCHECK_LOCATION tCOMMAND tEVAL
+%token tLAUNCH
 %token <string> tSTRING
 %token <integer> tNUM tEVAL_STATUS tEXEC_STATUS
 %token <id> tID
 
 %%
 
-input: header list_tests tEOF { return 1; }
+input: list_items tEOF { return 1; }
 
-header: tDEBUGGER tSTRING tEXECUTABLE tSTRING { debugger = strdup($2); executable = strdup($4); }
-
-list_tests:
-      test list_tests
+list_items:
+      item list_items
     |
 ;
+
+item:
+      start_test list_commands end_test
+    | tDEBUGGER tSTRING { free((char*)debugger); debugger = strdup($2); }
+    | tLAUNCH tSTRING tID { launch($2, $3); }
+;
+
 
 command: 
       tBACKTRACE {test_ok(wdt_backtrace(&dbg) == 0, dbg.err_msg);}
@@ -268,7 +306,7 @@ command:
     | tBREAK tSTRING tNUM {set_break($2, $3, NULL, NULL, 0);}
     | tBREAK tSTRING tNUM tSTRING {set_break($2, $3, $4, NULL, 0);}
     | tBREAK tSTRING tNUM tSTRING tSTRING tNUM {set_break($2, $3, $4, $5, $6);}
-    | tCHECK_DISPLAY tNUM {test_ok(dbg.num_display == $2, "Wrong number of displays (%d)\n", $2);}
+    | tCHECK_DISPLAY tNUM {test_ok(dbg.num_display == $2, "Wrong number of displays (%d)", $2);}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {check_display($2, $3, $4, $5, NULL);}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {check_display($2, $3, $4, 0, $5);}
     | tCHECK_FRAME tNUM tSTRING tSTRING tNUM tSTRING {check_frame($2, $3, $4, $5, $6);}
@@ -285,10 +323,11 @@ command:
 
 list_commands: command list_commands | ;
 
-start_test:     tSTART tSTRING {start_test($2);};
+start_test:     
+      tSTART tSTRING {start_test($2, "");}
+    | tSTART tSTRING tSTRING {start_test($2, $3);}
+;
 end_test:       tEND {test_ok(wdt_stop(&dbg) == 0, dbg.err_msg); free_ids();};
-
-test: start_test list_commands end_test;
 
 %%
 

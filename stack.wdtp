@@ -22,9 +22,8 @@
 #   (but how to create them in a portable manner ?)
 
 DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-EXECUTABLE	"wdtp.exe.so"
 
-START "stack"
+START "wdtp.exe" "stack"
 	BREAK "b stack_func : 9" 1
 
 	COMMAND "cont"

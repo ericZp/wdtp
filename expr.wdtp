@@ -22,9 +22,8 @@
 # - casts (integers, pointers)
 
 DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-EXECUTABLE	"wdtp.exe.so"
 
-START "expr foo bar"
+START "wdtp.exe" "expr foo bar"
 	BREAK	"b test_expr"
 	COMMAND	"cont"
 
