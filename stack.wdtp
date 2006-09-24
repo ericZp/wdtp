@@ -1,0 +1,65 @@
+#
+# WineDbg test - stack & frame scoping
+#
+# Copyright (C) 2005 Eric Pouech
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# TODO
+# - extend frame tests with register variables
+#   (but how to create them in a portable manner ?)
+
+DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
+EXECUTABLE	"wdtp.exe.so"
+
+START "stack"
+	BREAK "b stack_func : 9" 1
+
+	COMMAND "cont"
+
+	BACKTRACE
+	CHECK_FRAME 1 "stack_func" "wdtp_stack.c" 9 "i=0xa"
+	
+	CHECK_FRAME 2 "stack_func" "wdtp_stack.c" 7 "i=0x9"
+	CHECK_FRAME 3 "stack_func" "wdtp_stack.c" 7 "i=0x8"
+	CHECK_FRAME 4 "stack_func" "wdtp_stack.c" 7 "i=0x7"
+	CHECK_FRAME 5 "stack_func" "wdtp_stack.c" 7 "i=0x6"
+	CHECK_FRAME 6 "stack_func" "wdtp_stack.c" 7 "i=0x5"
+	CHECK_FRAME 7 "stack_func" "wdtp_stack.c" 7 "i=0x4"
+	CHECK_FRAME 8 "stack_func" "wdtp_stack.c" 7 "i=0x3"
+	CHECK_FRAME 9 "stack_func" "wdtp_stack.c" 7 "i=0x2"
+	CHECK_FRAME 10 "stack_func" "wdtp_stack.c" 7 "i=0x1"
+
+	CHECK_FRAME 11 "test_stack" "wdtp_stack.c" 15 "argc=0x0, argv=..."
+	CHECK_FRAME 12 "main" "wdtp.c" 11 "argc=0x2, argv=..."
+	
+	# testing local variables
+	EVAL "p i" mv_integer 10
+
+	COMMAND "up"
+	EVAL "p i" mv_integer 9
+	EVAL "set i=45" mv_null 0
+
+	COMMAND "up 3"
+	EVAL "p i" mv_integer 6
+
+	COMMAND "down 2"
+	EVAL "p i" mv_integer 8
+
+	COMMAND "down"
+	EVAL "p i" mv_integer 45
+END
+
+

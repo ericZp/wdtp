@@ -85,84 +85,19 @@ extern int do_dump;
 #define TRACE   (!do_trace) ? 0 : printf
 
 int wdt_free_location(struct location* loc);
+BOOL wdt_ends_with(const char* src, const char* end);
 
 int wdt_start(struct debuggee* dbg, char* start);
 int wdt_set_xpoint(struct debuggee* dbg, const char* cmd, 
                    int* xp_num, struct location* loc);
 int wdt_execute(struct debuggee* dbg, const char* cmd, ...);
 int wdt_evaluate(struct debuggee* dbg, struct mval* mv, const char* expr, ...);
+int wdt_backtrace(struct debuggee* dbg);
+int wdt_backtrace_next(struct debuggee* dbg, int* frame, struct location* loc, char** args);
 
 int wdt_stop(struct debuggee* dbg);
 
 #if 0
-/* helpers */
-static inline BOOL wdt_ends_with(const char* src, const char* end)
-{
-    size_t slen = strlen(src), elen = strlen(end);
-
-    return (slen >= elen) && strcmp(src + slen - elen, end) == 0;
-}
-
- static inline int wdt_backtrace_next(struct debuggee* dbg, int* frame, struct location* loc, char** args)
-{
-    int ret = 0;
-
-    if (loc) memset(loc, 0, sizeof(*loc));
-
-    if (_compare(re_backtrace_m, dbg->cl.buf_ptr))
-    {
-        /* FIXME:
-         *      ebp -> _to_num(dbg, 8);
-         */
-        trace("Found frame='%.*s' addr='%.*s' name='%.*s' srcfile='%.*s' args='%.*s'\n",
-              (int)(rm[1].rm_eo - rm[1].rm_so), &dbg->cl.buf_ptr[rm[1].rm_so],
-              (int)(rm[2].rm_eo - rm[2].rm_so), &dbg->cl.buf_ptr[rm[2].rm_so],
-              (int)(rm[3].rm_eo - rm[3].rm_so), &dbg->cl.buf_ptr[rm[3].rm_so],
-              (int)(rm[5].rm_eo - rm[5].rm_so), &dbg->cl.buf_ptr[rm[5].rm_so],
-              (int)(rm[4].rm_eo - rm[4].rm_so), &dbg->cl.buf_ptr[rm[4].rm_so]);
-        if (frame) *frame = _to_num(dbg, 1);
-        if (loc) _grab_location(dbg, loc, 2, 3, 5, 6, 7);
-        if (args) *args = _to_string(dbg, 4);
-        dbg->cl.buf_ptr += (int)(rm[0].rm_eo - rm[0].rm_so);
-    }
-    else if (_compare(re_backtrace_b, dbg->cl.buf_ptr))
-    {
-        /* FIXME:
-         *      ebp -> _to_num(dbg, 7);
-         */
-        trace("Found frame='%.*s' addr='%.*s' name='%.*s' srcfile='%.*s' args='%.*s'\n",
-              (int)(rm[1].rm_eo - rm[1].rm_so), &dbg->cl.buf_ptr[rm[1].rm_so],
-              (int)(rm[2].rm_eo - rm[2].rm_so), &dbg->cl.buf_ptr[rm[2].rm_so],
-              (int)(rm[3].rm_eo - rm[3].rm_so), &dbg->cl.buf_ptr[rm[3].rm_so],
-              (int)(rm[5].rm_eo - rm[5].rm_so), &dbg->cl.buf_ptr[rm[5].rm_so],
-              (int)(rm[4].rm_eo - rm[4].rm_so), &dbg->cl.buf_ptr[rm[4].rm_so]);
-        if (frame) *frame = _to_num(dbg, 1);
-        if (loc) _grab_location(dbg, loc, 2, 3, 5, 6, -1);
-        if (args) *args = _to_string(dbg, 4);
-        dbg->cl.buf_ptr += (int)(rm[0].rm_eo - rm[0].rm_so);
-    }
-    else
-    {
-        printf("No RE-backtrace for %s\n", dbg->cl.buf_ptr);
-        ret = -1;
-    }
-    return ret;
-}
-
-static inline int wdt_backtrace(struct debuggee* dbg, int* frame, struct location* loc, char** args)
-{
-    if (wtcl_execute(&dbg->cl, "backtrace") == -1) return -1;
-
-    trace("Got for cmd='bt': '%s'\n", dbg->cl.buf_ptr);
-    if (memcmp(dbg->cl.buf_ptr, "Backtrace:\n", 11))
-    {
-        strcpy(dbg->err_msg, "Couldn't find 'Backtrace:'");
-        return -1;
-    }
-    dbg->cl.buf_ptr += 11;
-    return wdt_backtrace_next(dbg, frame, loc, args);
-}
-
 static inline int wdt_whatis(struct debuggee* dbg, const char* args)
 {
     if (wtcl_execute(&dbg->cl, args) == -1) return -1;

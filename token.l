@@ -26,22 +26,69 @@
 #include <stdarg.h>
 
 #include "parse.tab.h"
+#include "wdbgtest.h"
+
+int parse_line;
+static char*    ptr;
+static int      size;
+
+static void add_char(char** start, char ch)
+{
+    if (ptr - *start >= size)
+    {
+        char* new = realloc(*start, size *= 2);
+        if (!new) return;
+        ptr = new + (ptr - *start);
+        *start = new;
+    }
+    *ptr++ = ch;
+}
+
 %}
 
 DIGIT	   [0-9]
 HEXDIGIT   [0-9a-fA-F]
-STRING     \"[^\n"]+\"
+
+%x astring
 
 %%
 
 <<EOF>>                         { return tEOF; }
+\"                              { ptr = parse_lval.string = malloc(size = 32); BEGIN(astring); }
+<astring>\"                     { BEGIN(INITIAL); add_char(&parse_lval.string, '\0'); return tSTRING; }
+<astring>\\.                    { add_char(&parse_lval.string, yytext[1]); }
+<astring>[^\\\n\"]              { add_char(&parse_lval.string, yytext[0]); }
+"#".*\n                         { parse_line++; } /* skip comments */
 "0x"{HEXDIGIT}+                 { sscanf(yytext, "%x", &parse_lval.integer); return tNUM; }
-{DIGIT}+             		{ sscanf(yytext, "%d", &parse_lval.integer); return tNUM; }
-{STRING} 			{ parse_lval.string = strdup(yytext + 1); parse_lval.string[strlen(parse_lval.string) - 1] = '\0'; return tSTRING; }
+"'"."'"                         { parse_lval.integer = yytext[1]; return tNUM; }
+[+-]?{DIGIT}+             	{ sscanf(yytext, "%d", &parse_lval.integer); return tNUM; }
+EXECUTABLE                      { return tEXECUTABLE; }
+DEBUGGER                        { return tDEBUGGER; }
 START                      	{ return tSTART; }
+BACKTRACE                       { return tBACKTRACE; }
+BREAK                           { return tBREAK; }
+CHECK_DISPLAY                   { return tCHECK_DISPLAY; }
+CHECK_FRAME                     { return tCHECK_FRAME; }
+CHECK_LOCATION                  { return tCHECK_LOCATION; }
+COMMAND                         { return tCOMMAND; }
+EVAL                            { return tEVAL; }
 END                      	{ return tEND; }
-<*>[ \t\r]+                     /* Eat up whitespace and DOS LF */
-
+mv_null                         { parse_lval.integer = mv_null; return tEVAL_STATUS; }
+mv_integer                      { parse_lval.integer = mv_integer; return tEVAL_STATUS; }
+mv_hexa                         { parse_lval.integer = mv_hexa; return tEVAL_STATUS; }
+mv_string                       { parse_lval.integer = mv_string; return tEVAL_STATUS; }
+mv_char                         { parse_lval.integer = mv_char; return tEVAL_STATUS; }
+mv_struct                       { parse_lval.integer = mv_struct; return tEVAL_STATUS; }
+mv_func                         { parse_lval.integer = mv_func; return tEVAL_STATUS; }
+mv_error                        { parse_lval.integer = mv_error; return tEVAL_STATUS; }
+ss_none                         { parse_lval.integer = ss_none; return tEXEC_STATUS; }
+ss_started                      { parse_lval.integer = ss_started; return tEXEC_STATUS; }
+ss_xpoint                       { parse_lval.integer = ss_xpoint; return tEXEC_STATUS; }
+ss_exception                    { parse_lval.integer = ss_exception; return tEXEC_STATUS; }
+ss_step                         { parse_lval.integer = ss_step; return tEXEC_STATUS; }
+[ \t\r]+                        /* Eat up whitespace and DOS LF */
+\n                              { parse_line++; }
+.                               {printf("unexpected char %s\n", yytext);}
 %%
 
 #ifndef parse_wrap

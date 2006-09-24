@@ -2,9 +2,9 @@ TOPSRCDIR = /home/eric/wine-git
 TOPOBJDIR = /home/eric/output-wine/wine-git
 SRCDIR    = /home/eric/wdtp
 VPATH     = /home/eric/wdtp
-MODULE    = winedbg.exe
+MODULE    = wdbgtest.exe
 APPMODE   = -mconsole
-IMPORTS   = psapi dbghelp advapi32 kernel32 ntdll
+IMPORTS   = kernel32
 DELAYIMPORTS = user32
 EXTRALIBS = 
 
@@ -57,7 +57,8 @@ INSTALLDIRS = $(DESTDIR)$(bindir) $(DESTDIR)$(dlldir) $(DESTDIR)$(mandir)/man$(p
 
 SHELL     = /bin/sh
 CC        = gcc
-CFLAGS    =  -gdwarf-2
+#CFLAGS    =  -gdwarf-2
+CFLAGS = -gstabs+ -O0
 CPPFLAGS  = 
 LIBS      = 
 BISON     = bison
@@ -161,7 +162,7 @@ LINTS  = $(C_SRCS:.c=.ln)
 	$(AS) -o $@ $<
 
 .y.tab.c:
-	$(BISON) $(BISONFLAGS) -p $*_ -o $@ $<
+	$(BISON) $(BISONFLAGS) -p $*_ -o $@ -t $<
 
 .y.tab.h:
 	$(BISON) $(BISONFLAGS) -p $*_ -o $*.tab.c -d $<
@@ -226,19 +227,6 @@ $(RC_BINARIES): $(BIN2RES) $(RC_BINSRC)
 	$(BIN2RES) -f -o $@ $(SRCDIR)/$(RC_BINSRC)
 
 $(RC_SRCS:.rc=.res) $(RC_SRCS16:.rc=.res): $(WRC) $(RC_BINARIES) $(IDL_TLB_SRCS:.idl=.tlb)
-
-# Rule for linting
-
-$(MODULE).ln : $(LINTS)
-	if test "$(LINTS)" ; \
-	then \
-		$(LINT) $(ALLLINTFLAGS) -o$(MODULE) $(LINTS) ; \
-	        $(MV) llib-l$(MODULE).ln $(MODULE).ln ; \
-	else \
-		$(LINT) $(ALLLINTFLAGS) -C$(MODULE) /dev/null ; \
-	fi
-
-lint:: $(MODULE).ln
 
 # Rules for Windows API checking
 
@@ -355,57 +343,25 @@ dummy:
 
 # End of global rules
 
-all: $(MODULE)$(DLLEXT) $(BASEMODULE)$(EXEEXT)
+all: $(MODULE)$(DLLEXT)
 
 # Rules for .so main module
 
 $(MODULE).so: $(OBJS) $(RC_SRCS:.rc=.res)
 	$(WINEGCC) -B$(TOOLSDIR)/tools/winebuild $(APPMODE) $(OBJS) $(RC_SRCS:.rc=.res) -o $@ $(ALL_LIBS) $(DELAYIMPORTS:%=-Wb,-d%)
 
-$(BASEMODULE): $(WINEWRAPPER)
-	$(RM) $@ && $(LN_S) $(WINEWRAPPER) $@
+WDTP_SRCS= \
+        wdtp.c \
+        wdtp_display.c \
+        wdtp_execute.c \
+        wdtp_expr.c \
+        wdtp_stack.c \
+        wdtp_start.c \
+        wdtp_type.c \
+        wdtp_xpoint.c
 
-# Rules for .exe main module
-
-$(MODULE): $(OBJS) $(RCOBJS)
-	$(CC) $(APPMODE) $(OBJS) $(RCOBJS) -o $@ $(LIBWINE) $(ALL_LIBS)
-
-# Rules for testing
-
-check test:: $(SUBDIRS:%=%/__test__)
-
-$(TESTRESULTS): $(MODULE)$(DLLEXT)
-
-# Rules for installation
-
-.PHONY: install_prog install_prog.so uninstall_prog uninstall_prog.so
-
-install_prog.so: $(MODULE).so $(DESTDIR)$(dlldir) dummy
-	$(INSTALL_PROGRAM) $(MODULE).so $(DESTDIR)$(dlldir)/$(MODULE).so
-
-install_prog: $(MODULE) $(DESTDIR)$(bindir) dummy
-	$(INSTALL_PROGRAM) $(MODULE) $(DESTDIR)$(bindir)/$(MODULE)
-
-uninstall_prog.so: dummy
-	$(RM) $(DESTDIR)$(dlldir)/$(MODULE).so
-
-uninstall_prog: dummy
-	$(RM) $(DESTDIR)$(bindir)/$(MODULE)
-
-install:: install_prog$(DLLEXT)
-
-uninstall:: uninstall_prog$(DLLEXT)
-
-clean::
-	$(RM) $(BASEMODULE) $(MODULE)
-
-all: $(MANPAGES)
-
-install:: $(MANPAGES) $(DESTDIR)$(mandir)/man$(prog_manext)
-	$(INSTALL_DATA) winedbg.man $(DESTDIR)$(mandir)/man$(prog_manext)/winedbg.$(prog_manext)
-
-uninstall::
-	$(RM) $(DESTDIR)$(mandir)/man$(prog_manext)/winedbg.$(prog_manext)
+wdtp.exe$(DLLEXT): $(WDTP_SRCS:.c=.o)
+	$(WINEGCC) -B$(TOOLSDIR)/tools/winebuild -mconsole -o $@ $(WDTP_SRCS:.c=.o) -L../../../libs -L../../../dlls -lkernel32
 
 parse.tab.c: parse.tab.h   # for parallel makes
 

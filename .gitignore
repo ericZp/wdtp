@@ -2,3 +2,4 @@
 *.tab.[ch]
 *.yy.c
 *~
+*.exe.so
