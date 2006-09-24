@@ -60,8 +60,9 @@ static void start_test(const char* args)
     test_ok(ret != -1, dbg.err_msg);
 }
 
-static void check_location(const struct location* loc, const char* src, int line)
+static void check_location(const struct location* loc, const char* name, const char* src, int line)
 {
+    if (name) test_ok(!strcmp(name, loc->name), "wrong function name %s\n", loc->name);
     if (src) test_ok(wdt_ends_with(loc->srcfile, src), "wrong src file %s\n", loc->srcfile);
     if (line) test_ok(loc->lineno == line, "wrong lineno %d\n", loc->lineno);
 }
@@ -76,7 +77,7 @@ static void set_break(const char* b, int bp, const char* name, const char* src, 
     test_ok(ret != -1, dbg.err_msg);
     if (bp) test_ok(xp_num == bp, "Wrong bp number (%d)\n", xp_num);
     if (name) test_ok(!strcmp(name, loc.name), "wrong bp name (%s)\n", loc.name);
-    check_location(&loc, src, line);
+    check_location(&loc, NULL, src, line);
     wdt_free_location(&loc);
 }
 
@@ -135,8 +136,7 @@ static void check_frame(int num, const char* name, const char* file, int lineno,
     ret = wdt_backtrace_next(&dbg, &idx, &loc, &args);
     test_ok(ret != -1, "%s\n", dbg.err_msg);
     test_ok(idx == num, "Wrong bt index (%d)\n", idx);
-    if (name) test_ok(!strcmp(loc.name, name), "Wrong bt frame %s\n", loc.name);
-    check_location(&loc, file, lineno);
+    check_location(&loc, name, file, lineno);
     if (wdt_ends_with(ref_args, "...")) ret = memcmp(ref_args, args, strlen(ref_args) - 3);
     else ret = strcmp(ref_args, args);
     test_ok(!ret, "Wrong args in bt (%s)\n", args);
@@ -177,7 +177,8 @@ command:
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {check_display($2, $3, $4, $5, NULL);}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {check_display($2, $3, $4, 0, $5);}
     | tCHECK_FRAME tNUM tSTRING tSTRING tNUM tSTRING {check_frame($2, $3, $4, $5, $6);}
-    | tCHECK_LOCATION tSTRING tNUM {check_location(&dbg.loc, $2, $3);}
+    | tCHECK_LOCATION tSTRING tNUM {check_location(&dbg.loc, NULL, $2, $3);}
+    | tCHECK_LOCATION tSTRING tSTRING tNUM {check_location(&dbg.loc, $2, $3, $4);}
     | tCOMMAND tSTRING {command($2, -1, -1);}
     | tCOMMAND tSTRING tEXEC_STATUS {command($2, $3, -1);}
     | tCOMMAND tSTRING tEXEC_STATUS tNUM {command($2, $3, $4);}
@@ -203,6 +204,7 @@ static void parse_file(const char* name)
         return;
     }
     parse_file_name = name;
+    parse_line = 1;
     parse_parse();
     fclose(parse_in);
     parse_in = NULL;

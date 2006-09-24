@@ -1,0 +1,91 @@
+#
+# WineDbg test - execution (step, cont, finish...)
+#
+# Copyright (C) 2005 Eric Pouech
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# TODO
+#
+
+DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
+EXECUTABLE	"wdtp.exe.so"
+
+START "execute"
+	BREAK "b exec_f" 1
+	COMMAND "cont"
+
+	# COMMAND "next"
+	# COMMAND "next"
+
+	# testing next commands
+	# COMMAND "next" ss_step
+	# CHECK_LOCATION "exec_f" "wdtp_execute.c" 15
+	EVAL "p a" mv_integer 12
+
+	COMMAND "next" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 16
+	EVAL "p a" mv_integer 14
+
+	COMMAND "next" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 17
+	EVAL "p a" mv_integer 42
+
+	COMMAND "next" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 19
+	EVAL "p a" mv_integer 168
+
+	COMMAND "next" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 21
+	EVAL "p a" mv_integer 41
+
+	COMMAND "cont"
+
+    	# testing single stepping
+	# COMMAND "step" ss_step
+	# CHECK_LOCATION "exec_f" "wdtp_execute.c" 15
+	EVAL "p a" mv_integer 12
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 16
+	EVAL "p a" mv_integer 14
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 17
+	EVAL "p a" mv_integer 42
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 19
+	EVAL "p a" mv_integer 168
+
+	# FIXME: this block is fucking brain dead with MSVC and the stupidity
+	# of the stackwalk implementation when the frame isn't set up yet...
+	# EIP points to the correct function
+	# while the first EIP returned by StackWalk (hence the current frame)
+	# isn't the correct one (yet)
+	# COMMAND "step" ss_step
+	# CHECK_LOCATION "exec_f" "wdtp_execute.c" 7
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "exec_g" "wdtp_execute.c" 8
+	EVAL "p a" mv_integer 168
+
+	COMMAND "step" ss_step
+	CHECK_LOCATION "exec_f" "wdtp_execute.c" 21
+
+	COMMAND "step" ss_step
+	EVAL "p a" mv_integer 41
+END
+
