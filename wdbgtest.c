@@ -126,7 +126,7 @@ static int to_num(struct debuggee* dbg, int idx)
 static char* to_string(struct debuggee* dbg, int idx)
 {
     size_t len = rm[idx].rm_eo - rm[idx].rm_so;
-    char* ret = HeapAlloc(GetProcessHeap(), 0, len + 1);
+    char* ret = malloc(len + 1);
 
     if (!ret) return NULL;
     memcpy(ret, &dbg->cl.buf_ptr[rm[idx].rm_so], len);
@@ -136,7 +136,9 @@ static char* to_string(struct debuggee* dbg, int idx)
 
 static char* empty_str(void)
 {
-    return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1);
+    char* ptr = malloc(1);
+    *ptr = '\0';
+    return ptr;
 }
 
 static void grab_location(struct debuggee* dbg, struct location* loc,
@@ -158,7 +160,7 @@ static void grab_location(struct debuggee* dbg, struct location* loc,
                 break;
             }
         }
-        if ((loc->name = HeapAlloc(GetProcessHeap(), 0, len + 1)))
+        if ((loc->name = malloc(len + 1)))
         {
             memcpy(loc->name, &dbg->cl.buf_ptr[rm[name_idx].rm_so], len);
             loc->name[len] = '\0';
@@ -187,10 +189,10 @@ static void free_display(struct debuggee* dbg)
     int i;
     for (i = 0; i < dbg->num_display; i++)
     {
-        HeapFree(GetProcessHeap(), 0, dbg->display[i].expr);
+        free(dbg->display[i].expr);
         free_mval(&dbg->display[i].mval);
     }
-    HeapFree(GetProcessHeap(), 0, dbg->display);
+    free(dbg->display);
     dbg->num_display = 0;
     dbg->display = NULL;
 }
@@ -204,9 +206,9 @@ BOOL wdt_ends_with(const char* src, const char* end)
 
 int wdt_free_location(struct location* loc)
 {
-    HeapFree(GetProcessHeap(), 0, loc->name);
-    HeapFree(GetProcessHeap(), 0, loc->srcfile);
-    HeapFree(GetProcessHeap(), 0, loc->module);
+    free(loc->name);
+    free(loc->srcfile);
+    free(loc->module);
     memset(loc, 0x5A, sizeof(*loc));
     return 0;
 }
@@ -404,9 +406,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
               (int)(rm[2].rm_eo - rm[2].rm_so), &dbg->cl.buf_ptr[rm[2].rm_so],
               (int)(rm[3].rm_eo - rm[3].rm_so), &dbg->cl.buf_ptr[rm[3].rm_so]);
         if (!dbg->num_display++)
-            dbg->display = HeapAlloc(GetProcessHeap(), 0, sizeof(dbg->display[0]));
-        else
-            dbg->display = HeapReAlloc(GetProcessHeap(), 0, dbg->display, dbg->num_display * sizeof(dbg->display[0]));
+            dbg->display = realloc(dbg->display, dbg->num_display * sizeof(dbg->display[0]));
         if (dbg->num_display != to_num(dbg, 1))
         {
             free_display(dbg);

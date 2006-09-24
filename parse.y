@@ -50,6 +50,77 @@ static int test_ok(int condition, const char *msg, ...)
     return 1;
 }
 
+static struct id* first_id;
+
+struct id* fetch_id(const char* name)
+{
+    struct id*  id;
+
+    for (id = first_id; id; id = id->next)
+        if (!strcmp(id->name, name)) return id;
+    id = malloc(sizeof(*id));
+    id->name = strdup(name);
+    id->mval.type = mv_error;
+    id->next = first_id;
+    first_id = id;
+    return id;
+}
+
+static void free_ids(void)
+{
+    struct id*  id, *next;
+
+    for (id = first_id; id; id = next)
+    {
+        next = id->next;
+        free((char*)id->name);
+        free(id);
+    }
+    first_id = NULL;
+}
+
+static const char* id_subst(const char* str)
+{
+    const char* ptr = str;
+    const char* start;
+    const char* end;
+    unsigned    id_len;
+
+    while ((start = strchr(ptr, '$')))
+    {
+        end = strchr(start + 1, '$');
+        if (end)
+        {
+            struct id*  id;
+            char*       tmp;
+
+            id_len = end - start + 1;
+            for (id = first_id; id; id = id->next)
+            {
+                if (memcmp(id->name, start, id_len) || id->name[id_len] != '\0')
+                    continue;
+
+                tmp = malloc(strlen(str) + 1 + 64 /* FIXME */ - id_len);
+                memcpy(tmp, ptr, start - ptr);
+                switch (id->mval.type)
+                {
+                case mv_char: case mv_integer: sprintf(tmp + (start - ptr), "%d", id->mval.u.integer); break;
+                case mv_hexa: case mv_func: sprintf(tmp + (start - ptr), "0x%x", id->mval.u.integer); break;
+                case mv_string: case mv_struct: strcpy(tmp + (start - ptr), id->mval.u.str); break;
+                    /* mv_error */
+                default: assert(0);
+                }
+                strcat(tmp, end + 1);
+                if (ptr != str) free((char*)ptr);
+                ptr = tmp;
+                break;
+            }
+            assert(id);
+        }
+    }
+    return ptr;
+}
+
 static void start_test(const char* args)
 {
     int ret;
@@ -67,13 +138,13 @@ static void check_location(const struct location* loc, const char* name, const c
     if (line) test_ok(loc->lineno == line, "wrong lineno %d\n", loc->lineno);
 }
 
-static void set_break(const char* b, int bp, const char* name, const char* src, int line)
+static void set_break(const char* cmd, int bp, const char* name, const char* src, int line)
 {
     int                 xp_num;
     int                 ret;
     struct location     loc;
 
-    ret = wdt_set_xpoint(&dbg, b, &xp_num, &loc);
+    ret = wdt_set_xpoint(&dbg, id_subst(cmd), &xp_num, &loc);
     test_ok(ret != -1, dbg.err_msg);
     if (bp) test_ok(xp_num == bp, "Wrong bp number (%d)\n", xp_num);
     if (name) test_ok(!strcmp(name, loc.name), "wrong bp name (%s)\n", loc.name);
@@ -120,6 +191,17 @@ static void test_eval(const char* cmd, int type, int val, const char* str)
         printf("Couldn't evaluate expression (%s)\n", dbg.err_msg);
 }
 
+static void set_eval(const char* cmd, struct id* id)
+{
+    test_ok(id != NULL, "Unknown id\n");
+    if (!id) return;
+    if (wdt_evaluate(&dbg, &id->mval, cmd) != 0)
+    {
+        printf("Couldn't evaluate expression (%s)\n", dbg.err_msg);
+        id->mval.type = mv_error;
+    }
+}
+
 static void check_display(int num, const char* name, int type, int val, const char* str)
 {
     test_ok(dbg.num_display > num, "display number (%u) out of bounds (%u)\n", num, dbg.num_display);
@@ -141,7 +223,7 @@ static void check_frame(int num, const char* name, const char* file, int lineno,
     else ret = strcmp(ref_args, args);
     test_ok(!ret, "Wrong args in bt (%s)\n", args);
     wdt_free_location(&loc);
-    HeapFree(GetProcessHeap(), 0, args);
+    free(args);
 }
 
 %}
@@ -150,12 +232,14 @@ static void check_frame(int num, const char* name, const char* file, int lineno,
 {
     char*               string;
     int                 integer;
+    struct id*          id;
 }
 
 %token tEOF tDEBUGGER tEXECUTABLE tSTART tEND
 %token tBACKTRACE tBREAK tCHECK_DISPLAY tCHECK_FRAME tCHECK_LOCATION tCOMMAND tEVAL
 %token <string> tSTRING
 %token <integer> tNUM tEVAL_STATUS tEXEC_STATUS
+%token <id> tID
 
 %%
 
@@ -172,6 +256,7 @@ command:
       tBACKTRACE {test_ok(wdt_backtrace(&dbg) == 0, dbg.err_msg);}
     | tBREAK tSTRING {set_break($2, 0, NULL, NULL, 0);}
     | tBREAK tSTRING tNUM {set_break($2, $3, NULL, NULL, 0);}
+    | tBREAK tSTRING tNUM tSTRING {set_break($2, $3, $4, NULL, 0);}
     | tBREAK tSTRING tNUM tSTRING tSTRING tNUM {set_break($2, $3, $4, $5, $6);}
     | tCHECK_DISPLAY tNUM {test_ok(dbg.num_display == $2, "Wrong number of displays (%d)\n", $2);}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {check_display($2, $3, $4, $5, NULL);}
@@ -184,12 +269,13 @@ command:
     | tCOMMAND tSTRING tEXEC_STATUS tNUM {command($2, $3, $4);}
     | tEVAL tSTRING tEVAL_STATUS tNUM {test_eval($2, $3, $4, NULL);}
     | tEVAL tSTRING tEVAL_STATUS tSTRING {test_eval($2, $3, 0, $4);}
+    | tEVAL tSTRING tID {set_eval($2, $3);}
 ;
 
 list_commands: command list_commands | ;
 
 start_test:     tSTART tSTRING {start_test($2);};
-end_test:       tEND {test_ok(wdt_stop(&dbg) == 0, dbg.err_msg);;};
+end_test:       tEND {test_ok(wdt_stop(&dbg) == 0, dbg.err_msg); free_ids();};
 
 test: start_test list_commands end_test;
 

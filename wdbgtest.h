@@ -74,6 +74,14 @@ struct debuggee
     int                         num_display;
 };
 
+/* internal variable */
+struct id
+{
+    const char*                 name;           /* its name */
+    struct mval                 mval;           /* its value */
+    struct id*                  next;           /* linked list */
+};
+
 /* Each entry in this enum matches a RE in previous array. Be sure to keep them in sync */
 enum re_val {re_started, re_stopped_bp_m, re_stopped_bp_b, re_stopped_wp_m, re_stopped_wp_b, re_terminated, re_srcline, re_asmline, re_funcchange, re_display,
              re_integer, re_hexa, re_string, re_char, re_struct, re_func,
@@ -96,6 +104,8 @@ int wdt_backtrace(struct debuggee* dbg);
 int wdt_backtrace_next(struct debuggee* dbg, int* frame, struct location* loc, char** args);
 
 int wdt_stop(struct debuggee* dbg);
+
+struct id* fetch_id(const char* name);
 
 #if 0
 static inline int wdt_whatis(struct debuggee* dbg, const char* args)

@@ -62,6 +62,7 @@ HEXDIGIT   [0-9a-fA-F]
 "0x"{HEXDIGIT}+                 { sscanf(yytext, "%x", &parse_lval.integer); return tNUM; }
 "'"."'"                         { parse_lval.integer = yytext[1]; return tNUM; }
 [+-]?{DIGIT}+             	{ sscanf(yytext, "%d", &parse_lval.integer); return tNUM; }
+"$"[A-Za-z_]+"$"                { parse_lval.id = fetch_id(yytext); return tID; }
 EXECUTABLE                      { return tEXECUTABLE; }
 DEBUGGER                        { return tDEBUGGER; }
 START                      	{ return tSTART; }

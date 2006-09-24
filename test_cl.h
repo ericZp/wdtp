@@ -51,12 +51,12 @@ struct cl_child_info
 
 static inline void wtcl_set_prompt(struct cl_child_info* cci, const char* p)
 {
-    if (cci->prompt) HeapFree(GetProcessHeap(), 0, (void*)cci->prompt);
-    if (cci->buffer) HeapFree(GetProcessHeap(), 0, cci->buffer);
+    if (cci->prompt) free((void*)cci->prompt);
+    if (cci->buffer) free(cci->buffer);
     if (p)
     {
-        cci->prompt = strcpy(HeapAlloc(GetProcessHeap(), 0, strlen(p) + 1), p);
-        cci->buffer = HeapAlloc(GetProcessHeap(), 0, cci->buf_size = 1024);
+        cci->prompt = strcpy(malloc(strlen(p) + 1), p);
+        cci->buffer = malloc(cci->buf_size = 1024);
         assert(cci->buffer);
     }
     else
@@ -170,7 +170,7 @@ static inline int _wtcl_ensure_bufsize(struct cl_child_info* cci, unsigned sz)
 {
     while (cci->buf_size < sz)
     {
-        void* p = HeapReAlloc(GetProcessHeap(), 0, cci->buffer, cci->buf_size += 1024);
+        void* p = realloc(cci->buffer, cci->buf_size += 1024);
         if (!p) return -1;
         cci->buf_ptr = (char*)p + (cci->buf_ptr - cci->buffer);
         cci->buffer = p;
