@@ -346,15 +346,13 @@ wdtp_dwarfO0.exe$(DLLEXT): $(WDTP_SRCS)
 	mv wdtp.exe.so $@
 
 WDTPS= \
-	start.wdtp
-
-#	display.wdtp \
-#	execute.wdtp \
-#	expr.wdtp \
-#	stack.wdtp \
-#	start.wdtp \
-#	type.wdtp \
-#	xpoint.wdtp
+	display.wdtp \
+	execute.wdtp \
+	expr.wdtp \
+	stack.wdtp \
+	start.wdtp \
+	type.wdtp \
+	xpoint.wdtp
 
 test: wdtp
 	ln -sf wdtp_stabspO0.exe.so wdtp.exe.so

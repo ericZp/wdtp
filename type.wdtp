@@ -29,5 +29,6 @@ START "wdtp.exe" "type"
 	COMMAND "whatis foo" "type = int*"
 	COMMAND "whatis fn" "type = struct ms* (*--none--)(int, char*)"
 	# FIXME: the last * is suspicious
-	COMMAND "whatis pfn" "type = struct ms* (*--none--)()*"
+	[stabs]	COMMAND "whatis pfn" "type = struct ms* (*--none--)()*"
+	[dwarf]	COMMAND "whatis pfn" "type = struct ms* (*--none--)(int, char*)*"
 END
