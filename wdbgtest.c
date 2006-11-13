@@ -71,7 +71,9 @@ static BOOL compare(enum re_val v, const char* str)
     return regexec(&re[v].re, str, re[v].num + 1, rm, 0) == 0;
 }
 
-static void dump_data( const unsigned char *ptr, const char *prefix )
+#define C(c) (isprint(c) ? c : '.')
+
+static void dump_data( const char *ptr, const char *prefix )
 {
     unsigned int i, j;
     size_t size;
@@ -87,12 +89,12 @@ static void dump_data( const unsigned char *ptr, const char *prefix )
     size = strlen(ptr);
     for (i = 0; i < size; i++)
     {
-        printf( "%02x%c", ptr[i], (i % 16 == 7) ? '-' : ' ' );
+        printf( "%02x%c", (unsigned char)ptr[i], (i % 16 == 7) ? '-' : ' ' );
         if ((i % 16) == 15)
         {
             printf( " " );
             for (j = 0; j < 16; j++)
-                printf( "%c", isprint(ptr[i-15+j]) ? ptr[i-15+j] : '.' );
+                printf( "%c", C((unsigned char)ptr[i-15+j]));
             if (i < size-1) printf( "\n%s%08x: ", prefix, i + 1 );
         }
     }
@@ -100,7 +102,7 @@ static void dump_data( const unsigned char *ptr, const char *prefix )
     {
         printf( "%*s ", 3 * (16-(i%16)), "" );
         for (j = 0; j < i % 16; j++)
-            printf( "%c", isprint(ptr[i-(i%16)+j]) ? ptr[i-(i%16)+j] : '.' );
+            printf( "%c", C((unsigned char)ptr[i-(i%16)+j]));
     }
     printf( "\n" );
 }
@@ -297,7 +299,7 @@ int wdt_start(struct debuggee* dbg, char* start)
         dbg->status = ss_started;
         if (to_num(dbg, 1) != dbg->cl.info.dwProcessId)
         {
-            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Debugging wrong process (%x/%lx)\n",
+            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Debugging wrong process (%x/%x)\n",
                      to_num(dbg, 1), dbg->cl.info.dwProcessId);
             return -1;
         }
@@ -481,7 +483,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
               (int)(rm[1].rm_eo - rm[1].rm_so), &dbg->cl.buf_ptr[rm[1].rm_so]);
         if (to_num(dbg, 1) != dbg->cl.info.dwProcessId)
         {
-            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Wrong pid termination (%x/%lx)\n",
+            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Wrong pid termination (%x/%x)\n",
                      to_num(dbg, 1), dbg->cl.info.dwProcessId);
             ret = -1;
         }
