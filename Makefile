@@ -334,7 +334,7 @@ WDTP_SRCS= \
         wdtp_type.c \
         wdtp_xpoint.c
 
-wdtp: wdtp_stabspO0.exe$(DLLEXT) wdtp_dwarfO0.exe$(DLLEXT)
+wdtp: wdtp_stabspO0.exe$(DLLEXT) wdtp_dwarfO0.exe$(DLLEXT) wdtp_dwarfO2.exe$(DLLEXT)
 	@echo Done compiling the various test programs
 
 wdtp_stabspO0.exe$(DLLEXT): $(WDTP_SRCS)
@@ -343,6 +343,10 @@ wdtp_stabspO0.exe$(DLLEXT): $(WDTP_SRCS)
 
 wdtp_dwarfO0.exe$(DLLEXT): $(WDTP_SRCS)
 	$(WINEGCC) $(ALLCFLAGS) -gdwarf-2 -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -L../../../libs -L../../../dlls -lkernel32
+	mv wdtp.exe.so $@
+
+wdtp_dwarfO2.exe$(DLLEXT): $(WDTP_SRCS)
+	$(WINEGCC) $(ALLCFLAGS) -gdwarf-2 -O2 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -L../../../libs -L../../../dlls -lkernel32
 	mv wdtp.exe.so $@
 
 WDTPS= \
@@ -358,6 +362,8 @@ test: wdtp
 	ln -sf wdtp_stabspO0.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition stabs $$i; done
 	ln -sf wdtp_dwarfO0.exe.so wdtp.exe.so
+	for i in $(WDTPS); do ./wdbgtest --condition dwarf $$i; done
+	ln -sf wdtp_dwarfO2.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition dwarf $$i; done
 
 .PHONY: wdtp
