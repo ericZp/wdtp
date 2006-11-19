@@ -76,6 +76,9 @@ START "wdtp.exe" "expr foo bar"
 	EVAL	"p t.bf4" mv_integer -4
 	EVAL	"p -t.bf4 * 12" mv_integer 48
 	EVAL	"p /x t.u.u" mv_hexa 0xaaaaaaaa
+#	EVAL	"p sll" mv_integer -123456789000
+#	EVAL	"p ull" mv_integer 123456789000
+	EVAL	"p titi" mv_struct "pA=0x87654321, pB=0x43218765, pC=\"foo\""
 
 	# test setting values inside structure
 	EVAL	"set t.toto_a=45" mv_null 0
