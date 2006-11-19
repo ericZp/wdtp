@@ -60,5 +60,3 @@ START "wdtp.exe" "stack"
 	COMMAND "down"
 	EVAL "p i" mv_integer 45
 END
-
-
