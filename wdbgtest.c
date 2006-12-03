@@ -488,7 +488,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
             ret = -1;
         }
     }
-    else printf("No RE-exec on '%s' for cmd=%s\n", dbg->cl.buf_ptr, cmd);
+    else TRACE("No RE-exec on '%s' for cmd=%s\n", dbg->cl.buf_ptr, cmd);
     return ret;
 }
 
