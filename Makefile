@@ -358,13 +358,19 @@ WDTPS= \
 	type.wdtp \
 	xpoint.wdtp
 
-test: wdtp
+test_stabspO0:
 	ln -sf wdtp_stabspO0.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition stabs $$i; done
+
+test_dwarfO0:
 	ln -sf wdtp_dwarfO0.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition dwarf $$i; done
+
+test_dwarfO2:
 	ln -sf wdtp_dwarfO2.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition dwarf $$i; done
+
+test: wdtp test_stabspO0 test_dwarfO0 test_dwarfO2
 
 .PHONY: wdtp
 
