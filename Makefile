@@ -353,6 +353,7 @@ WDTPS= \
 	display.wdtp \
 	execute.wdtp \
 	expr.wdtp \
+	minidump.wdtp \
 	stack.wdtp \
 	start.wdtp \
 	type.wdtp \
