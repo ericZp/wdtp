@@ -75,6 +75,7 @@ CHECK_LOCATION                  { return tCHECK_LOCATION; }
 COMMAND                         { return tCOMMAND; }
 EVAL                            { return tEVAL; }
 END                      	{ return tEND; }
+SYSTEM                          { return tSYSTEM; }
 mv_null                         { parse_lval.integer = mv_null; return tEVAL_STATUS; }
 mv_integer                      { parse_lval.integer = mv_integer; return tEVAL_STATUS; }
 mv_hexa                         { parse_lval.integer = mv_hexa; return tEVAL_STATUS; }

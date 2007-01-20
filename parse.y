@@ -292,7 +292,7 @@ static unsigned doit(void)
 
 %token tEOF tDEBUGGER tEXECUTABLE tSTART tEND
 %token tBACKTRACE tBREAK tCHECK_DISPLAY tCHECK_FRAME tCHECK_LOCATION tCOMMAND tEVAL
-%token tLAUNCH
+%token tLAUNCH tSYSTEM
 %token <string> tSTRING tCONDITION
 %token <integer> tNUM tEVAL_STATUS tEXEC_STATUS
 %token <id> tID
@@ -332,6 +332,8 @@ command:
     | tEVAL tSTRING tEVAL_STATUS tNUM {if (doit()) test_eval($2, $3, $4, NULL);}
     | tEVAL tSTRING tEVAL_STATUS tSTRING {if (doit()) test_eval($2, $3, 0, $4);}
     | tEVAL tSTRING tID {if (doit()) set_eval($2, $3);}
+    | tSYSTEM tSTRING {if (doit()) system($2);}
+    | tSYSTEM tSTRING tNUM {int r; if (doit()) r = system($2); test_ok(r == $3, "Wrong system() result (%d)\n", r);}
 ;
 
 cond_command: 
