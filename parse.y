@@ -35,6 +35,13 @@ extern FILE*            parse_in;
 extern int              parse_line;
 static const char*      condition;
 
+static int str_compare(const char* ref, const char* cmp)
+{
+    if (wdt_ends_with(ref, "..."))
+        return memcmp(ref, cmp, strlen(ref) - 3);
+    return strcmp(ref, cmp);
+}
+
 static int test_ok(int condition, const char *msg, ...)
 {
     va_list valist;
@@ -191,9 +198,9 @@ static void check_eval(struct mval* mv, int type, int val, const char* str)
     case mv_integer: test_ok(val == mv->u.integer, "wrong int value (%d)", mv->u.integer); break;
     case mv_hexa:    test_ok(val == mv->u.integer, "wrong hexa value (%d)", mv->u.integer); break;
     case mv_char:    test_ok(val == mv->u.integer, "wrong char value (%d)", mv->u.integer); break;
-    case mv_string:  test_ok(!strcmp(str, mv->u.str), "wrong string value (%s)", mv->u.str); break;
-    case mv_struct:  test_ok(!strcmp(str, mv->u.str), "wrong struct value (%s)", mv->u.str); break;
-    default: printf("Unsupported type %d\n", type);
+    case mv_string:  test_ok(!str_compare(str, mv->u.str), "wrong string value (%s)", mv->u.str); break;
+    case mv_struct:  test_ok(!str_compare(str, mv->u.str), "wrong struct value (%s)", mv->u.str); break;
+    default: test_ok(0, "Unsupported type %d", type);
     }
 }
 
@@ -204,12 +211,12 @@ static void test_eval(const char* cmd, int type, int val, const char* str)
     if (wdt_evaluate(&dbg, &mv, cmd) == 0)
     {
         if (mv.type != type)
-            printf("Wrong returned type (%d)\n", mv.type);
+            test_ok(mv.type == type, "Wrong returned type (%d)", mv.type);
         else
             check_eval(&mv, type, val, str);
     }
     else
-        printf("Couldn't evaluate expression (%s)\n", dbg.err_msg);
+        test_ok(type == mv_error, "Couldn't evaluate expression (%s)", dbg.err_msg);
 }
 
 static void set_eval(const char* cmd, struct id* id)
@@ -218,7 +225,7 @@ static void set_eval(const char* cmd, struct id* id)
     if (!id) return;
     if (wdt_evaluate(&dbg, &id->mval, cmd) != 0)
     {
-        printf("Couldn't evaluate expression (%s)\n", dbg.err_msg);
+        test_ok(0, "Couldn't evaluate expression (%s)", dbg.err_msg);
         id->mval.type = mv_error;
     }
 }
@@ -240,9 +247,7 @@ static void check_frame(int num, const char* name, const char* file, int lineno,
     test_ok(ret != -1, "%s", dbg.err_msg);
     test_ok(idx == num, "Wrong bt index (%d)", idx);
     check_location(&loc, name, file, lineno);
-    if (wdt_ends_with(ref_args, "...")) ret = memcmp(ref_args, args, strlen(ref_args) - 3);
-    else ret = strcmp(ref_args, args);
-    test_ok(!ret, "Wrong args in bt (%s)", args);
+    test_ok(!str_compare(ref_args, args), "Wrong args in bt (%s)", args);
     wdt_free_location(&loc);
     free(args);
 }
@@ -329,6 +334,7 @@ command:
     | tCOMMAND tSTRING tSTRING {if (doit()) command($2, $3);}
     | tCOMMAND tSTRING tEXEC_STATUS {if (doit()) command_run($2, $3, -1);}
     | tCOMMAND tSTRING tEXEC_STATUS tNUM {if (doit()) command_run($2, $3, $4);}
+    | tEVAL tSTRING tEVAL_STATUS {if (doit()) test_eval($2, $3, 0, NULL);}
     | tEVAL tSTRING tEVAL_STATUS tNUM {if (doit()) test_eval($2, $3, $4, NULL);}
     | tEVAL tSTRING tEVAL_STATUS tSTRING {if (doit()) test_eval($2, $3, 0, $4);}
     | tEVAL tSTRING tID {if (doit()) set_eval($2, $3);}
