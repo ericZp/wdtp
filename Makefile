@@ -230,7 +230,7 @@ winapi_check:: dummy
 
 # Rules for dependencies
 
-DEPEND_SRCS = $(C_SRCS) $(C_SRCS16) $(RC_SRCS) $(RC_SRCS16) $(MC_SRCS) $(IDL_SRCS) $(BISON_SRCS) $(LEX_SRCS) $(EXTRA_SRCS)
+DEPEND_SRCS = $(C_SRCS) $(C_SRCS16) $(RC_SRCS) $(RC_SRCS16) $(MC_SRCS) $(IDL_SRCS) $(BISON_SRCS) $(LEX_SRCS) $(EXTRA_SRCS) $(WDTP_SRCS)
 
 $(SUBDIRS:%=%/__depend__): dummy
 	@cd `dirname $@` && $(MAKE) depend
@@ -378,18 +378,54 @@ test: wdtp test_stabspO0 test_dwarfO0 test_dwarfO2
 parse.tab.c: parse.tab.h   # for parallel makes
 
 ### Dependencies:
-wdbgtest.o: wdbgtest.c
+wdbgtest.o: wdbgtest.c wdbgtest.h test_cl.h \
+ /home/eric/wine-git/include/windef.h \
+ /home/eric/wine-git/include/winnt.h \
+ /home/eric/wine-git/include/basetsd.h \
+ /home/eric/wine-git/include/guiddef.h \
+ /home/eric/wine-git/include/pshpack2.h \
+ /home/eric/wine-git/include/poppack.h \
+ /home/eric/wine-git/include/pshpack8.h \
+ /home/eric/wine-git/include/pshpack4.h \
+ /home/eric/wine-git/include/winbase.h \
+ /home/eric/wine-git/include/winerror.h \
+ /home/eric/wine-git/include/winuser.h
 parse.tab.o: parse.tab.c wdbgtest.h test_cl.h \
  /home/eric/wine-git/include/windef.h \
  /home/eric/wine-git/include/winnt.h \
  /home/eric/wine-git/include/basetsd.h \
+ /home/eric/wine-git/include/guiddef.h \
  /home/eric/wine-git/include/pshpack2.h \
  /home/eric/wine-git/include/poppack.h \
- /home/eric/wine-git/include/pshpack4.h \
- /home/eric/wine-git/include/guiddef.h \
  /home/eric/wine-git/include/pshpack8.h \
+ /home/eric/wine-git/include/pshpack4.h \
  /home/eric/wine-git/include/winbase.h \
  /home/eric/wine-git/include/winerror.h \
- /home/eric/wine-git/include/winuser.h \
- /home/eric/wine-git/include/wine/test.h
-token.yy.o: token.yy.c parse.tab.h
+ /home/eric/wine-git/include/winuser.h
+token.yy.o: token.yy.c parse.tab.h wdbgtest.h test_cl.h \
+ /home/eric/wine-git/include/windef.h \
+ /home/eric/wine-git/include/winnt.h \
+ /home/eric/wine-git/include/basetsd.h \
+ /home/eric/wine-git/include/guiddef.h \
+ /home/eric/wine-git/include/pshpack2.h \
+ /home/eric/wine-git/include/poppack.h \
+ /home/eric/wine-git/include/pshpack8.h \
+ /home/eric/wine-git/include/pshpack4.h \
+ /home/eric/wine-git/include/winbase.h \
+ /home/eric/wine-git/include/winerror.h \
+ /home/eric/wine-git/include/winuser.h
+wdtp.o: wdtp.c wdtp.h
+wdtp_display.o: wdtp_display.c wdtp.h
+wdtp_execute.o: wdtp_execute.c wdtp.h
+wdtp_expr.o: wdtp_expr.c wdtp.h
+wdtp_stack.o: wdtp_stack.c wdtp.h
+wdtp_start.o: wdtp_start.c /home/eric/wine-git/include/windef.h \
+ /home/eric/wine-git/include/winnt.h \
+ /home/eric/wine-git/include/basetsd.h \
+ /home/eric/wine-git/include/guiddef.h \
+ /home/eric/wine-git/include/pshpack2.h \
+ /home/eric/wine-git/include/poppack.h \
+ /home/eric/wine-git/include/pshpack8.h \
+ /home/eric/wine-git/include/pshpack4.h wdtp.h
+wdtp_type.o: wdtp_type.c wdtp.h
+wdtp_xpoint.o: wdtp_xpoint.c wdtp.h
