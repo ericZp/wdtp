@@ -281,7 +281,7 @@ int wdt_start(struct debuggee* dbg, char* start)
 
     memset(dbg, 0, sizeof(*dbg));
     wtcl_set_prompt(&dbg->cl, "Wine-dbg>");
-    wtcl_start(&dbg->cl, start);
+    wtcl_start(&dbg->cl, start, FALSE);
     /* sync up to first prompt */
     ret = wtcl_recv_up_to_prompt(&dbg->cl);
     TRACE("Got for start-cmd='%s': '%s'\n", start, dbg->cl.buf_ptr);

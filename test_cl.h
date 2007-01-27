@@ -82,7 +82,7 @@ static inline void wtcl_stop(struct cl_child_info* cci)
     memset(cci, 0xA5, sizeof(*cci));
 }
 
-static inline int wtcl_start(struct cl_child_info* cci, char* cmdline)
+static inline int wtcl_start(struct cl_child_info* cci, char* cmdline, unsigned show)
 {
     HANDLE              hChildOut, hChildOutInh;
     HANDLE              hChildIn, hChildInInh;
@@ -101,7 +101,7 @@ static inline int wtcl_start(struct cl_child_info* cci, char* cmdline)
     memset(&startup, 0, sizeof(startup));
     startup.cb = sizeof(startup);
     startup.dwFlags = STARTF_USESHOWWINDOW|STARTF_USESTDHANDLES;
-    startup.wShowWindow = SW_SHOWNORMAL;
+    startup.wShowWindow = show ? SW_SHOWNORMAL : SW_HIDE;
     startup.hStdInput = hChildInInh;
     startup.hStdOutput = hChildOutInh;
     startup.hStdError = hChildOutInh;
