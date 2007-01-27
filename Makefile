@@ -317,7 +317,7 @@ dummy:
 
 # End of global rules
 
-all: $(MODULE)$(DLLEXT)
+all: $(MODULE)$(DLLEXT) wdtp
 
 # Rules for .so main module
 
@@ -335,7 +335,6 @@ WDTP_SRCS= \
         wdtp_xpoint.c
 
 wdtp: wdtp_stabspO0.exe$(DLLEXT) wdtp_dwarfO0.exe$(DLLEXT) wdtp_dwarfO2.exe$(DLLEXT)
-	@echo Done compiling the various test programs
 
 wdtp_stabspO0.exe$(DLLEXT): $(WDTP_SRCS)
 	$(WINEGCC) $(ALLCFLAGS) -gstabs+ -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -L../../../libs -L../../../dlls -lkernel32
@@ -359,19 +358,19 @@ WDTPS= \
 	type.wdtp \
 	xpoint.wdtp
 
-test_stabspO0:
+test_stabspO0: all
 	ln -sf wdtp_stabspO0.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition stabs $$i; done
 
-test_dwarfO0:
+test_dwarfO0: all
 	ln -sf wdtp_dwarfO0.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition dwarf $$i; done
 
-test_dwarfO2:
+test_dwarfO2: all
 	ln -sf wdtp_dwarfO2.exe.so wdtp.exe.so
 	for i in $(WDTPS); do ./wdbgtest --condition dwarf $$i; done
 
-test: wdtp test_stabspO0 test_dwarfO0 test_dwarfO2
+test: test_stabspO0 test_dwarfO0 test_dwarfO2
 
 .PHONY: wdtp
 
