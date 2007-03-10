@@ -10,4 +10,5 @@ config.log
 config.status
 configure
 Makefile
+wdbgtest
 wdbgtest.run
