@@ -376,6 +376,11 @@ test: test_stabspO0 test_dwarfO0 test_dwarfO2
 
 parse.tab.c: parse.tab.h   # for parallel makes
 
+.PHONY: upload
+
+upload:
+	ftpsync --user eric.pouech@wanadoo.fr --passfile ~/.perso-passfile .git ftp://perso-ftp.orange.fr/wdtp.git
+
 ### Dependencies:
 wdbgtest.o: wdbgtest.c wdbgtest.h test_cl.h \
  /home/eric/wine-git/include/windef.h \
