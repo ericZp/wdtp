@@ -15,22 +15,22 @@ For now, the test suite must be run against a wine compilation tree
 
 CONFIGURATION & BUILDING
 ------------------------
-If you compile Wine in the source tree, then configuration is done
-with:
+First run autoconf.
+
+Then, if you compile Wine in the source tree, then configuration is
+done with:
 	./configure --with-wine=<wine_src_dir>
 where <wine_src_dir> is the path to the top of your wine source tree.
 
-If you compile Wine outside the source tree, then configuration is
+Or, if you compile Wine outside the source tree, then configuration is
 done with: 
 	./configure --with-wine=<wine_src_dir> \
 		--with-wine-output=<wine_dst_dir>
 where <wine_src_dir> is the path to the top of your wine source tree,
 and <wine_dst_dir> is the path to the top of your wine object tree.
 
-In both cases, run:
-	make depend
-	make
-	make wdtp
+In both cases, finalize the installation by building the lot:
+	make depend && make
 
 RUNNING & TESTING
 -----------------
