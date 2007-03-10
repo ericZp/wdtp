@@ -339,7 +339,7 @@ command:
     | tEVAL tSTRING tEVAL_STATUS tSTRING {if (doit()) test_eval($2, $3, 0, $4);}
     | tEVAL tSTRING tID {if (doit()) set_eval($2, $3);}
     | tSYSTEM tSTRING {if (doit()) system($2);}
-    | tSYSTEM tSTRING tNUM {int r; if (doit()) r = system($2); test_ok(r == $3, "Wrong system() result (%d)\n", r);}
+    | tSYSTEM tSTRING tNUM {if (doit()) {int r = system($2); test_ok(r == $3, "Wrong system() result (%d)\n", r);}}
 ;
 
 cond_command: 
