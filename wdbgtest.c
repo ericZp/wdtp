@@ -201,7 +201,11 @@ static void free_display(struct debuggee* dbg)
 
 BOOL wdt_ends_with(const char* src, const char* end)
 {
-    size_t slen = strlen(src), elen = strlen(end);
+    size_t slen, elen;
+
+    if (!src || !end) return FALSE;
+    slen = strlen(src);
+    elen = strlen(end);
 
     return (slen >= elen) && strcmp(src + slen - elen, end) == 0;
 }
@@ -518,6 +522,7 @@ int wdt_backtrace_next(struct debuggee* dbg, int* frame, struct location* loc, c
     int ret = 0;
 
     if (loc) memset(loc, 0, sizeof(*loc));
+    if (args) *args = NULL;
 
     if (compare(re_backtrace_m, dbg->cl.buf_ptr))
     {

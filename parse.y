@@ -37,6 +37,7 @@ static const char*      condition;
 
 static int str_compare(const char* ref, const char* cmp)
 {
+    if (!cmp) return 1;
     if (wdt_ends_with(ref, "..."))
         return memcmp(ref, cmp, strlen(ref) - 3);
     return strcmp(ref, cmp);
@@ -115,7 +116,7 @@ static const char* id_subst(const char* str)
                 case mv_char: case mv_integer: sprintf(tmp + (start - ptr), "%d", id->mval.u.integer); break;
                 case mv_hexa: case mv_func: sprintf(tmp + (start - ptr), "0x%x", id->mval.u.integer); break;
                 case mv_string: case mv_struct: strcpy(tmp + (start - ptr), id->mval.u.str); break;
-                    /* mv_error */
+                case mv_error: strcpy(tmp + (start - ptr), "<<*** error ***>>"); break;
                 default: assert(0);
                 }
                 strcat(tmp, end + 1);
@@ -151,7 +152,7 @@ static void start_test(const char* exec, const char* args)
 
 static void check_location(const struct location* loc, const char* name, const char* src, int line)
 {
-    if (name) test_ok(!strcmp(name, loc->name), "wrong function name %s", loc->name);
+    if (name) test_ok(loc->name && !strcmp(name, loc->name), "wrong function name %s", loc->name);
     if (src) test_ok(wdt_ends_with(loc->srcfile, src), "wrong src file %s", loc->srcfile);
     if (line) test_ok(loc->lineno == line, "wrong lineno %d", loc->lineno);
 }
@@ -165,7 +166,7 @@ static void set_break(const char* cmd, int bp, const char* name, const char* src
     ret = wdt_set_xpoint(&dbg, id_subst(cmd), &xp_num, &loc);
     test_ok(ret != -1, dbg.err_msg);
     if (bp) test_ok(xp_num == bp, "Wrong bp number (%d)", xp_num);
-    if (name) test_ok(!strcmp(name, loc.name), "wrong bp name (%s)", loc.name);
+    if (name) test_ok(loc.name && !strcmp(name, loc.name), "wrong bp name (%s)", loc.name);
     check_location(&loc, NULL, src, line);
     wdt_free_location(&loc);
 }
