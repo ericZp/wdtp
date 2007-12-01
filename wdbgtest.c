@@ -285,14 +285,19 @@ int wdt_start(struct debuggee* dbg, char* start)
 
     memset(dbg, 0, sizeof(*dbg));
     wtcl_set_prompt(&dbg->cl, "Wine-dbg>");
-    wtcl_start(&dbg->cl, start, FALSE);
+    if (wtcl_start(&dbg->cl, start, FALSE) == -1)
+    {
+        strcpy(dbg->err_msg, "Couldn't start WineDbg");
+        return -1;
+    }
+
     /* sync up to first prompt */
     ret = wtcl_recv_up_to_prompt(&dbg->cl);
     TRACE("Got for start-cmd='%s': '%s'\n", start, dbg->cl.buf_ptr);
     dump_data(dbg->cl.buf_ptr, "start> ");
     if (ret == -1)
     {
-        strcpy(dbg->err_msg, "Couldn't start WineDbg");
+        strcpy(dbg->err_msg, "Couldn't synchronize with WineDbg");
         return -1;
     }
 

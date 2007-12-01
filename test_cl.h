@@ -108,6 +108,7 @@ static inline int wtcl_start(struct cl_child_info* cci, char* cmdline, unsigned 
 
     if (!CreateProcessA(NULL, cmdline, NULL, NULL, TRUE, DETACHED_PROCESS, NULL, NULL, &startup, &cci->info))
     {
+        printf("cmd line %s\n", cmdline);
         wtcl_stop(cci);
         return -1;
     }

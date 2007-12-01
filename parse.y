@@ -130,7 +130,7 @@ static const char* id_subst(const char* str)
     return ptr;
 }
 
-static void start_test(const char* exec, const char* args)
+static int start_test(const char* exec, const char* args)
 {
     int ret;
     char* run;
@@ -148,6 +148,7 @@ static void start_test(const char* exec, const char* args)
     sprintf(run, "%s %s%s %s", debugger, exec, ext, args);
     ret = wdt_start(&dbg, run);
     test_ok(ret != -1, dbg.err_msg);
+    return ret;
 }
 
 static void check_location(const struct location* loc, const char* name, const char* src, int line)
@@ -276,6 +277,7 @@ static void launch(const char* cmd, struct id* id)
 }
 
 static unsigned do_command = TRUE;
+static unsigned exec_block = TRUE;
 
 static void set_condition(const char* cond)
 {
@@ -284,7 +286,7 @@ static void set_condition(const char* cond)
 
 static unsigned doit(void)
 {
-    return do_command;
+    return do_command && exec_block;
 }
 
 %}
@@ -351,10 +353,11 @@ cond_command:
 list_commands: cond_command list_commands | ;
 
 start_test:     
-      tSTART tSTRING {start_test($2, "");}
-    | tSTART tSTRING tSTRING {start_test($2, $3);}
+      tSTART tSTRING {if (start_test($2, "") == -1) exec_block = FALSE;}
+    | tSTART tSTRING tSTRING {if (start_test($2, $3) == -1) exec_block = FALSE;}
 ;
-end_test:       tEND {test_ok(wdt_stop(&dbg) == 0, dbg.err_msg); free_ids();};
+end_test:
+      tEND {if (exec_block) test_ok(wdt_stop(&dbg) == 0, dbg.err_msg); else exec_block = TRUE; free_ids()};
 
 %%
 
