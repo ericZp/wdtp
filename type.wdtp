@@ -19,8 +19,6 @@
 
 # TODO
 
-DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-
 START "wdtp.exe" "type"
 	BREAK "break test_type : 31" 1 "test_type" "wdtp_type.c" 31
 	COMMAND "cont"

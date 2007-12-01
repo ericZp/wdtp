@@ -298,7 +298,7 @@ static unsigned doit(void)
     struct id*          id;
 }
 
-%token tEOF tDEBUGGER tEXECUTABLE tSTART tEND
+%token tEOF tEXECUTABLE tSTART tEND
 %token tBACKTRACE tBREAK tCHECK_DISPLAY tCHECK_FRAME tCHECK_LOCATION tCOMMAND tEVAL
 %token tLAUNCH tSYSTEM
 %token <string> tSTRING tCONDITION
@@ -316,7 +316,6 @@ list_items:
 
 item:
       start_test list_commands end_test
-    | tDEBUGGER tSTRING { free((char*)debugger); debugger = strdup($2); }
     | tLAUNCH tSTRING tID { launch($2, $3); }
 ;
 
@@ -406,6 +405,14 @@ int main(int argc, char* argv[])
         {
             argc--; argv++;
             condition = argv[0];
+            argc--; argv++;
+            continue;
+        }
+        if (argc > 1 && !strcmp(argv[0], "--debugger"))
+        {
+            argc--; argv++;
+            free((char*)debugger);
+            debugger = strdup(argv[0]);
             argc--; argv++;
             continue;
         }

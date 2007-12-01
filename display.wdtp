@@ -21,8 +21,6 @@
 # - check for other functions (only display information from a given function or a given function & stack frame ??)
 # - enable / disable of display items
 
-DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-
 START "wdtp.exe" "display"
 	BREAK "break display_foo : 20" 1 "display_foo" "wdtp_display.c" 20
 	COMMAND "cont" ss_xpoint 1

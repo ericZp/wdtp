@@ -21,8 +21,6 @@
 # - better test the x and print commands (especially modifiers /x...)
 # - casts (integers, pointers)
 
-DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-
 START "wdtp.exe" "expr foo bar"
 	BREAK	"b test_expr"
 	COMMAND	"cont"

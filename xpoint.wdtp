@@ -25,8 +25,6 @@
 # - get rid of wdt_evaluate call (or tweak it so that we get the returned value from the evaluation)
 # - late bp (rechecked when a DLL is loaded)
 
-DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-
 # simple break point test without hardware assistance
 START "wdtp.exe" "xpoint"
 	BREAK "break test_xpoint : 31" 1 "test_xpoint" "wdtp_xpoint.c" 31

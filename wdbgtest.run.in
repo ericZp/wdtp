@@ -46,8 +46,13 @@ then
     . $topdir/.winewrapper
 fi
 
+if [ x"$WDBG_DEBUGGER" == x ]
+then
+    WDBG_DEBUGGER=$topdir/programs/winedbg/winedbg.exe.so
+fi
+
 # and run the application
 
-[ -f "./wdbgtest.exe.so" ] && exec "$WINELOADER" "./wdbgtest.exe.so" "$@"
+[ -f "./wdbgtest.exe.so" ] && exec "$WINELOADER" "./wdbgtest.exe.so" --debugger $WDBG_DEBUGGER "$@"
 echo "$0: cannot find corresponding application"
 exit 1

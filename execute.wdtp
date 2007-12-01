@@ -20,8 +20,6 @@
 # TODO
 #
 
-DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-
 START "wdtp.exe" "execute"
 	BREAK "b exec_f : 15" 1
 	COMMAND "cont" ss_xpoint 1

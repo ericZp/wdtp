@@ -25,8 +25,6 @@
 # - winedbg invocation in automatic mode
 # - winedbg invocation in gdb mode
 
-DEBUGGER	"/home/eric/output-wine/wine-git/programs/winedbg/winedbg.exe.so"
-
 START "wdtp.exe" "start"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
