@@ -84,7 +84,6 @@ Optional tools: none
 
 TODO
 ----
-- Get rid of wdbgtest.run file (it's an ugly hack)
 - Provide support for msvc & MingW compilation; would require somehow
   splitting the compilation from the tests in a clean way (or support
   the cross compilation)
@@ -92,9 +91,6 @@ TODO
 - Lots of tests rely on line number, which can be wrong, especially
   with insn optimisation (a line is not made of insequable bag of
   instructions...) => hence lots of errors with dwarfO2
-- When wdbgtest terminates (or is killed by a Ctrl-C), we don't
-  properly kill the WineDbg and wdtp processes
-- Extend the current Tests (check the *.wdtp files for the details)
 - Set up a nicer way to define a new test flavor (extra tool in
   autoconf ??), and review the flavor naming scheme
 
