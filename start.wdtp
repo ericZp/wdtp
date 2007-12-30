@@ -25,19 +25,21 @@
 # - winedbg invocation in automatic mode
 # - winedbg invocation in gdb mode
 
+# simple startup
 START "wdtp_$flavor$.exe" "start"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
 
-# this should be a test for starting with a pid...
-# but we need to create the process by hand :-(
-
+# starting a program from a given pid
 LAUNCH "wdtp_$flavor$.exe.so start" $pid$
 
 START "$pid$"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
 
+# testing the attachment to the debugger
+# FIXME: we should ensure that the wine debugger is correctly set in
+#	 registry (actually, running through wdbgtest !!)
 # START "wdtp_$flavor$.exe" "start --crash"
 # END
 
