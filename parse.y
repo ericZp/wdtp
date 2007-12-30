@@ -70,22 +70,31 @@ struct id* fetch_id(const char* name)
     id = malloc(sizeof(*id));
     id->name = strdup(name);
     id->mval.type = mv_error;
+    id->is_system = 0;
     id->next = first_id;
     first_id = id;
     return id;
 }
 
+/* free non system ids (and keep the system ids in list) */
 static void free_ids(void)
 {
     struct id*  id, *next;
 
-    for (id = first_id; id; id = next)
+    for (id = first_id, first_id = NULL; id; id = next)
     {
         next = id->next;
-        free((char*)id->name);
-        free(id);
+        if (id->is_system)
+        {
+            id->next = first_id;
+            first_id = id;
+        }
+        else
+        {
+            free((char*)id->name);
+            free(id);
+        }
     }
-    first_id = NULL;
 }
 
 static const char* id_subst(const char* str)
@@ -263,7 +272,7 @@ static void launch(const char* cmd, struct id* id)
     memset(&startup, 0, sizeof(startup));
     startup.cb = sizeof(startup);
 
-    ret = CreateProcessA(NULL, (char*)cmd, NULL, NULL, TRUE, 0*DETACHED_PROCESS,
+    ret = CreateProcessA(NULL, (char*)id_subst(cmd), NULL, NULL, TRUE, 0*DETACHED_PROCESS,
                          NULL, NULL, &startup, &info);
     test_ok(ret, "Couldn't create process with command line '%s'", cmd);
     if (ret)
@@ -405,6 +414,18 @@ int main(int argc, char* argv[])
         {
             argc--; argv++;
             condition = argv[0];
+            argc--; argv++;
+            continue;
+        }
+        if (argc > 1 && !strcmp(argv[0], "--flavor"))
+        {
+            struct id*  id;
+
+            argc--; argv++;
+            id = fetch_id("$flavor$");
+            id->mval.type = mv_string;
+            id->mval.u.str = argv[0];
+            id->is_system = 1;
             argc--; argv++;
             continue;
         }

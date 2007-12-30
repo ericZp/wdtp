@@ -80,6 +80,7 @@ struct id
     const char*                 name;           /* its name */
     struct mval                 mval;           /* its value */
     struct id*                  next;           /* linked list */
+    unsigned                    is_system;      /* system id */
 };
 
 /* Each entry in this enum matches a RE in previous array. Be sure to keep them in sync */

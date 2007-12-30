@@ -21,7 +21,7 @@
 # - extend frame tests with register variables
 #   (but how to create them in a portable manner ?)
 
-START "wdtp.exe" "stack"
+START "wdtp_$flavor$.exe" "stack"
 	BREAK "b stack_func : 9" 1
 
 	COMMAND "cont"

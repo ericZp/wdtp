@@ -19,7 +19,7 @@
 
 # TODO
 
-START "wdtp.exe" "type"
+START "wdtp_$flavor$.exe" "type"
 	BREAK "break test_type : 34" 1 "test_type" "wdtp_type.c" 34
 	COMMAND "cont"
 

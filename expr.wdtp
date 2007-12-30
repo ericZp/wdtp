@@ -21,7 +21,7 @@
 # - better test the x and print commands (especially modifiers /x...)
 # - casts (integers, pointers)
 
-START "wdtp.exe" "expr foo bar"
+START "wdtp_$flavor$.exe" "expr foo bar"
 	BREAK	"b test_expr"
 	COMMAND	"cont"
 

@@ -25,25 +25,25 @@
 # - winedbg invocation in automatic mode
 # - winedbg invocation in gdb mode
 
-START "wdtp.exe" "start"
+START "wdtp_$flavor$.exe" "start"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
 
 # this should be a test for starting with a pid...
 # but we need to create the process by hand :-(
 
-LAUNCH "wdtp.exe.so start" $pid$
+LAUNCH "wdtp_$flavor$.exe.so start" $pid$
 
 START "$pid$"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
 
-# START "wdtp.exe" "start --crash"
+# START "wdtp_$flavor$.exe" "start --crash"
 # END
 
 # this is a test from command line...
 # FIXME: we don't have commands for winedbg yet
-# START "--command \"break start_real\"" "wdtp.exe" "start"
+# START "--command \"break start_real\"" "wdtp_$flavor$.exe" "start"
 #    int                 ret;
 #    BOOL                eof;
 #    char                tmp[1024], *end;

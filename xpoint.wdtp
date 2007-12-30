@@ -26,7 +26,7 @@
 # - late bp (rechecked when a DLL is loaded)
 
 # simple break point test without hardware assistance
-START "wdtp.exe" "xpoint"
+START "wdtp_$flavor$.exe" "xpoint"
 	BREAK "break test_xpoint : 31" 1 "test_xpoint" "wdtp_xpoint.c" 31
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 31
@@ -47,7 +47,7 @@ START "wdtp.exe" "xpoint"
 END
 
 # simple break point test with hardware assistance
-START "wdtp.exe" "xpoint"
+START "wdtp_$flavor$.exe" "xpoint"
 	BREAK "break test_xpoint : 31" 1 "test_xpoint" "wdtp_xpoint.c" 31
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 31
@@ -68,7 +68,7 @@ START "wdtp.exe" "xpoint"
 END
 
 # test for testing a condition on a breakpoint
-START "wdtp.exe" "xpoint"
+START "wdtp_$flavor$.exe" "xpoint"
 	BREAK "break xpoint_g : 17" 1 "xpoint_g" "wdtp_xpoint.c" 17
 
 	COMMAND "cond 1 ret == 20"
@@ -81,7 +81,7 @@ START "wdtp.exe" "xpoint"
 END
 
 # test for testing a condition on a breakpoint with hw assisted bp
-START "wdtp.exe" "xpoint"
+START "wdtp_$flavor$.exe" "xpoint"
 	BREAK "hbreak xpoint_g : 17" 1 "xpoint_g" "wdtp_xpoint.c" 17
 
 	COMMAND "cond 1 ret == 20"
@@ -94,7 +94,7 @@ START "wdtp.exe" "xpoint"
 END
 
 # watch test
-START "wdtp.exe" "xpoint"
+START "wdtp_$flavor$.exe" "xpoint"
 	BREAK "break test_xpoint : 31" 1
 
 	COMMAND "cont" ss_xpoint 1
