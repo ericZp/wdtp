@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "wdtp.h"
 
-/* FIXME: strangely enough, msvc wrongly handles types 
+/* FIXME: strangely enough, msvc wrongly handles types
  * where struct foo exists and foo is a typedef to another struct
  */
 
@@ -59,6 +59,6 @@ int test_expr(int argc, const char** ptr)
     t.toto_b = 2 + (argc << 3);
     t.toto_a <<= t.bf1;
     f(&t);
-    
+
     return t.toto_a + t.toto_b;
 }

@@ -92,12 +92,12 @@ static inline int wtcl_start(struct cl_child_info* cci, char* cmdline, unsigned 
     DuplicateHandle(GetCurrentProcess(), hChildOut, GetCurrentProcess(),
                     &hChildOutInh, 0, TRUE, DUPLICATE_SAME_ACCESS);
     CloseHandle(hChildOut);
- 
+
     CreatePipe(&hChildIn, &cci->hOutput, NULL, 0);
-    DuplicateHandle(GetCurrentProcess(), hChildIn, GetCurrentProcess(), 
+    DuplicateHandle(GetCurrentProcess(), hChildIn, GetCurrentProcess(),
                     &hChildInInh, 0, TRUE, DUPLICATE_SAME_ACCESS);
-    CloseHandle(hChildIn); 
-    
+    CloseHandle(hChildIn);
+
     memset(&startup, 0, sizeof(startup));
     startup.cb = sizeof(startup);
     startup.dwFlags = STARTF_USESHOWWINDOW|STARTF_USESTDHANDLES;

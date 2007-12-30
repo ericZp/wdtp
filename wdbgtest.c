@@ -144,7 +144,7 @@ static char* empty_str(void)
 }
 
 static void grab_location(struct debuggee* dbg, struct location* loc,
-                          int addr_idx, int name_idx, int src_idx, 
+                          int addr_idx, int name_idx, int src_idx,
                           int line_idx, int module_idx)
 {
     loc->address = (addr_idx != -1) ? (void*)to_num(dbg, addr_idx) : NULL;
@@ -317,7 +317,7 @@ int wdt_start(struct debuggee* dbg, char* start)
     return 0;
 }
 
-int wdt_set_xpoint(struct debuggee* dbg, const char* cmd, 
+int wdt_set_xpoint(struct debuggee* dbg, const char* cmd,
                    int* xp_num, struct location* loc)
 {
     int         ret = 0;
@@ -412,7 +412,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
     while (compare(re_display, dbg->cl.buf_ptr))
     {
         char* end;
-        TRACE("Got display #%.*s: '%.*s' = '%.*s'\n", 
+        TRACE("Got display #%.*s: '%.*s' = '%.*s'\n",
               (int)(rm[1].rm_eo - rm[1].rm_so), &dbg->cl.buf_ptr[rm[1].rm_so],
               (int)(rm[2].rm_eo - rm[2].rm_so), &dbg->cl.buf_ptr[rm[2].rm_so],
               (int)(rm[3].rm_eo - rm[3].rm_so), &dbg->cl.buf_ptr[rm[3].rm_so]);
@@ -430,7 +430,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
         wdt_fetch_value(dbg, &dbg->display[dbg->num_display - 1].mval);
         dbg->cl.buf_ptr = end + 1;
     }
-        
+
     /* different possible outputs:
      * Breakpoint (bpnum) at 0x(addr) (name) [(srcfile):(lineno)] in (module) (refcount=2)
      */
@@ -488,7 +488,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
     }
     else if (compare(re_terminated, dbg->cl.buf_ptr))
     {
-        TRACE("Terminated on pid %.*s\n", 
+        TRACE("Terminated on pid %.*s\n",
               (int)(rm[1].rm_eo - rm[1].rm_so), &dbg->cl.buf_ptr[rm[1].rm_so]);
         if (to_num(dbg, 1) != dbg->cl.info.dwProcessId)
         {

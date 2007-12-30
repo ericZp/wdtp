@@ -20,7 +20,7 @@ static int exec_f(int a, int b)
     // and another one
     return a * exec_g(b);
 }
-    
+
 int test_execute(int argc, const char** ptr)
 {
     int ret = 0;

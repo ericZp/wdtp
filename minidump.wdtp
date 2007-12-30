@@ -108,7 +108,7 @@ END
 START "foo.mdmp"
 	BACKTRACE
 	CHECK_FRAME 1 "stack_func" "wdtp_stack.c" 9 "i=0xa"
-	
+
 	CHECK_FRAME 2 "stack_func" "wdtp_stack.c" 7 "i=0x9"
 	CHECK_FRAME 3 "stack_func" "wdtp_stack.c" 7 "i=0x8"
 	CHECK_FRAME 4 "stack_func" "wdtp_stack.c" 7 "i=0x7"
@@ -121,7 +121,7 @@ START "foo.mdmp"
 
 	CHECK_FRAME 11 "test_stack" "wdtp_stack.c" 16 "argc=0x0, argv=..."
 	CHECK_FRAME 12 "main" "wdtp.c" 11 "argc=0x2, argv=..."
-	
+
 	# testing local variables
 	EVAL "p i" mv_integer 10
 

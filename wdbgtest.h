@@ -97,7 +97,7 @@ int wdt_free_location(struct location* loc);
 BOOL wdt_ends_with(const char* src, const char* end);
 
 int wdt_start(struct debuggee* dbg, char* start);
-int wdt_set_xpoint(struct debuggee* dbg, const char* cmd, 
+int wdt_set_xpoint(struct debuggee* dbg, const char* cmd,
                    int* xp_num, struct location* loc);
 int wdt_execute(struct debuggee* dbg, const char* cmd, ...);
 int wdt_evaluate(struct debuggee* dbg, struct mval* mv, const char* expr, ...);

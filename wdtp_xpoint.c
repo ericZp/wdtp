@@ -21,7 +21,7 @@ static int xpoint_cond(void)
 {
     int i;
     int ret = 0;
-        
+
     for (i = 0; i < 10; i++)
         ret += xpoint_g(i);
     return ret;

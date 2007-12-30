@@ -329,7 +329,7 @@ item:
 ;
 
 
-command: 
+command:
       tBACKTRACE {if (doit()) test_ok(wdt_backtrace(&dbg) == 0, dbg.err_msg);}
     | tBREAK tSTRING {if (doit()) set_break($2, 0, NULL, NULL, 0);}
     | tBREAK tSTRING tNUM {if (doit()) set_break($2, $3, NULL, NULL, 0);}
@@ -353,14 +353,14 @@ command:
     | tSYSTEM tSTRING tNUM {if (doit()) {int r = system($2); test_ok(r == $3, "Wrong system() result (%d)\n", r);}}
 ;
 
-cond_command: 
+cond_command:
       command
     | tCONDITION {set_condition($1);} command {do_command = TRUE;}
 ;
 
 list_commands: cond_command list_commands | ;
 
-start_test:     
+start_test:
       tSTART tSTRING {if (start_test($2, "") == -1) exec_block = FALSE;}
     | tSTART tSTRING tSTRING {if (start_test($2, $3) == -1) exec_block = FALSE;}
 ;
