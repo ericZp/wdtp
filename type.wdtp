@@ -20,7 +20,7 @@
 # TODO
 
 START "wdtp.exe" "type"
-	BREAK "break test_type : 31" 1 "test_type" "wdtp_type.c" 31
+	BREAK "break test_type : 34" 1 "test_type" "wdtp_type.c" 34
 	COMMAND "cont"
 
 	COMMAND "whatis bar" "type = int"

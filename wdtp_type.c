@@ -28,6 +28,9 @@ static struct ms* (*pfn)(int, const char*) = fn;
 
 int test_type(int argc, const char** ptr)
 {
-    struct ms* ms = pfn(12, "foo");
+    struct ms*  ms;
+    int         lfoo = 3;
+    foo = &lfoo;
+    ms = pfn(12, "foo");
     return ms->value;
 }
