@@ -3,19 +3,21 @@ INTRODUCTION
 This repository manages wdtp (Wine debugger testing package), a set of
 tools to test WineDbg.
 
-It consists of: 
+It consists of:
 - a program to drive WineDbg by passing commands to it, and checking
   the output of those commands (wdbgtest),
 - a set of unit tests. Each test is made of a:
-  + a simple program (wdtp_<test>.c)
+  + a simple C program
   + a script to drive the commands to be sent to WineDbg, and their
-    expected output (<test>.wdtp)
-- all the simple programs are compiled in a single executable, each
-  test being chosen from a command line parameter. This executable is
-  called wdtp.
+    expected output.
+  In current configuration, all tests are compiled into a single
+  executable, each test being chosen from a command line
+  parameter. This executable is called wdtp.
+  By convention, a simple test (<test>)'s C file is named
+  wdtp_<test>.c and the script file <test>.wdtp.
 - actually, the wtdp executable is compiled several times, using
   different ways. The final executable is called a flavor of
-  wdtp. Each flavor corresponds to a unique set of options to cover 
+  wdtp. Each flavor corresponds to a unique set of options to cover
   different elements, among which:
   + compiler: gcc, mvcs, MingW,
   + debug format: stabs, Dwarf2, Codeview, PDB...
@@ -23,9 +25,9 @@ It consists of:
   + linker option: debug info stripping, prelinking
 
    +-------------+        +---------+       +-------------------------+
-   |   wdbtest   | <====> | WineDbg | ----> | wdtp.exe<flavor> <test> ¦
+   |   wdbgtest  | <====> | WineDbg | ----> | wdtp.exe<flavor> <test> |
    +-------------+        +---------+       +-------------------------+
-   | <test>.wdtp |                          |     <test> program      |
+   | <test>.wdtp |                          |    <test>.c program     |
    +-------------+                          +-------------------------+
 
 For now, the test suite must be compiled and run against a regular
