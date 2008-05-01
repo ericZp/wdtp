@@ -16,6 +16,8 @@ struct toto
     int toto_b;
     unsigned bf1 : 10, bf2 : 6;
     int bf3 : 13, bf4 : 3;
+    float       ff;
+    double      fd;
     struct {
         int a;
         int b;
@@ -51,7 +53,7 @@ static int g(int a)
 
 int test_expr(int argc, const char** ptr)
 {
-    struct toto t = {0, 0, 12, 63, -34, -4, {0x5A5A5A5A, 0xA5A5A5A5}, {0xAAAAAAAA}};
+    struct toto t = {0, 0, 12, 63, -34, -4, 1.23, 4.56e-2, {0x5A5A5A5A, 0xA5A5A5A5}, {0xAAAAAAAA}};
 
     myint1 = g(argc);
     myint2 = 3 * t.bf1;

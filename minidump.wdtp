@@ -68,7 +68,7 @@ START "foo2.mdmp"
 	# examine test
 
 	# testing values inside structure
-	EVAL	"p t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
+	EVAL	"p t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
 	EVAL	"p /x t.s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
 	EVAL	"p t.u" mv_struct "i=-1431655766, u=2863311530"
 	EVAL	"p /x t.u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"

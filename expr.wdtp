@@ -1,7 +1,7 @@
 #
 # WineDbg test - expression testing
 #
-# Copyright (C) 2005 Eric Pouech
+# Copyright (C) 2005,2008 Eric Pouech
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -62,7 +62,7 @@ START "wdtp_$flavor$.exe" "expr foo bar"
 	COMMAND "next" ss_step
 
 	# testing values inside structure
-	EVAL	"p t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
+	EVAL	"p t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
 	EVAL	"p /x t.s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
 	EVAL	"p t.u" mv_struct "i=-1431655766, u=2863311530"
 	EVAL	"p /x t.u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
@@ -77,6 +77,8 @@ START "wdtp_$flavor$.exe" "expr foo bar"
 #	EVAL	"p sll" mv_integer -123456789000
 #	EVAL	"p ull" mv_integer 123456789000
 	EVAL	"p titi" mv_struct "pA=0x87654321, pB=0x43218765, pC=\"foo\""
+	EVAL	"p t.ff" mv_float 1.23
+	EVAL	"p t.fd" mv_float 4.56e-2
 
 	# test setting values inside structure
 	EVAL	"set t.toto_a=45" mv_null 0
