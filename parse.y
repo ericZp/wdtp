@@ -201,33 +201,33 @@ static void command(const char* c, const char* result)
                         "Unexpected command result %s\n", dbg.cl.buf_ptr);
 }
 
-static void check_eval(struct mval* mv, int type, int val, const char* str)
+static void check_eval(struct mval* mv, const struct mval* mv2)
 {
-    switch (type)
+    test_ok(mv->type == mv2->type, "Wrong returned type %d, while expecting %d", mv->type, mv2->type);
+    /* FIXME: may have to do some type promotions */
+    if (mv->type != mv2->type) return;
+    switch (mv2->type)
     {
     case mv_null: case mv_error: break;
-    case mv_integer: test_ok(val == mv->u.integer, "wrong int value (%d)", mv->u.integer); break;
-    case mv_hexa:    test_ok(val == mv->u.integer, "wrong hexa value (%d)", mv->u.integer); break;
-    case mv_char:    test_ok(val == mv->u.integer, "wrong char value (%d)", mv->u.integer); break;
-    case mv_string:  test_ok(!str_compare(str, mv->u.str), "wrong string value (%s)", mv->u.str); break;
-    case mv_struct:  test_ok(!str_compare(str, mv->u.str), "wrong struct value (%s)", mv->u.str); break;
-    default: test_ok(0, "Unsupported type %d", type);
+    case mv_integer: test_ok(mv2->u.integer == mv->u.integer, "wrong int value (%d)", mv->u.integer); break;
+    case mv_hexa:    test_ok(mv2->u.integer == mv->u.integer, "wrong hexa value (%d)", mv->u.integer); break;
+    case mv_char:    test_ok(mv2->u.integer == mv->u.integer, "wrong char value (%d)", mv->u.integer); break;
+    case mv_string:  test_ok(!str_compare(mv2->u.str, mv->u.str), "wrong string value (%s)", mv->u.str); break;
+    case mv_struct:  test_ok(!str_compare(mv2->u.str, mv->u.str), "wrong struct value (%s)", mv->u.str); break;
+    default: test_ok(0, "Unsupported type %d", mv2->type);
     }
 }
 
-static void test_eval(const char* cmd, int type, int val, const char* str)
+static void test_eval(const char* cmd, const struct mval* mv2)
 {
     struct mval mv;
 
     if (wdt_evaluate(&dbg, &mv, cmd) == 0)
     {
-        if (mv.type != type)
-            test_ok(mv.type == type, "Wrong returned type (%d)", mv.type);
-        else
-            check_eval(&mv, type, val, str);
+        check_eval(&mv, mv2);
     }
     else
-        test_ok(type == mv_error, "Couldn't evaluate expression (%s)", dbg.err_msg);
+        test_ok(mv2->type == mv_error, "Couldn't evaluate expression '%s' (%s)", cmd, dbg.err_msg);
 }
 
 static void set_eval(const char* cmd, struct id* id)
@@ -241,11 +241,11 @@ static void set_eval(const char* cmd, struct id* id)
     }
 }
 
-static void check_display(int num, const char* name, int type, int val, const char* str)
+static void check_display(int num, const char* name, const struct mval* mv2)
 {
     test_ok(dbg.num_display > num, "display number (%u) out of bounds (%u)", num, dbg.num_display);
     test_ok(!strcmp(dbg.display[num].expr, name), "wrong display (%s)", dbg.display[num].expr);
-    check_eval(&dbg.display[num].mval, type, val, str);
+    check_eval(&dbg.display[num].mval, mv2);
 }
 
 static void check_frame(int num, const char* name, const char* file, int lineno, const char* ref_args)
@@ -338,8 +338,8 @@ command:
     | tBREAK tSTRING tNUM tSTRING {if (doit()) set_break($2, $3, $4, NULL, 0);}
     | tBREAK tSTRING tNUM tSTRING tSTRING tNUM {if (doit()) set_break($2, $3, $4, $5, $6);}
     | tCHECK_DISPLAY tNUM {if (doit()) test_ok(dbg.num_display == $2, "Wrong number of displays (%d)", $2);}
-    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {if (doit()) check_display($2, $3, $4, $5, NULL);}
-    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {if (doit()) check_display($2, $3, $4, 0, $5);}
+    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {if (doit()) {struct mval mv; mv.type = $4; mv.u.integer = $5; check_display($2, $3, &mv);}}
+    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {if (doit()) {struct mval mv; mv.type = $4; mv.u.str = $5; check_display($2, $3, &mv);}}
     | tCHECK_FRAME tNUM tSTRING tSTRING tNUM tSTRING {if (doit()) check_frame($2, $3, $4, $5, $6);}
     | tCHECK_LOCATION tSTRING tNUM {if (doit()) check_location(&dbg.loc, NULL, $2, $3);}
     | tCHECK_LOCATION tSTRING tSTRING tNUM {if (doit()) check_location(&dbg.loc, $2, $3, $4);}
@@ -347,9 +347,9 @@ command:
     | tCOMMAND tSTRING tSTRING {if (doit()) command($2, $3);}
     | tCOMMAND tSTRING tEXEC_STATUS {if (doit()) command_run($2, $3, -1);}
     | tCOMMAND tSTRING tEXEC_STATUS tNUM {if (doit()) command_run($2, $3, $4);}
-    | tEVAL tSTRING tEVAL_STATUS {if (doit()) test_eval($2, $3, 0, NULL);}
-    | tEVAL tSTRING tEVAL_STATUS tNUM {if (doit()) test_eval($2, $3, $4, NULL);}
-    | tEVAL tSTRING tEVAL_STATUS tSTRING {if (doit()) test_eval($2, $3, 0, $4);}
+    | tEVAL tSTRING tEVAL_STATUS {if (doit()) {struct mval mv; mv.type = $3; test_eval($2, &mv);}}
+    | tEVAL tSTRING tEVAL_STATUS tNUM {if (doit()) {struct mval mv; mv.type = $3; mv.u.integer = $4; test_eval($2, &mv);}}
+    | tEVAL tSTRING tEVAL_STATUS tSTRING {if (doit()) {struct mval mv; mv.type = $3; mv.u.str = $4; test_eval($2, &mv);}}
     | tEVAL tSTRING tID {if (doit()) set_eval($2, $3);}
     | tSYSTEM tSTRING {if (doit()) system($2);}
     | tSYSTEM tSTRING tNUM {if (doit()) {int r = system($2); test_ok(r == $3, "Wrong system() result (%d)\n", r);}}
