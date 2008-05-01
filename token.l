@@ -1,7 +1,7 @@
 /*
  * Lexical scanner for wdtp
  *
- * Copyright 2006 Eric Pouech
+ * Copyright 2006-2008 Eric Pouech
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -61,11 +61,12 @@ HEXDIGIT   [0-9a-fA-F]
 "#".*\n                         { parse_line++; } /* skip comments */
 "0x"{HEXDIGIT}+                 { sscanf(yytext, "%x", &parse_lval.integer); return tNUM; }
 "'"."'"                         { parse_lval.integer = yytext[1]; return tNUM; }
-[+-]?{DIGIT}+             	{ sscanf(yytext, "%d", &parse_lval.integer); return tNUM; }
+[+-]?{DIGIT}+             	     { sscanf(yytext, "%d", &parse_lval.integer); return tNUM; }
+[+-]?{DIGIT}+(\.{DIGIT}+)?([eE][+-]?{DIGIT}+)?  { sscanf(yytext, "%lf", &parse_lval.flt_number); return tFLOAT; }
 "$"[A-Za-z_]+"$"                { parse_lval.id = fetch_id(yytext); return tID; }
 "["[A-Za-z_]+"]"                { char* ptr = parse_lval.string = strdup(yytext + 1); ptr[strlen(ptr) - 1] = '\0'; return tCONDITION; }
 LAUNCH                          { return tLAUNCH; }
-START                      	{ return tSTART; }
+START                      	  { return tSTART; }
 BACKTRACE                       { return tBACKTRACE; }
 BREAK                           { return tBREAK; }
 CHECK_DISPLAY                   { return tCHECK_DISPLAY; }
@@ -73,7 +74,7 @@ CHECK_FRAME                     { return tCHECK_FRAME; }
 CHECK_LOCATION                  { return tCHECK_LOCATION; }
 COMMAND                         { return tCOMMAND; }
 EVAL                            { return tEVAL; }
-END                      	{ return tEND; }
+END                      	     { return tEND; }
 SYSTEM                          { return tSYSTEM; }
 mv_null                         { parse_lval.integer = mv_null; return tEVAL_STATUS; }
 mv_integer                      { parse_lval.integer = mv_integer; return tEVAL_STATUS; }

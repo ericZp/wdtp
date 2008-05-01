@@ -2,7 +2,7 @@
 /*
  * Tool for testing the Wine debugger
  *
- * Copyright 2006 Eric Pouech
+ * Copyright 2006-2008 Eric Pouech
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -304,6 +304,7 @@ static unsigned doit(void)
 {
     char*               string;
     int                 integer;
+    double              flt_number;
     struct id*          id;
 }
 
@@ -312,6 +313,7 @@ static unsigned doit(void)
 %token tLAUNCH tSYSTEM
 %token <string> tSTRING tCONDITION
 %token <integer> tNUM tEVAL_STATUS tEXEC_STATUS
+%token <flt_number> tFLOAT
 %token <id> tID
 
 %%
