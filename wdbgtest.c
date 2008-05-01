@@ -1,7 +1,7 @@
 /*
  * Tool for testing the Wine debugger
  *
- * Copyright 2006 Eric Pouech
+ * Copyright 2006-2008 Eric Pouech
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -51,6 +51,9 @@ re[] =
 /* RE for expressions -------- */
     /* re_integer    */ {"^([-+]?[0-9]+)$", 1},
     /* re_hexa       */ {"^(0x[0-9a-fA-F]+)$", 1},
+    /* re_float1     */ {"^([-+]?[0-9]+\\.[0-9]+)$", 1},
+    /* re_float2     */ {"^([-+]?[0-9]+\\.[0-9]+[eE][+-]?[0-9]+)$", 1},
+    /* re_float3     */ {"^([-+]?[0-9]+[eE][+-]?[0-9]+)$", 1},
     /* re_string     */ {"^\\\"([^\\\"]*)\\\"$", 1},
     /* re_char       */ {"^'(.)'$", 1},
     /* re_struct     */ {"^\\{(.*)\\}$", 1},
@@ -122,6 +125,16 @@ static int to_num(struct debuggee* dbg, int idx)
         val = strtol(&dbg->cl.buf_ptr[rm[idx].rm_so], &end, 10);
     }
     if (end != &dbg->cl.buf_ptr[rm[idx].rm_eo]) val = -1;
+    return val;
+}
+
+static double to_float(struct debuggee* dbg, int idx)
+{
+    char* end;
+    double val;
+
+    val = strtod(&dbg->cl.buf_ptr[rm[idx].rm_so], &end);
+    if (end != &dbg->cl.buf_ptr[rm[idx].rm_eo]) val = 1.0 / 0.0; /* +INFINITY */
     return val;
 }
 
@@ -226,6 +239,13 @@ int wdt_fetch_value(struct debuggee* dbg, struct mval* mv)
     if (!dbg->cl.buf_ptr[0])
     {
         mv->type = mv_null;
+    }
+    else if (compare(re_float1, dbg->cl.buf_ptr) ||
+             compare(re_float2, dbg->cl.buf_ptr) ||
+             compare(re_float3, dbg->cl.buf_ptr))
+    {
+        mv->type = mv_float;
+        mv->u.flt_number = to_float(dbg, 1);
     }
     else if (compare(re_integer, dbg->cl.buf_ptr))
     {

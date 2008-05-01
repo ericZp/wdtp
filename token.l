@@ -78,6 +78,7 @@ END                      	     { return tEND; }
 SYSTEM                          { return tSYSTEM; }
 mv_null                         { parse_lval.integer = mv_null; return tEVAL_STATUS; }
 mv_integer                      { parse_lval.integer = mv_integer; return tEVAL_STATUS; }
+mv_float                        { parse_lval.integer = mv_float; return tEVAL_STATUS; }
 mv_hexa                         { parse_lval.integer = mv_hexa; return tEVAL_STATUS; }
 mv_string                       { parse_lval.integer = mv_string; return tEVAL_STATUS; }
 mv_char                         { parse_lval.integer = mv_char; return tEVAL_STATUS; }

@@ -211,6 +211,7 @@ static void check_eval(struct mval* mv, const struct mval* mv2)
     case mv_null: case mv_error: break;
     case mv_integer: test_ok(mv2->u.integer == mv->u.integer, "wrong int value (%d)", mv->u.integer); break;
     case mv_hexa:    test_ok(mv2->u.integer == mv->u.integer, "wrong hexa value (%d)", mv->u.integer); break;
+    case mv_float:   test_ok(mv2->u.flt_number == mv->u.flt_number, "wrong float value (%lf)", mv->u.flt_number); break;
     case mv_char:    test_ok(mv2->u.integer == mv->u.integer, "wrong char value (%d)", mv->u.integer); break;
     case mv_string:  test_ok(!str_compare(mv2->u.str, mv->u.str), "wrong string value (%s)", mv->u.str); break;
     case mv_struct:  test_ok(!str_compare(mv2->u.str, mv->u.str), "wrong struct value (%s)", mv->u.str); break;
@@ -339,6 +340,7 @@ command:
     | tBREAK tSTRING tNUM tSTRING tSTRING tNUM {if (doit()) set_break($2, $3, $4, $5, $6);}
     | tCHECK_DISPLAY tNUM {if (doit()) test_ok(dbg.num_display == $2, "Wrong number of displays (%d)", $2);}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {if (doit()) {struct mval mv; mv.type = $4; mv.u.integer = $5; check_display($2, $3, &mv);}}
+    | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tFLOAT {if (doit()) {struct mval mv; mv.type = $4; mv.u.flt_number = $5; check_display($2, $3, &mv);}}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {if (doit()) {struct mval mv; mv.type = $4; mv.u.str = $5; check_display($2, $3, &mv);}}
     | tCHECK_FRAME tNUM tSTRING tSTRING tNUM tSTRING {if (doit()) check_frame($2, $3, $4, $5, $6);}
     | tCHECK_LOCATION tSTRING tNUM {if (doit()) check_location(&dbg.loc, NULL, $2, $3);}
@@ -350,6 +352,7 @@ command:
     | tEVAL tSTRING tEVAL_STATUS {if (doit()) {struct mval mv; mv.type = $3; test_eval($2, &mv);}}
     | tEVAL tSTRING tEVAL_STATUS tNUM {if (doit()) {struct mval mv; mv.type = $3; mv.u.integer = $4; test_eval($2, &mv);}}
     | tEVAL tSTRING tEVAL_STATUS tSTRING {if (doit()) {struct mval mv; mv.type = $3; mv.u.str = $4; test_eval($2, &mv);}}
+    | tEVAL tSTRING tEVAL_STATUS tFLOAT {if (doit()) {struct mval mv; mv.type = $3; mv.u.flt_number = $4; test_eval($2, &mv);}}
     | tEVAL tSTRING tID {if (doit()) set_eval($2, $3);}
     | tSYSTEM tSTRING {if (doit()) system($2);}
     | tSYSTEM tSTRING tNUM {if (doit()) {int r = system($2); test_ok(r == $3, "Wrong system() result (%d)\n", r);}}
