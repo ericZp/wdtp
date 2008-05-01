@@ -8,8 +8,9 @@ It consists of:
   the output of those commands (wdbgtest),
 - a set of unit tests. Each test is made of a:
   + a simple C program
-  + a script to drive the commands to be sent to WineDbg, and their
-    expected output.
+  + a script to drive the commands to be sent to WineDbg by wdbgtest,
+    and their expected output.
+  Those simple C programs are run under WineDbg.
   In current configuration, all tests are compiled into a single
   executable, each test being chosen from a command line
   parameter. This executable is called wdtp.
@@ -33,6 +34,8 @@ It consists of:
 For now, the test suite must be compiled and run against a regular
 Wine compilation tree (not against an installed Wine setup).
 
+LICENSING
+---------
 This package is provided under the LGPL license (see LICENSE file).
 
 CONFIGURATION & BUILDING
@@ -46,7 +49,7 @@ is done with:
 where <wine_src_dir> is the path to the top of your Wine source tree.
 
 Or, if you compile Wine outside the Wine source tree, then
-configuration is done with: 
+configuration is done with:
 	./configure --with-wine=<wine_src_dir> \
 		--with-wine-output=<wine_dst_dir>
 where <wine_src_dir> is the path to the top of your Wine source tree,
