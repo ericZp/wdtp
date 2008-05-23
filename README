@@ -31,6 +31,12 @@ It consists of:
    | <test>.wdtp |                          |    <test>.c program     |
    +-------------+                          +-------------------------+
 
+Currently, the flavor name is made of:
+- name of compiler (gcc...)
+- an underscore
+- name of options (generally made out of debug format and compiler
+options)
+
 For now, the test suite must be compiled and run against a regular
 Wine compilation tree (not against an installed Wine setup).
 
@@ -62,24 +68,27 @@ RUNNING & TESTING
 -----------------
 As already mentionned, wdtp is compiled with different "flavors". We
 currently support:
-- stabspO0: stabs+ debug format, no optimization
-- dwarfO0: dwarf2 debug format, no optimization
-- dwarfO2: dwarf2 debug format, optimization at regular level
+- gcc_stabspO0: gcc, stabs+ debug format, no optimization
+- gcc_dwarfO0: gcc, dwarf2 debug format, no optimization
+- gcc_dwarfO2: gcc, dwarf2 debug format, optimization at regular level
 
 To test one flavor, use (for example):
-	make test_stabspO0
+	make test_gcc_stabspO0
 It will run all available tests with the defined flavor.
 
 To run all the tests for all flavors, run:
 	make test_all
 
+To run all the tests for a given compiler, run:
+	make test_gcc
+
 All flavors are not equally supported (see below in TODO).
 
-In the current version, the {dwarf, stabsp}O0 should be ok (they
+In the current version, the gcc_{dwarf, stabsp}O0 should be ok (they
 may provide two errors in minidump.wdtp and stack.wdtp for some gcc
 versions, but that's the current behavior).
-DwarfO2 produces lots of errors because of internal limitations (see
-below).
+gcc_dwarfO2 produces lots of errors because of internal limitations
+(see below).
 
 DEPENDENCIES
 ------------
@@ -95,7 +104,7 @@ TODO
 - Document the scripting language (wdtp files)
 - Lots of tests rely on line number, which can be wrong, especially
   with insn optimisation (a line is not made of insequable bag of
-  instructions...) => hence lots of errors with dwarfO2
+  instructions...) => hence lots of errors with gcc_dwarfO2
 - Set up a nicer way to define a new test flavor (extra tool in
   autoconf ??), and review the flavor naming scheme
 

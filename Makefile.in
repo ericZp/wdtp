@@ -31,13 +31,13 @@ WDTP_SRCS= \
 
 WDTPCFLAGS = $(INCLUDES) $(DEFS) $(DLLFLAGS)
 
-wdtp_stabspO0.exe$(DLLEXT): $(WDTP_SRCS)
+wdtp_gcc_stabspO0.exe$(DLLEXT): $(WDTP_SRCS)
 	$(WINEGCC) $(WDTPCFLAGS) -gstabs+ -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o $@ $(WDTP_SRCS) -lkernel32
 
-wdtp_dwarfO0.exe$(DLLEXT): $(WDTP_SRCS)
+wdtp_gcc_dwarfO0.exe$(DLLEXT): $(WDTP_SRCS)
 	$(WINEGCC) $(WDTPCFLAGS) -gdwarf-2 -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o $@ $(WDTP_SRCS) -lkernel32
 
-wdtp_dwarfO2.exe$(DLLEXT): $(WDTP_SRCS)
+wdtp_gcc_dwarfO2.exe$(DLLEXT): $(WDTP_SRCS)
 	$(WINEGCC) $(WDTPCFLAGS) -gdwarf-2 -O2 -B$(TOOLSDIR)/tools/winebuild -mconsole -o $@ $(WDTP_SRCS) -lkernel32
 
 # The rules for running the tests
@@ -51,16 +51,17 @@ WDTPS= \
 	type.wdtp \
 	xpoint.wdtp
 
-test_stabspO0: all wdtp_stabspO0.exe$(DLLEXT)
-	for i in $(WDTPS); do ./wdbgtest.run --condition stabs --flavor stabspO0 $$i; done
+test_gcc_stabspO0: all wdtp_gcc_stabspO0.exe$(DLLEXT)
+	for i in $(WDTPS); do ./wdbgtest.run --condition stabs --flavor gcc_stabspO0 $$i; done
 
-test_dwarfO0: all wdtp_dwarfO0.exe$(DLLEXT)
-	for i in $(WDTPS); do ./wdbgtest.run --condition dwarf --flavor dwarfO0 $$i; done
+test_gcc_dwarfO0: all wdtp_gcc_dwarfO0.exe$(DLLEXT)
+	for i in $(WDTPS); do ./wdbgtest.run --condition dwarf --flavor gcc_dwarfO0 $$i; done
 
-test_dwarfO2: all wdtp_dwarfO2.exe$(DLLEXT)
-	for i in $(WDTPS); do ./wdbgtest.run --condition dwarf --flavor dwarfO2 $$i; done
+test_gcc_dwarfO2: all wdtp_gcc_dwarfO2.exe$(DLLEXT)
+	for i in $(WDTPS); do ./wdbgtest.run --condition dwarf --flavor gcc_dwarfO2 $$i; done
 
-test:: test_stabspO0 test_dwarfO0 test_dwarfO2
+test_gcc: test_gcc_stabspO0 test_gcc_dwarfO0 test_gcc_dwarfO2
+test:: test_gcc
 
 # The rule for uploading the git tree
 .PHONY: upload
