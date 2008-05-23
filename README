@@ -32,10 +32,11 @@ It consists of:
    +-------------+                          +-------------------------+
 
 Currently, the flavor name is made of:
-- name of compiler (gcc...)
+- name of compiler (gcc, mingw32...)
 - an underscore
-- name of options (generally made out of debug format and compiler
-options)
+- a condensed string made out of the options (generally made out of
+debug format and compiler options)
+- the default executable extension (.exe for PEs, .exe.so for Wine modules)
 
 For now, the test suite must be compiled and run against a regular
 Wine compilation tree (not against an installed Wine setup).
@@ -61,52 +62,62 @@ configuration is done with:
 where <wine_src_dir> is the path to the top of your Wine source tree,
 and <wine_dst_dir> is the path to the top of your Wine object tree.
 
-In both cases, finalize the installation by building the lot:
+If you want to enable mingw32 cross-compilation, use the
+--with-mingw32 option to give the name of the version of the
+cross-compiler you want to use. For example:
+	./configure --with-wine=<wine_src_dir> \
+		--with-mingw32=i586-pc-mingw32-gcc
+
+In all cases, finalize the installation by building the lot:
 	make depend && make
 
 RUNNING & TESTING
 -----------------
 As already mentionned, wdtp is compiled with different "flavors". We
 currently support:
-- gcc_stabspO0: gcc, stabs+ debug format, no optimization
-- gcc_dwarfO0: gcc, dwarf2 debug format, no optimization
-- gcc_dwarfO2: gcc, dwarf2 debug format, optimization at regular level
+- gcc_stabspO0:     gcc, stabs+ debug format, no optimization
+- gcc_dwarfO0:      gcc, dwarf2 debug format, no optimization
+- gcc_dwarfO2:      gcc, dwarf2 debug format, optimization at regular level
+- mingw32_stabspO0: cross-compilation with mingw32, stabs+ debug
+		    format, no optimization
 
 To test one flavor, use (for example):
 	make test_gcc_stabspO0
 It will run all available tests with the defined flavor.
 
-To run all the tests for all flavors, run:
+To run all the tests for all flavors, do:
 	make test_all
 
-To run all the tests for a given compiler, run:
+To run all the tests for a given compiler, do:
 	make test_gcc
 
 All flavors are not equally supported (see below in TODO).
 
-In the current version, the gcc_{dwarf, stabsp}O0 should be ok (they
-may provide two errors in minidump.wdtp and stack.wdtp for some gcc
-versions, but that's the current behavior).
-gcc_dwarfO2 produces lots of errors because of internal limitations
-(see below).
+In the current version:
+- the gcc_{dwarf, stabsp}O0 should be ok (they may provide two errors
+  in minidump.wdtp and stack.wdtp for some gcc versions, but that's
+  the current behavior)
+- gcc_dwarfO2 produces lots of errors because of internal limitations
+  (see below).
+- mingw32_stabspO0 produces a couple of errors, that should be fixed.
 
 DEPENDENCIES
 ------------
 A full blown Wine tree, with all the tools needed to compile it (gcc,
 make, flex, bison). On top of that: autoconf.
-Optional tools: none
+Optional tools: mingw32 for cross-compilation
 
 TODO
 ----
-- Provide support for msvc & MingW compilation; would require somehow
-  splitting the compilation from the tests in a clean way (or support
-  the cross compilation)
+- Provide support for msvc compilation
+- Provide enhanced configuration tools to help defining support for a
+  new compiler, different sets of options for a compiler...
 - Document the scripting language (wdtp files)
 - Lots of tests rely on line number, which can be wrong, especially
   with insn optimisation (a line is not made of insequable bag of
   instructions...) => hence lots of errors with gcc_dwarfO2
 - Set up a nicer way to define a new test flavor (extra tool in
-  autoconf ??), and review the flavor naming scheme
+  autoconf ??)
 
 --------------
 Local variables:

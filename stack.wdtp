@@ -23,7 +23,7 @@
 # - test passing structures on the stack (it's ABI dependent)
 # - test returning structures from a function (it's ABI dependent)
 
-START "wdtp_$flavor$.exe" "stack"
+START "wdtp_$flavor$" "stack"
 	BREAK "b stack_func : 9" 1
 
 	COMMAND "cont"

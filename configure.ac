@@ -12,6 +12,7 @@ dnl **** Command-line arguments ****
 
 AC_ARG_WITH(wine,AC_HELP_STRING([--with-wine=<dir>],[set Wine directory as <dir> (~/wine if none)]))
 AC_ARG_WITH(wine,AC_HELP_STRING([--with-wine-output=<dir>],[set Wine output directory as <dir> (same as --with-wine if none)]))
+AC_ARG_WITH(wine,AC_HELP_STRING([--with-mingw32=<dir>],[tells where to find MingW32 cross-compilation]))
 
 dnl **** Checking the provided CL arguments ****
 
@@ -31,10 +32,15 @@ if test ! -f "$with_wine_output/programs/Makeprog.rules"; then
 	AC_MSG_ERROR([Couldn't find a Wine output tree. Use --with-wine-output=<dir>]);
 fi
 
+if test -z "with_mingw32"; then
+	with_mingw32=false;
+fi
+
 dnl
 
 AC_SUBST(WINE_SRC_DIR,$with_wine)
 AC_SUBST(WINE_DST_DIR,$with_wine_output)
+AC_SUBST(MINGW32,$with_mingw32)
 
 dnl
 

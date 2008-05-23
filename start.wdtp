@@ -26,12 +26,12 @@
 # - winedbg invocation in gdb mode
 
 # simple startup
-START "wdtp_$flavor$.exe" "start"
+START "wdtp_$flavor$" "start"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
 END
 
 # starting a program from a given pid
-LAUNCH "wdtp_$flavor$.exe.so start" $pid$
+LAUNCH "wdtp_$flavor$ start" $pid$
 
 START "$pid$"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12

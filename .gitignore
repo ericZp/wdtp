@@ -3,6 +3,7 @@
 *.yy.c
 *~
 *.exe.so
+wdtp_*.exe
 wdtp
 autom4te.cache
 config.cache

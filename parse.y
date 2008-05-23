@@ -143,7 +143,6 @@ static int start_test(const char* exec, const char* args)
 {
     int ret;
     char* run;
-    const char* ext = ".so"; /* FIXME */
 
     exec = id_subst(exec);
     if (!debugger)
@@ -151,10 +150,8 @@ static int start_test(const char* exec, const char* args)
         test_ok(debugger != NULL, "No debugger defined");
         exit(0);
     }
-    if (!wdt_ends_with(exec, ".exe")) ext = "";
-    run = malloc(strlen(debugger) + 1 + strlen(exec) + strlen(ext) + 1 +
-                 strlen(args) + 1);
-    sprintf(run, "%s %s%s %s", debugger, exec, ext, args);
+    run = malloc(strlen(debugger) + 1 + strlen(exec) + 1 + strlen(args) + 1);
+    sprintf(run, "%s %s %s", debugger, exec, args);
     ret = wdt_start(&dbg, run);
     test_ok(ret != -1, dbg.err_msg);
     return ret;

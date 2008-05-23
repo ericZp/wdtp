@@ -19,7 +19,7 @@
 
 # heavily copied from expr.wdtp
 
-START "wdtp_$flavor$.exe" "expr foo bar"
+START "wdtp_$flavor$" "expr foo bar"
 	BREAK	"b test_expr"
 	COMMAND	"cont"
 
@@ -98,7 +98,7 @@ END
 
 # heavily derived from stack.wdtp
 
-START "wdtp_$flavor$.exe" "stack"
+START "wdtp_$flavor$" "stack"
 	BREAK "b stack_func : 9" 1
 	COMMAND "cont"
 
