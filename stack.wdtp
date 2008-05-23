@@ -20,6 +20,8 @@
 # TODO
 # - extend frame tests with register variables
 #   (but how to create them in a portable manner ?)
+# - test passing structures on the stack (it's ABI dependent)
+# - test returning structures from a function (it's ABI dependent)
 
 START "wdtp_$flavor$.exe" "stack"
 	BREAK "b stack_func : 9" 1
