@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <windef.h>
 #include "wdtp.h"
 
 /* just to avoid to include all the Windows stuff */
@@ -18,7 +17,7 @@ static int start_real(void)
  */
 int test_start(int argc, const char** argv)
 {
-    long event = CreateEventA(NULL, FALSE, FALSE, NULL);
+    long event = CreateEventA(NULL, 0, 0, NULL);
     WaitForSingleObject(event, 0xFFFFFFFF /* INFINITE */);
     CloseHandle(event);
 
