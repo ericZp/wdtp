@@ -4,6 +4,8 @@
 *~
 *.exe.so
 wdtp_*.exe
+wdtp_*.pdb
+vc70.pdb
 wdtp
 autom4te.cache
 config.cache

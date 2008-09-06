@@ -68,6 +68,11 @@ cross-compiler you want to use. For example:
 	./configure --with-wine=<wine_src_dir> \
 		--with-mingw32=i586-pc-mingw32-gcc
 
+If you want to enable MS Visual C++ compilation (the compiler will be
+run with Wine), use the --with-msvc option to give the top directory
+where MS Visual C++ is. For example:
+	./configure --with-msvc=/home/winapps/Microsoft\ Visual\ C++\ Toolkit\ 2003
+
 In all cases, finalize the installation by building the lot:
 	make depend && make
 
@@ -80,6 +85,7 @@ currently support:
 - gcc_dwarfO2:      gcc, dwarf2 debug format, optimization at regular level
 - mingw32_stabspO0: cross-compilation with mingw32, stabs+ debug
 		    format, no optimization
+- msvc_pdbOd:	    msvc, PDB format, no optimization
 
 To test one flavor, use (for example):
 	make test_gcc_stabspO0
@@ -91,25 +97,26 @@ To run all the tests for all flavors, do:
 To run all the tests for a given compiler, do:
 	make test_gcc
 
-All flavors are not equally supported (see below in TODO).
-
-In the current version:
+All flavors are not equally supported:
 - the gcc_{dwarf, stabsp}O0 should be ok (they may provide two errors
   in minidump.wdtp and stack.wdtp for some gcc versions, but that's
   the current behavior)
 - gcc_dwarfO2 produces lots of errors because of internal limitations
-  (see below).
+  (see below in TODO).
 - mingw32_stabspO0 produces a couple of errors, that should be fixed.
+- msvc_pdbOd produces a couple of errors, that should be fixed.
 
 DEPENDENCIES
 ------------
 A full blown Wine tree, with all the tools needed to compile it (gcc,
 make, flex, bison). On top of that: autoconf.
-Optional tools: mingw32 for cross-compilation
+Optional tools:
+- mingw32 for cross-compilation (optional)
+- Microsoft Visual C++ for cross-compilation (optional)
 
-TODO
-----
-- Provide support for msvc compilation
+KNOWN ISSUES
+------------
+Enhancements
 - Provide enhanced configuration tools to help defining support for a
   new compiler, different sets of options for a compiler...
 - Document the scripting language (wdtp files)
@@ -118,6 +125,15 @@ TODO
   instructions...) => hence lots of errors with gcc_dwarfO2
 - Set up a nicer way to define a new test flavor (extra tool in
   autoconf ??)
+
+Known bugs
+- Setting a breakpoint on a line number which doesn't exist in debug
+  info is not supported
+- Evaluating an expression where several symbols of same name are
+  usable is not supported (it generally hang wdbgtest)
+- Getting a backtrace on an address without any known function to the
+  debugger (or line number info) isn't supported
+- A backtrace where '(nil)' is used isn't properly supported
 
 --------------
 Local variables:

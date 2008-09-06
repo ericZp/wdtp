@@ -20,6 +20,7 @@
 # TODO
 # - extend frame tests with register variables
 #   (but how to create them in a portable manner ?)
+# - test passing float & doubles on the stack
 # - test passing structures on the stack (it's ABI dependent)
 # - test returning structures from a function (it's ABI dependent)
 
