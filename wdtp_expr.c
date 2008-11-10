@@ -7,6 +7,7 @@
  * where struct foo exists and foo is a typedef to another struct
  */
 
+int             myint0;
 int             myint1;
 static int      myint2;
 
@@ -55,6 +56,7 @@ int test_expr(int argc, const char** ptr)
 {
     struct toto t = {0, 0, 12, 63, -34, -4, 1.23, 4.56e-2, {0x5A5A5A5A, 0xA5A5A5A5}, {0xAAAAAAAA}};
 
+    myint0 = -4;
     myint1 = g(argc);
     myint2 = 3 * t.bf1;
     t.toto_a = 1 + argc;

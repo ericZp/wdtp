@@ -54,10 +54,16 @@ START "wdtp_$flavor$" "expr foo bar"
 	COMMAND "next" ss_step
 	COMMAND "next" ss_step
 	COMMAND "next" ss_step
+	COMMAND "next" ss_step
 
+	EVAL "p myint0" mv_integer -4
+	EVAL "p myint1" mv_integer 2
+	EVAL "p myint2" mv_integer 36
 	# setting some values
 	EVAL "set myint1=45" mv_null 0
+	EVAL "p myint0" mv_integer -4
 	EVAL "p myint1" mv_integer 45
+	EVAL "p myint2" mv_integer 36
 
 	COMMAND "next" ss_step
 

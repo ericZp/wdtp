@@ -32,6 +32,7 @@ START "wdtp_$flavor$" "expr foo bar"
 	COMMAND "next" ss_step
 	COMMAND "next" ss_step
 	COMMAND "next" ss_step
+	COMMAND "next" ss_step
 
 	COMMAND "minidump foo2.mdmp"
 END
@@ -85,6 +86,7 @@ START "foo2.mdmp"
 	# we don't copy global data segments in minidump yet
 	EVAL	"p titi" mv_struct "pA=*** Invalid address..."
 
+	#EVAL	"p myint0" mv_integer -4
 	# test setting values inside structure
 	EVAL	"set t.toto_a=45" mv_error
 	EVAL	"p t.toto_a" mv_integer 3
