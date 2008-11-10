@@ -28,6 +28,7 @@
 # simple startup
 START "wdtp_$flavor$" "start"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
+	COMMAND "kill"
 END
 
 # starting a program from a given pid
@@ -35,6 +36,7 @@ LAUNCH "wdtp_$flavor$ start" $pid$
 
 START "$pid$"
 	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
+	COMMAND "kill"
 END
 
 # testing the attachment to the debugger
