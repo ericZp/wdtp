@@ -20,7 +20,6 @@
 # TODO
 # - extend frame tests with register variables
 #   (but how to create them in a portable manner ?)
-# - test passing float & doubles on the stack
 # - test passing structures on the stack (it's ABI dependent)
 # - test returning structures from a function (it's ABI dependent)
 
@@ -42,8 +41,9 @@ START "wdtp_$flavor$" "stack"
 	CHECK_FRAME 9 "stack_func" "wdtp_stack.c" 7 "i=2"
 	CHECK_FRAME 10 "stack_func" "wdtp_stack.c" 7 "i=1"
 
-	CHECK_FRAME 11 "test_stack" "wdtp_stack.c" 16 "argc=0, argv=..."
-	CHECK_FRAME 12 "main" "wdtp.c" 11 "argc=2, argv=..."
+	CHECK_FRAME 11 "stack_float" "wdtp_stack.c" 16 "i=1, f=1.234500, d=-1.456700"
+	CHECK_FRAME 12 "test_stack" "wdtp_stack.c" 21 "argc=0, argv=..."
+	CHECK_FRAME 13 "main" "wdtp.c" 11 "argc=2, argv=..."
 
 	# testing local variables
 	EVAL "p i" mv_integer 10

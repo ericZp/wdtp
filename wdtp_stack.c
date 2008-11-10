@@ -10,8 +10,13 @@ static int stack_func(int i)
     return i * 2;
 }
 
+static int stack_float(int i, float f, double d)
+{
+    return stack_func(i);
+}
+
 int test_stack(int argc, const char** argv)
 {
-    stack_func(1);
+    stack_float(1, 1.2345, -1.4567);
     return 0;
 }
