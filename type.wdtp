@@ -23,9 +23,13 @@ START "wdtp_$flavor$" "type"
 	BREAK "break test_type : 34" 1 "test_type" "wdtp_type.c" 34
 	COMMAND "cont"
 
-	COMMAND "whatis bar" "type = int"
-	COMMAND "whatis foo" "type = int*"
-	COMMAND "whatis fn" "type = struct ms* (*--none--)(int, char*)"
+	[!pdb] COMMAND "whatis bar" "type = int"
+	[pdb] COMMAND "whatis bar" "type = INT4"
+	[!pdb] COMMAND "whatis foo" "type = int*"
+	[pdb] COMMAND "whatis foo" "type = INT4*"
+	[!pdb] COMMAND "whatis fn" "type = struct ms* (*--none--)(int, char*)"
+	# FIXME: the 'signed char' thingie is to be fixed
+	[pdb] COMMAND "whatis fn" "type = struct ms* (*--none--)(INT4, signed char*)"
 	# FIXME: the last * is suspicious
 	[stabs]	COMMAND "whatis pfn" "type = struct ms* (*--none--)()*"
 	[dwarf]	COMMAND "whatis pfn" "type = struct ms* (*--none--)(int, char*)*"
