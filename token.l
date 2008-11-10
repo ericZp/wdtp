@@ -64,7 +64,7 @@ HEXDIGIT   [0-9a-fA-F]
 [+-]?{DIGIT}+             	     { sscanf(yytext, "%d", &parse_lval.integer); return tNUM; }
 [+-]?{DIGIT}+(\.{DIGIT}+)?([eE][+-]?{DIGIT}+)?  { sscanf(yytext, "%lf", &parse_lval.flt_number); return tFLOAT; }
 "$"[A-Za-z_]+"$"                { parse_lval.id = fetch_id(yytext); return tID; }
-"["[A-Za-z_]+"]"                { char* ptr = parse_lval.string = strdup(yytext + 1); ptr[strlen(ptr) - 1] = '\0'; return tCONDITION; }
+"[""!"?[A-Za-z_]+"]"            { char* ptr = parse_lval.string = strdup(yytext + 1); ptr[strlen(ptr) - 1] = '\0'; return tCONDITION; }
 LAUNCH                          { return tLAUNCH; }
 START                      	  { return tSTART; }
 BACKTRACE                       { return tBACKTRACE; }

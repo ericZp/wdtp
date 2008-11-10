@@ -288,7 +288,29 @@ static unsigned exec_block = TRUE;
 
 static void set_condition(const char* cond)
 {
-    do_command = !condition || !strcmp(condition, cond);
+    if (*cond == '!')
+    {
+        do_command = !condition || strcmp(condition, cond + 1);
+    }
+    else
+    {
+        if (condition)
+        {
+            const char* ptr;
+
+            while ((ptr = strchr(cond, ',')))
+            {
+                if (!memcmp(condition, cond, ptr - cond) && condition[ptr - cond] == '\0')
+                {
+                    do_command = TRUE;
+                    return;
+                }
+                cond = ptr + 1;
+            }
+            do_command = !strcmp(condition, cond);
+        }
+        else do_command = TRUE;
+    }
 }
 
 static unsigned doit(void)
