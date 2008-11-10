@@ -334,6 +334,8 @@ int wdt_start(struct debuggee* dbg, char* start)
         }
     }
     else dbg->status = ss_none;
+    /* setting another symbol picker for easier testing */
+    wdt_execute(dbg, "set ! symbol_picker scoped");
     return 0;
 }
 
