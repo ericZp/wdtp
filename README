@@ -137,6 +137,44 @@ Things to do:
 - why using the EVAL command for 'set' (could also get rid of mv_null
   in EVAL)
 
+TEST ENHANCEMENTS
+-----------------
+Display:
+- check for other functions (only display information from a given
+  function or a given function & stack frame ??)
+- enable / disable of display items
+Expr:
+- better test the x and print commands (especially modifiers /x...)
+- casts (integers, pointers)
+- fix the sll and ull tests
+- more tests on arrays
+Minidump:
+- recheck when global variables are properly managed/saved in minidump
+  files (could be a winedbg option anyway)
+Stack:
+- extend frame tests with register variables (but how to create them
+  in a portable manner ?)
+- test passing structures on the stack (it's ABI dependent)
+- test returning structures from a function (it's ABI dependent)
+Start
+- should also test that winedbg starts upon exception
+- first chance & second chance exceptions should be tested
+- winedbg invocation with a set of commands passed on the command line
+- winedbg invocation with a file as commands
+- winedbg invocation in automatic mode
+- winedbg invocation in gdb mode
+XPoint:
+- enabling / disabling bp
+- use of cont N
+- frame scoping for conditional bp
+- bp printing
+- get rid of wdt_evaluate call (or tweak it so that we get the
+  returned value from the evaluation)
+- late bp (rechecked when a DLL is loaded)
+New test files
+- add a huge file to test a bit about performance (perhaps requires
+  also new commands in winedbg to test time/memory usage)
+
 --------------
 Local variables:
 mode: auto-fill
