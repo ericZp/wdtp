@@ -242,6 +242,7 @@ static void set_eval(const char* cmd, struct id* id)
 static void check_display(int num, const char* name, const struct mval* mv2)
 {
     test_ok(dbg.num_display > num, "display number (%u) out of bounds (%u)", num, dbg.num_display);
+    if (num >= dbg.num_display) return;
     test_ok(!strcmp(dbg.display[num].expr, name), "wrong display (%s)", dbg.display[num].expr);
     check_eval(&dbg.display[num].mval, mv2);
 }
