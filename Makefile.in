@@ -54,6 +54,11 @@ wdtp_msvc_pdbOd.exe: $(WDTP_SRCS)
 	$(WINE)	"$(MSVC_DIR)"/bin/cl.exe $(MSVC_CFLAGS) /Od /Fe$@ $(WDTP_SRCS) $(MSVC_LINK)
 	-rm -f $(WDTP_SRCS:%.c=%.obj) $(@:%.exe=%.ilk)
 
+wdtp: wdtp_gcc_stabspO0.exe$(DLLEXT) wdtp_gcc_dwarfO0.exe$(DLLEXT) wdtp_gcc_dwarfO2.exe$(DLLEXT) \
+	wdtp_mingw32_stabspO0.exe wdtp_msvc_pdbOd.exe
+
+.PHONY: wdtp
+
 # The rules for running the tests
 WDTPS= \
 	display.wdtp \
