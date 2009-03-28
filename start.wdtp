@@ -27,7 +27,7 @@
 
 # simple startup
 START "wdtp_$flavor$" "start"
-	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
+	BREAK "break wdtp_test_start_real : 12" 1 "wdtp_test_start_real" "wdtp_start.c" 12
 	COMMAND "kill"
 END
 
@@ -35,7 +35,7 @@ END
 LAUNCH "wdtp_$flavor$ start" $pid$
 
 START "$pid$"
-	BREAK "break start_real : 12" 1 "start_real" "wdtp_start.c" 12
+	BREAK "break wdtp_test_start_real : 12" 1 "wdtp_test_start_real" "wdtp_start.c" 12
 	COMMAND "kill"
 END
 
@@ -47,7 +47,7 @@ END
 
 # this is a test from command line...
 # FIXME: we don't have commands for winedbg yet
-# START "--command \"break start_real\"" "wdtp_$flavor$.exe" "start"
+# START "--command \"break wdtp_test_start_real\"" "wdtp_$flavor$.exe" "start"
 #    int                 ret;
 #    BOOL                eof;
 #    char                tmp[1024], *end;
