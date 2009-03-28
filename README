@@ -21,15 +21,16 @@ It consists of:
   wdtp. Each flavor corresponds to a unique set of options to cover
   different elements, among which:
   + compiler: gcc, msvc, MingW...
+  + compiler version (if several chains are installed)
   + debug format: stabs, Dwarf2, Codeview, PDB...
   + compiler options: mostly optimisations
   + linker option: debug info stripping, prelinking
 
-   +-------------+        +---------+       +-------------------------+
-   |   wdbgtest  | <====> | WineDbg | ----> | wdtp.exe<flavor> <test> |
-   +-------------+        +---------+       +-------------------------+
-   | <test>.wdtp |                          |    <test>.c program     |
-   +-------------+                          +-------------------------+
+   +-------------+        +---------+       +--------------------------+
+   |   wdbgtest  | <====> | WineDbg | ----> | wdtp_<flavor>.exe <test> |
+   +-------------+        +---------+       +--------------------------+
+   | <test>.wdtp |                          |     <test>.c program     |
+   +-------------+                          +--------------------------+
 
 Currently, the flavor name is made of:
 - name of compiler (gcc, mingw32...)
@@ -103,8 +104,10 @@ All flavors are not equally supported:
 - the gcc_{dwarf, stabsp}O0 should be ok (they may provide two errors
   in minidump.wdtp and stack.wdtp for some gcc versions, but that's
   the current behavior)
-- gcc_dwarfO2 produces lots of errors because of internal limitations
-  (see TODO about line numbers)
+- gcc_dwarfO2 produces a couple of errors (execute: mishandling of
+  instruction reordering, which mixes insn from different lines;
+  minidump and stack: the ELF ABI enforces saving some registers on
+  the stack, and winedbg/dbghelp doesn't handle it correctly)
 - mingw32_stabspO0 produces a couple of errors, that should be fixed
 
 DEPENDENCIES
@@ -121,17 +124,12 @@ KNOWN ISSUES
 Enhancements
 - Provide enhanced configuration tools to help defining support for a
   new compiler, different sets of options for a compiler...
-- Lots of tests rely on line number, which can be wrong, especially
-  with insn optimisation (a line is not made of insequable bag of
-  instructions...) => hence lots of errors with gcc_dwarfO2
 - Set up a nicer way to define a new test flavor (extra tool in
   autoconf ??)
 
 Known bugs
 - Setting a breakpoint on a line number which doesn't exist in debug
   info is not supported
-- Evaluating an expression where several symbols of same name are
-  usable is not supported (it generally hangs wdbgtest)
 - Getting a backtrace on an address without any known function to the
   debugger (or line number info) isn't supported
 - A backtrace where '(nil)' is used isn't properly supported
