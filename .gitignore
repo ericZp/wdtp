@@ -4,3 +4,10 @@
 *~
 *.exe.so
 wdtp
+autom4te.cache
+config.cache
+config.log
+config.status
+configure
+Makefile
+wdbgtest.run

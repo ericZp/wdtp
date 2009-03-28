@@ -1,0 +1,75 @@
+TOPSRCDIR = @WINE_SRC_DIR@
+TOPOBJDIR = @WINE_DST_DIR@
+SRCDIR    = @srcdir@
+VPATH     = @srcdir@
+MODULE    = wdbgtest.exe
+APPMODE   = -mconsole
+IMPORTS   = kernel32
+DELAYIMPORTS = user32
+EXTRALIBS =
+
+
+C_SRCS = \
+	wdbgtest.c
+
+LEX_SRCS   = token.l
+BISON_SRCS = parse.y
+
+@MAKE_PROG_RULES@
+parse.tab.c: parse.tab.h   # for parallel makes
+
+# Now the rules to build the wdtp program (with various compilation options)
+WDTP_SRCS= \
+        wdtp.c \
+        wdtp_display.c \
+        wdtp_execute.c \
+        wdtp_expr.c \
+        wdtp_stack.c \
+        wdtp_start.c \
+        wdtp_type.c \
+        wdtp_xpoint.c
+
+WDTPCFLAGS = $(INCLUDES) $(DEFS) $(DLLFLAGS)
+
+wdtp_stabspO0.exe$(DLLEXT): $(WDTP_SRCS)
+	$(WINEGCC) $(WDTPCFLAGS) -gstabs+ -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -lkernel32
+	mv wdtp.exe.so $@
+
+wdtp_dwarfO0.exe$(DLLEXT): $(WDTP_SRCS)
+	$(WINEGCC) $(WDTPCFLAGS) -gdwarf-2 -O0 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -lkernel32
+	mv wdtp.exe.so $@
+
+wdtp_dwarfO2.exe$(DLLEXT): $(WDTP_SRCS)
+	$(WINEGCC) $(WDTPCFLAGS) -gdwarf-2 -O2 -B$(TOOLSDIR)/tools/winebuild -mconsole -o wdtp.exe.so $(WDTP_SRCS) -lkernel32
+	mv wdtp.exe.so $@
+
+# The rules for running the tests
+WDTPS= \
+	display.wdtp \
+	execute.wdtp \
+	expr.wdtp \
+	minidump.wdtp \
+	stack.wdtp \
+	start.wdtp \
+	type.wdtp \
+	xpoint.wdtp
+
+test_stabspO0: all wdtp_stabspO0.exe$(DLLEXT)
+	ln -sf wdtp_stabspO0.exe.so wdtp.exe.so
+	for i in $(WDTPS); do ./wdbgtest.run --condition stabs $$i; done
+
+test_dwarfO0: all wdtp_dwarfO0.exe$(DLLEXT)
+	ln -sf wdtp_dwarfO0.exe.so wdtp.exe.so
+	for i in $(WDTPS); do ./wdbgtest.run --condition dwarf $$i; done
+
+test_dwarfO2: all wdtp_dwarfO2.exe$(DLLEXT)
+	ln -sf wdtp_dwarfO2.exe.so wdtp.exe.so
+	for i in $(WDTPS); do ./wdbgtest.run --condition dwarf $$i; done
+
+test:: test_stabspO0 test_dwarfO0 test_dwarfO2
+
+# The rule for uploading the git tree
+.PHONY: upload
+
+upload:
+	ftpsync --user eric.pouech@wanadoo.fr --passfile ~/.perso-passfile .git ftp://perso-ftp.orange.fr/wdtp.git

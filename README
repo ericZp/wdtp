@@ -1,5 +1,5 @@
-SYNOPSIS
---------
+INTRODUCTION
+------------
 This repository is a set of tools to test the winedbg. It consists of:
 - a program to drive winedbg by passing commands to it (wdbgtest),
 - a set of simple programs used to be run under the debugger
@@ -13,21 +13,27 @@ wdtp stands for Wine debugger testing package.
 For now, the test suite must be run against a wine compilation tree
 (not against an installed wine setup).
 
-CONFIGURATION
--------------
-This must be done for now by hand.
+CONFIGURATION & BUILDING
+------------------------
+If you compile Wine in the source tree, then configuration is done
+with:
+	./configure --with-wine=<wine_src_dir>
+where <wine_src_dir> is the path to the top of your wine source tree.
 
-Edit Makefile and set TOPSRCDIR, TOPOBJDIR, SRCDIR et VPATH to their
-respective value (depending on your setup).
+If you compile Wine outside the source tree, then configuration is
+done with: 
+	./configure --with-wine=<wine_src_dir> \
+		--with-wine-output=<wine_dst_dir>
+where <wine_src_dir> is the path to the top of your wine source tree,
+and <wine_dst_dir> is the path to the top of your wine object tree.
 
-TOPSRCDIR: where the wine source tree is
-TOPOBJDIR: where the wine object tree is (corresponding to TOPSRCDIR)
-SRCDIR et VPATH: where the wdtp
+In both cases, run:
+	make depend
+	make
+	make wdtp
 
-Edit wdtptest to set the location of the wine object tree (topdir).
-
-RUNNING
--------
+RUNNING & TESTING
+-----------------
 Actually, the simple apps can be compiled with several options from
 gcc. We currently support:
 - stabspO0: stabs+ debug format, no optimization
@@ -40,12 +46,23 @@ run all available tests with the defined combination.
 All combinations are not equally supported (the O2 provide some bad
 results).
 
+In the current version, the dwarf & stabsp O0 should be ok (they
+may provide two errors in minidump.wdtp and stack.wdtp for some gcc
+versions, but that's the current behavior).
+Dwarf O2 produces lots of errors because of internal limitations (see
+below).
+
+LICENSE
+-------
+LGPL
+
 TODO
 ----
-- Make the configuration step easier
-- Autogenerate the Makefile and wdbgtest files
+- Get rid of wdbgtest.run file (it's an ugly hack)
 - Provide support for msvc compilation ; would require somehow
   splitting the compilation from the tests in a clean way
-- Document the scripting language
-
+- Document the scripting language (wdtp files)
+- Lots of tests rely on line number, which can be wrong, especially
+  with insn optimisation (a line is not made of insequable bag of
+  instructions...) =>hence lots of errors with dwarfO2
 
