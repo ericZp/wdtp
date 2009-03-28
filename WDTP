@@ -1,0 +1,249 @@
+This file describes the format of .wdtp files.
+
+I Overall structure:
+===================
+A .wdtp is a structured text file which drives the commands to be send
+to the Wine debugger (WineDbg), and the expected answers.
+
+First of all, comments can be added to any .wdtp file by using the '#'
+character. All information starting with the '#' up to the end of line
+are considered as a comment, and won't be used.
+
+A .wdtp file is usually made of one or several execution unit. An
+execution unit can be seen as:
+- starting WineDbg
+- asking a given program (and arguments) to be started within the
+  WineDbg session
+- a set of instructions (and their outputs) to be executed within the
+  WineDbg session
+- exiting WineDbg (hence killing the run program)
+
+II Execution Unit:
+=================
+An execution unit is defined by a START instruction, followed by a set
+of instructions (see below) and terminated by and END instruction.
+
+There are different usage of the START command:
+- starting WineDbg, running a new program by name. The first string is
+  the name of the executable, the second string is a space-separated
+  list of arguments.
+    START "myprogram" "arg1 arg2"
+	# various instructions
+    END
+- starting WineDbg, using an existing minidump file.
+    START "minidump.mdmp"
+	# various instructions
+    END
+- starting WineDbg, attaching to a program knowing its PID.
+    START "123"
+	# various instructions
+    END
+  Usually, one can get the PID of a program by using the LAUNCH
+  command.
+    LAUNCH "wdtp_$flavor$ start" $pid$
+    START "$pid$"
+	# various instructions
+    END
+
+There can be several execution units in the same .wdtp file.
+
+III Instructions:
+================
+The instructions inside the START/END block are made of:
+- commands: real commands for WineDbg
+- setting breakpoints
+- checks: checks for some state (stack, display output, position in
+  code...)
+- evals: set and read some values
+- other instructions
+
+III.1 Commands:
+--------------
+Some usual WineDbg commands are wrapped up in dedicated .wdtp
+instructions (see below for the details) in order to ease the
+management. However, using the COMMAND instruction always work to send
+a command to WineDbg.
+
+The most common form is:
+  COMMAND "minidump foo1.mdmp"
+  COMMAND "up"
+  COMMAND "up 3"
+  COMMAND "down 2"
+  COMMAND "down"
+  COMMAND "display xx"
+It simply passes the string as a command to WineDbg.
+
+The commands used for running the program (like cont, step, next,
+finish...) can (but are not forced to) use an alternate form:
+  COMMAND "cont"
+  COMMAND "cont" ss_xpoint 1
+  COMMAND "step" ss_step
+  COMMAND "next" ss_step
+  COMMAND "finish" ss_step
+In this case, the command string is followed by a ss_??? constant
+which represents the way WineDbg is expected to report the run
+command. The supported values are:
+- ss_step: stopping without a breakpoint (usually for step, next,
+  finish when no breakpoint is encountered)
+- ss_xpoint: stopping on a breakpoint/watchpoint (and an additional
+  parameter gives the breakpoint/watchpoint number)
+- ss_exception: an exception has been caught by WineDbg
+
+Finally, if one wants to check the string returned by the WineDbg
+command, he/she can use the following form:
+  COMMAND "whatis bar" "type = int"
+where the output of the command is compared against the second
+string.
+
+Some more advanced wrappers around commands are also provided. See
+below for the details. Those wrappers allow finer grain in testing the
+returned values.
+
+III.2 Setting breakpoints:
+-------------------------
+Setting a breakpoint can be made in several ways.
+The minimum instruction is:
+  BREAK "b test_expr"
+The string in quotes is the real command send to WineDbg. You can
+hence use all the bells and whistles for this instruction. For
+example:
+  BREAK "b exec_f : 15" 1
+
+You can optionnaly add some other items to test the return values of
+the command. These items are, in order:
+- breakpoint number
+- function where the breakpoint is set
+- file where the breakpoint is set
+- line number where the breakpoint is set
+For example:
+  BREAK "break display_foo : 20" 1 "display_foo" "wdtp_display.c" 20
+
+You can pick up which informations you need to look at, but you must
+provide all elements to that point: if you need to check for filename,
+you must also check for breakpoint number and function; and you can
+omit the line number.
+
+III.3 Evaluations:
+-----------------
+The "eval" command allows to ask WineDbg to compute a value, and to
+check what the value is. The first argument is a string which
+represents the evalution (full command) to be sent to WineDbg. The
+second argument is the expected type of the evaluation (its a symbolic
+value, prefixed by mv_). The third argument is the value itself ; its
+form depends on the type of the evaluation.
+
+Here's the list of supported values' types (the examples are taken
+from the wdtp tests):
+Integral decimal value (mv_integer)
+  EVAL "p a" mv_integer 12
+Integral hexadecimal value (mv_hexa)
+  EVAL "p /x 0xffffffff" mv_hexa 0xffffffff
+Float (mv_float)
+  EVAL "p t.ff" mv_float 1.23
+String (mv_string)
+  EVAL "p ptr[0]" mv_string "foo"
+Char (mv_char)
+  EVAL "p ptr[0][0]" mv_char 'f'
+Structures (mv_struct)
+  EVAL "p t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
+Error (mv_error) (when no evaluation could be done by WineDbg)
+  EVAL "p ptr[0]" mv_error
+No output (mv_null)
+  EVAL "set myint1=45" mv_null 0
+
+Notes:
+- no unicode char nor string is supported yet.
+- the structures' fields are printed in the order they are defined in
+  the structure itself, including sub-structures
+
+One can also use the EVAL command to store (instead of checking) the
+value of an expression into a variable. For example:
+  EVAL "p xpoint_g" $g_addr$
+stores the address of function xpoint_g into the $g_addr$
+variable. This variable can be used later on (for example, in BREAK
+command to break by address and not by function name).
+
+III.4 Checks:
+------------
+One can check how the backtrace looks like. This is done with at least
+two instructions.
+The first one is BACKTRACE. It sends the backtrace command to WineDbg
+and captures all information for later testing.
+The second instruction is CHECK_FRAME.
+It allows to check each individual frame number.
+The generic format is:
+  CHECK_FRAME 1 "stack_func" "wdtp_stack.c" 9 "i=0xa"
+The argument are as follow:
+- first one is the frame number we wish to test
+- second one is the function name where the frame points to
+- third one is the filename where the function (above) sits
+- fourth one is the line number where the frame points to
+- fifth one is the actual list of parameters to the function
+
+The wrapper checks that every item is correctly sent back by WineDbg.
+
+One can also check where WineDbg has actually stopped with the
+CHECK_LOCATION command. The command can either check the filename and
+line number
+  CHECK_LOCATION "wdtp_display.c" 20
+or the function name as well.
+  CHECK_LOCATION "exec_f" "wdtp_execute.c" 16
+
+Finally, when WineDbg prints display just before the prompt (see
+WineDbg's display command), one can check which values are
+printed. All displays are stored in an array, and the CHECK_DISPLAY
+commands checks the content of one entry in this array. The first
+argument is the index into the array, then the name (as string) of the
+variable which is displayed, then the type of the value, and the value
+itself. These two last arguments have the same syntax as the ones in
+the EVAL command.
+  CHECK_DISPLAY 0 "xx" mv_struct "v=22, string=\"first\""
+To check that one entry is incorrect (ie not returned by WineDbg), use:
+  CHECK_DISPLAY 1
+
+III.5 Other instructions:
+------------------------
+One can pass any command string to the system using the SYSTEM
+instruction. For example:
+  SYSTEM "rm -f foo1.mdmp"
+simply asks to remove a temporary file.
+
+III.6 Optional instructions:
+---------------------------
+An instruction can be optional. In that case, if should start by a
+test expressed between []. The test is always checked against the
+value passed to wdtp with --condition argument on command line. It
+usually reflects the debug format used to compile this test.
+
+The test can be expressed as:
+[XXXX]	    -> this will only execute the instruction when the
+               'condition' matches XXXX
+[!XXXX]     -> this will only execute the instruction when the
+               'condition' doesn't match XXXX
+[XXXX,YYYY] -> this will only execute the instruction when the
+               'condition' matches XXXX or YYYY
+
+IV Strings:
+==========
+IV.1 Variable expansion:
+-----------------------
+In a couple of commands (LAUNCH, START, EVAL, BREAK), a string can be
+expanded depending on the values of some internal variables. Such a
+variable starts and ends with a dollar sign ($). See the details in
+this file where this is available.
+
+IV.2 Matching strings:
+---------------------
+When comparing to strings in some commands (CHECK, EVAL,
+BACKTRACE...), one can only check for the beginning of a string. For
+example:
+  CHECK_FRAME 12 "main" "wdtp.c" 11 "argc=2, argv=..."
+doesn't check for the value of argv, but only ensures that a value for
+argv is actually printed.
+
+--------------
+Local variables:
+mode: auto-fill
+mode: font-lock
+End:
+
