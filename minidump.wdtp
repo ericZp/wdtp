@@ -95,7 +95,7 @@ END
 # heavily derived from stack.wdtp
 
 START "wdtp_$flavor$" "stack"
-	BREAK "b stack_func : 9" 1
+	BREAK "b wdtp_test_stack_func : 10" 1
 	COMMAND "cont"
 
 	COMMAND "minidump foo.mdmp"
@@ -103,20 +103,20 @@ END
 
 START "foo.mdmp"
 	BACKTRACE
-	CHECK_FRAME 0 "stack_func" "wdtp_stack.c" 9 "i=10"
+	CHECK_FRAME 0 "wdtp_test_stack_func" "wdtp_stack.c" 10 "i=10"
 
-	CHECK_FRAME 1 "stack_func" "wdtp_stack.c" 7 "i=9"
-	CHECK_FRAME 2 "stack_func" "wdtp_stack.c" 7 "i=8"
-	CHECK_FRAME 3 "stack_func" "wdtp_stack.c" 7 "i=7"
-	CHECK_FRAME 4 "stack_func" "wdtp_stack.c" 7 "i=6"
-	CHECK_FRAME 5 "stack_func" "wdtp_stack.c" 7 "i=5"
-	CHECK_FRAME 6 "stack_func" "wdtp_stack.c" 7 "i=4"
-	CHECK_FRAME 7 "stack_func" "wdtp_stack.c" 7 "i=3"
-	CHECK_FRAME 8 "stack_func" "wdtp_stack.c" 7 "i=2"
-	CHECK_FRAME 9 "stack_func" "wdtp_stack.c" 7 "i=1"
+	CHECK_FRAME 1 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=9"
+	CHECK_FRAME 2 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=8"
+	CHECK_FRAME 3 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=7"
+	CHECK_FRAME 4 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=6"
+	CHECK_FRAME 5 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=5"
+	CHECK_FRAME 6 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=4"
+	CHECK_FRAME 7 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=3"
+	CHECK_FRAME 8 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=2"
+	CHECK_FRAME 9 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=1"
 
-	CHECK_FRAME 10 "stack_float" "wdtp_stack.c" 16 "i=1, f=1.234500, d=-1.456700"
-	CHECK_FRAME 11 "test_stack" "wdtp_stack.c" 21 "argc=0, argv=..."
+	CHECK_FRAME 10 "wdtp_test_stack_float" "wdtp_stack.c" 19 "i=1, f=1.234500, d=-1.456700"
+	CHECK_FRAME 11 "test_stack" "wdtp_stack.c" 24 "argc=0, argv=..."
 	CHECK_FRAME 12 "main" "wdtp.c" 12 "argc=2, argv=..."
 
 	# testing local variables
