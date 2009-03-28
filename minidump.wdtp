@@ -17,15 +17,19 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# heavily copied from expr.wdtp
+# heavily copied from expr.wdtp and stack.wdtp
+
+# TODO:
+# - recheck when global variables are properly managed/saved in minidump files
+#   (could be a winedbg option anyway)
 
 START "wdtp_$flavor$" "expr foo bar"
-	BREAK	"b test_expr : 66"
+	BREAK	"b test_expr : 69"
 	COMMAND	"cont"
 
 	COMMAND "minidump foo1.mdmp"
 
-	BREAK "b wdtp_test_expr_part : 54"
+	BREAK "b wdtp_test_expr_part : 57"
 	COMMAND "cont"
 
 	COMMAND "minidump foo2.mdmp"
@@ -63,7 +67,7 @@ START "foo2.mdmp"
 	# examine test
 
 	# testing values inside structure
-	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
+	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}, x=one"
 	EVAL	"p /x t->s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
 	EVAL	"p t->u" mv_struct "i=-1431655766, u=2863311530"
 	EVAL	"p /x t->u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
@@ -75,8 +79,14 @@ START "foo2.mdmp"
 	EVAL	"p t->bf4" mv_integer -4
 	EVAL	"p -t->bf4 * 12" mv_integer 48
 	EVAL	"p /x t->u.u" mv_hexa 0xaaaaaaaa
+	EVAL	"p t->ff" mv_float 1.23
+	EVAL	"p t->fd" mv_float 4.56e-2
+	EVAL	"p t->x" mv_string "one"
+
 #	EVAL	"p sll" mv_integer -123456789000
 #	EVAL	"p ull" mv_integer 123456789000
+	EVAL    "p te" mv_string "three"
+
 	# we don't copy global data segments in minidump yet
 	EVAL	"p titi" mv_struct "pA=*** Invalid address..."
 

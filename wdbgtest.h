@@ -86,7 +86,7 @@ struct id
 
 /* Each entry in this enum matches a RE in previous array. Be sure to keep them in sync */
 enum re_val {re_started, re_stopped_bp_m, re_stopped_bp_b, re_stopped_wp_m, re_stopped_wp_b, re_terminated, re_srcline, re_asmline, re_funcchange, re_display,
-             re_integer, re_hexa, re_float1, re_float2, re_float3, re_string, re_char, re_struct, re_func,
+             re_integer, re_hexa, re_float1, re_float2, re_float3, re_string, re_char, re_struct, re_func, re_id,
              re_set_break_m, re_set_break_b, re_set_watch1_m, re_set_watch1_b, re_set_watch2, re_backtrace_m, re_backtrace_b,
              re_last};
 

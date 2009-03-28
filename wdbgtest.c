@@ -58,6 +58,7 @@ re[] =
     /* re_char       */ {"^'(.)'$", 1},
     /* re_struct     */ {"^\\{(.*)\\}$", 1},
     /* re_func       */ {"^Function (0x[0-9a-fA-F]+): (.*)$", 2},
+    /* re_id         */ {"^([a-zA-Z_][0-9a-zA-Z_]*)$", 1},
 /* RE for commands ----------- */
     /* re_set_break_m  */ {"^Breakpoint ([0-9]+) at (0x[0-9a-fA-F]+) ([^ ]+) \\[(.*):([0-9]+)\\] in ([^\n]*)$", 6},
     /* re_set_break_b  */ {"^Breakpoint ([0-9]+) at (0x[0-9a-fA-F]+) ([^ ]+) \\[(.*):([0-9]+)\\]$", 5},
@@ -276,6 +277,11 @@ int wdt_fetch_value(struct debuggee* dbg, struct mval* mv)
     {
         mv->type = mv_func;
         mv->u.integer = to_num(dbg, 1);
+    }
+    else if (compare(re_id, dbg->cl.buf_ptr))
+    {
+        mv->type = mv_string;
+        mv->u.str = to_string(dbg, 1);
     }
     else
     {

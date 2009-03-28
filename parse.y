@@ -225,7 +225,7 @@ static void test_eval(const char* cmd, const struct mval* mv2)
         check_eval(&mv, mv2);
     }
     else
-        test_ok(mv2->type == mv_error, "Couldn't evaluate expression '%s' (%s)", cmd, dbg.err_msg);
+        test_ok(mv2->type == mv_error, "Couldn't understand expression '%s' result: %s", cmd, dbg.err_msg);
 }
 
 static void set_eval(const char* cmd, struct id* id)

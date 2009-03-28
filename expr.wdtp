@@ -20,9 +20,10 @@
 # TODO
 # - better test the x and print commands (especially modifiers /x...)
 # - casts (integers, pointers)
+# - fix the sll and ull tests
 
 START "wdtp_$flavor$" "expr foo bar"
-	BREAK	"b test_expr : 66"
+	BREAK	"b test_expr : 69"
 	COMMAND	"cont"
 
 	# simple expression test
@@ -48,7 +49,7 @@ START "wdtp_$flavor$" "expr foo bar"
 
 	# examine test
 
-	BREAK "b wdtp_test_expr_part : 54"
+	BREAK "b wdtp_test_expr_part : 57"
 	COMMAND "cont"
 
 	EVAL "p myint0" mv_integer -4
@@ -61,9 +62,10 @@ START "wdtp_$flavor$" "expr foo bar"
 	EVAL "p myint2" mv_integer 36
 #	EVAL	"p sll" mv_integer -123456789000
 #	EVAL	"p ull" mv_integer 123456789000
+	EVAL "p te" mv_string "three"
 
 	# testing values inside structure
-	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
+	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}, x=one"
 	EVAL	"p /x t->s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
 	EVAL	"p t->u" mv_struct "i=-1431655766, u=2863311530"
 	EVAL	"p /x t->u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
@@ -78,6 +80,7 @@ START "wdtp_$flavor$" "expr foo bar"
 	EVAL	"p titi" mv_struct "pA=0x87654321, pB=0x43218765, pC=\"foo\""
 	EVAL	"p t->ff" mv_float 1.23
 	EVAL	"p t->fd" mv_float 4.56e-2
+	EVAL	"p t->x" mv_string "one"
 
 	# test setting values inside structure
 	EVAL	"set t->toto_a=45" mv_null 0

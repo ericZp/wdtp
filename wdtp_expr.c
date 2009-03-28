@@ -10,6 +10,7 @@
 int             myint0;
 int             myint1;
 static int      myint2;
+enum toto_enum {zero, one, two, three, four};
 
 struct toto
 {
@@ -27,6 +28,7 @@ struct toto
         int i;
         unsigned u;
     } u;
+    enum toto_enum x;
 };
 
 struct titi
@@ -38,6 +40,7 @@ struct titi
 
 static long long sll;
 static unsigned long long ull;
+static enum toto_enum te = three;
 
 static int g(int a)
 {
@@ -55,13 +58,13 @@ int wdtp_test_expr_part(struct toto* t, int argc)
     t->toto_a <<= t->bf1;
     WDTP_INSN_BARRIER();
     t->toto_a *= 2;
-    t->toto_b += t->toto_a;
+    t->toto_b += t->toto_a + ((t->x == two) ? 2 : 1);
     return 0;
 }
 
 int test_expr(int argc, const char** ptr)
 {
-    struct toto t = {0, 0, 12, 63, -34, -4, 1.23, 4.56e-2, {0x5A5A5A5A, 0xA5A5A5A5}, {0xAAAAAAAA}};
+    struct toto t = {0, 0, 12, 63, -34, -4, 1.23, 4.56e-2, {0x5A5A5A5A, 0xA5A5A5A5}, {0xAAAAAAAA}, one};
 
     WDTP_INSN_BARRIER();
     myint0 = -4;
