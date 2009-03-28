@@ -31,6 +31,6 @@ START "wdtp_$flavor$" "type"
 	# FIXME: the 'signed char' thingie is to be fixed
 	[pdb] COMMAND "whatis fn" "type = struct ms* (*--none--)(INT4, signed char*)"
 	# FIXME: the last * is suspicious
-	[stabs]	COMMAND "whatis pfn" "type = struct ms* (*--none--)()*"
-	[dwarf]	COMMAND "whatis pfn" "type = struct ms* (*--none--)(int, char*)*"
+	[stabs]	COMMAND "whatis wdtp_test_pfn" "type = struct ms* (*--none--)()*"
+	[dwarf]	COMMAND "whatis wdtp_test_pfn" "type = struct ms* (*--none--)(int, char*)*"
 END

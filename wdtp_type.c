@@ -24,13 +24,13 @@ static struct ms*       fn(int v, const char* k)
     return ms;
 }
 
-static struct ms* (*pfn)(int, const char*) = fn;
+struct ms* (*wdtp_test_pfn)(int, const char*) = fn;
 
 int test_type(int argc, const char** ptr)
 {
     struct ms*  ms;
     int         lfoo = 3;
     foo = &lfoo;
-    ms = pfn(12, "foo");
+    ms = wdtp_test_pfn(12, "foo");
     return ms->value;
 }
