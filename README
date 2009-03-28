@@ -1,68 +1,107 @@
 INTRODUCTION
 ------------
-This repository is a set of tools to test the winedbg. It consists of:
-- a program to drive winedbg by passing commands to it (wdbgtest),
-- a set of simple programs used to be run under the debugger
-  (wdtp_*.c). In fact, each simple program is compiled in a single
-  executable, each test unit is chosen from a command line parameter.
-- for each of those programs, a set of commands (*.wdtp) (and the
-  expected output) to check if things have done right
+This repository manages wdtp (Wine debugger testing package), a set of
+tools to test WineDbg.
 
-wdtp stands for Wine debugger testing package.
+It consists of: 
+- a program to drive WineDbg by passing commands to it, and checking
+  the output of those commands (wdbgtest),
+- a set of unit tests. Each test is made of a:
+  + a simple program (wdtp_<test>.c)
+  + a script to drive the commands to be sent to WineDbg, and their
+    expected output (<test>.wdtp)
+- all the simple programs are compiled in a single executable, each
+  test being chosen from a command line parameter. This executable is
+  called wdtp.
+- actually, the wtdp executable is compiled several times, using
+  different ways. The final executable is called a flavor of
+  wdtp. Each flavor corresponds to a unique set of options to cover 
+  different elements, among which:
+  + compiler: gcc, mvcs, MingW,
+  + debug format: stabs, Dwarf2, Codeview, PDB...
+  + compiler options: mostly optimisations
+  + linker option: debug info stripping, prelinking
 
-For now, the test suite must be run against a wine compilation tree
-(not against an installed wine setup).
+   +-------------+        +---------+       +-------------------------+
+   |   wdbtest   | <====> | WineDbg | ----> | wdtp.exe<flavor> <test> ¦
+   +-------------+        +---------+       +-------------------------+
+   | <test>.wdtp |                          |     <test> program      |
+   +-------------+                          +-------------------------+
+
+For now, the test suite must be compiled and run against a regular
+Wine compilation tree (not against an installed Wine setup).
+
+This package is provided under the LGPL license (see LICENSE file).
 
 CONFIGURATION & BUILDING
 ------------------------
-First run autoconf.
+First, from the directory where you installed the package, run:
+	autoconf
 
-Then, if you compile Wine in the source tree, then configuration is
-done with:
+Then, if you compile Wine in the Wine source tree, then configuration
+is done with:
 	./configure --with-wine=<wine_src_dir>
-where <wine_src_dir> is the path to the top of your wine source tree.
+where <wine_src_dir> is the path to the top of your Wine source tree.
 
-Or, if you compile Wine outside the source tree, then configuration is
-done with: 
+Or, if you compile Wine outside the Wine source tree, then
+configuration is done with: 
 	./configure --with-wine=<wine_src_dir> \
 		--with-wine-output=<wine_dst_dir>
-where <wine_src_dir> is the path to the top of your wine source tree,
-and <wine_dst_dir> is the path to the top of your wine object tree.
+where <wine_src_dir> is the path to the top of your Wine source tree,
+and <wine_dst_dir> is the path to the top of your Wine object tree.
 
 In both cases, finalize the installation by building the lot:
 	make depend && make
 
 RUNNING & TESTING
 -----------------
-Actually, the simple apps can be compiled with several options from
-gcc. We currently support:
+As already mentionned, wdtp is compiled with different "flavors". We
+currently support:
 - stabspO0: stabs+ debug format, no optimization
 - dwarfO0: dwarf2 debug format, no optimization
 - dwarfO2: dwarf2 debug format, optimization at regular level
 
-To test one compilation combination, use make test_stabspO0. It will
-run all available tests with the defined combination.
+To test one flavor, use (for example):
+	make test_stabspO0
+It will run all available tests with the defined flavor.
 
-All combinations are not equally supported (the O2 provide some bad
-results).
+To run all the tests for all flavors, run:
+	make test_all
 
-In the current version, the dwarf & stabsp O0 should be ok (they
+All flavors are not equally supported (see below in TODO).
+
+In the current version, the {dwarf, stabsp}O0 should be ok (they
 may provide two errors in minidump.wdtp and stack.wdtp for some gcc
 versions, but that's the current behavior).
-Dwarf O2 produces lots of errors because of internal limitations (see
+DwarfO2 produces lots of errors because of internal limitations (see
 below).
 
-LICENSE
--------
-LGPL
+DEPENDENCIES
+------------
+A full blown Wine tree, with all the tools needed to compile it (gcc,
+make, flex, bison). On top of that: autoconf.
+Optional tools: none
 
 TODO
 ----
 - Get rid of wdbgtest.run file (it's an ugly hack)
-- Provide support for msvc compilation ; would require somehow
-  splitting the compilation from the tests in a clean way
+- Provide support for msvc & MingW compilation; would require somehow
+  splitting the compilation from the tests in a clean way (or support
+  the cross compilation)
 - Document the scripting language (wdtp files)
 - Lots of tests rely on line number, which can be wrong, especially
   with insn optimisation (a line is not made of insequable bag of
-  instructions...) =>hence lots of errors with dwarfO2
+  instructions...) => hence lots of errors with dwarfO2
+- When wdbgtest terminates (or is killed by a Ctrl-C), we don't
+  properly kill the WineDbg and wdtp processes
+- Extend the current Tests (check the *.wdtp files for the details)
+- Set up a nicer way to define a new test flavor (extra tool in
+  autoconf ??), and review the flavor naming scheme
+
+--------------
+Local variables:
+mode: auto-fill
+mode: font-lock
+End:
+
 
