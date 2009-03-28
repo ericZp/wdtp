@@ -26,13 +26,13 @@
 # - winedbg invocation in gdb mode
 
 # simple startup
-START "wdtp_$flavor$" "start"
+START "$flavor$" "start"
 	BREAK "break wdtp_test_start_real : 12" 1 "wdtp_test_start_real" "wdtp_start.c" 12
 	COMMAND "kill"
 END
 
 # starting a program from a given pid
-LAUNCH "wdtp_$flavor$ start" $pid$
+LAUNCH "$flavor$ start" $pid$
 
 START "$pid$"
 	BREAK "break wdtp_test_start_real : 12" 1 "wdtp_test_start_real" "wdtp_start.c" 12
@@ -42,12 +42,12 @@ END
 # testing the attachment to the debugger
 # FIXME: we should ensure that the wine debugger is correctly set in
 #	 registry (actually, running through wdbgtest !!)
-# START "wdtp_$flavor$.exe" "start --crash"
+# START "$flavor$" "start --crash"
 # END
 
 # this is a test from command line...
 # FIXME: we don't have commands for winedbg yet
-# START "--command \"break wdtp_test_start_real\"" "wdtp_$flavor$.exe" "start"
+# START "--command \"break wdtp_test_start_real\"" "$flavor$" "start"
 #    int                 ret;
 #    BOOL                eof;
 #    char                tmp[1024], *end;

@@ -23,7 +23,7 @@
 # - test passing structures on the stack (it's ABI dependent)
 # - test returning structures from a function (it's ABI dependent)
 
-START "wdtp_$flavor$" "stack"
+START "$flavor$" "stack"
 	BREAK "b wdtp_test_stack_func : 10" 1
 
 	COMMAND "cont"

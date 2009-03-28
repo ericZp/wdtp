@@ -114,6 +114,7 @@ DEPENDENCIES
 ------------
 A full blown Wine tree, with all the tools needed to compile it (gcc,
 make, flex, bison).
+
 On top of that:
 - autoconf (mandatory)
 - mingw32 for cross-compilation (optional)
@@ -122,10 +123,8 @@ On top of that:
 KNOWN ISSUES
 ------------
 Enhancements
-- Provide enhanced configuration tools to help defining support for a
-  new compiler, different sets of options for a compiler...
-- Set up a nicer way to define a new test flavor (extra tool in
-  autoconf ??)
+- Enhance the flavor scheme (and autoconf macros) to support several
+  versions of the same compiler.
 
 Known bugs
 - Setting a breakpoint on a line number which doesn't exist in debug

@@ -20,7 +20,7 @@
 # TODO
 #
 
-START "wdtp_$flavor$" "execute"
+START "$flavor$" "execute"
 	BREAK "b wdtp_test_exec_f : 15" 1
 	COMMAND "cont" ss_xpoint 1
 

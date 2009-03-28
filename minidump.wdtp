@@ -23,7 +23,7 @@
 # - recheck when global variables are properly managed/saved in minidump files
 #   (could be a winedbg option anyway)
 
-START "wdtp_$flavor$" "expr foo bar"
+START "$flavor$" "expr foo bar"
 	BREAK	"b test_expr : 69"
 	COMMAND	"cont"
 
@@ -104,7 +104,7 @@ END
 
 # heavily derived from stack.wdtp
 
-START "wdtp_$flavor$" "stack"
+START "$flavor$" "stack"
 	BREAK "b wdtp_test_stack_func : 10" 1
 	COMMAND "cont"
 

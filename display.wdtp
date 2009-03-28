@@ -21,7 +21,7 @@
 # - check for other functions (only display information from a given function or a given function & stack frame ??)
 # - enable / disable of display items
 
-START "wdtp_$flavor$" "display"
+START "$flavor$" "display"
 	BREAK "break wdtp_test_display_foo : 20" 1 "wdtp_test_display_foo" "wdtp_display.c" 20
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_display.c" 20

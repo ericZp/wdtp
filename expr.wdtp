@@ -22,7 +22,7 @@
 # - casts (integers, pointers)
 # - fix the sll and ull tests
 
-START "wdtp_$flavor$" "expr foo bar"
+START "$flavor$" "expr foo bar"
 	BREAK	"b test_expr : 69"
 	COMMAND	"cont"
 
