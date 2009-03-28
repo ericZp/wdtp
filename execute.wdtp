@@ -21,26 +21,26 @@
 #
 
 START "wdtp_$flavor$" "execute"
-	BREAK "b exec_f : 15" 1
+	BREAK "b wdtp_test_exec_f : 15" 1
 	COMMAND "cont" ss_xpoint 1
 
 	EVAL "p a" mv_integer 12
 
 	# testing next commands
 	COMMAND "next" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 16
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 16
 	EVAL "p a" mv_integer 14
 
 	COMMAND "next" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 17
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 17
 	EVAL "p a" mv_integer 42
 
 	COMMAND "next" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 19
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 19
 	EVAL "p a" mv_integer 168
 
 	COMMAND "next" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 21
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 21
 	EVAL "p a" mv_integer 41
 
 	COMMAND "cont" ss_xpoint 1
@@ -49,15 +49,15 @@ START "wdtp_$flavor$" "execute"
 	EVAL "p a" mv_integer 12
 
 	COMMAND "step" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 16
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 16
 	EVAL "p a" mv_integer 14
 
 	COMMAND "step" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 17
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 17
 	EVAL "p a" mv_integer 42
 
 	COMMAND "step" ss_step
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 19
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 19
 	EVAL "p a" mv_integer 168
 
 	# FIXME: this block is fucking brain dead with MSVC and the stupidity
@@ -66,16 +66,16 @@ START "wdtp_$flavor$" "execute"
 	# while the first EIP returned by StackWalk (hence the current frame)
 	# isn't the correct one (yet)
 	# COMMAND "step" ss_step
-	# CHECK_LOCATION "exec_f" "wdtp_execute.c" 7
+	# CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 7
 
 	COMMAND "step" ss_step
-	[stabs] CHECK_LOCATION "exec_g" "wdtp_execute.c" 8
-	[dwarf] CHECK_LOCATION "exec_g" "wdtp_execute.c" 7
+	[stabs] CHECK_LOCATION "wdtp_test_exec_g" "wdtp_execute.c" 8
+	[dwarf] CHECK_LOCATION "wdtp_test_exec_g" "wdtp_execute.c" 7
 	EVAL "p a" mv_integer 168
 
 	COMMAND "finish" ss_step
 	# FIXME: one would expect us to be at line 21 here...
-	CHECK_LOCATION "exec_f" "wdtp_execute.c" 19
+	CHECK_LOCATION "wdtp_test_exec_f" "wdtp_execute.c" 19
 
 	COMMAND "step" ss_step
 	EVAL "p a" mv_integer 41
