@@ -2,6 +2,7 @@
 #include <string.h>
 #include "wdtp.h"
 
+int wdtp_dummy_counter = 0;
 int main(int argc, const char* argv[])
 {
     if (argc < 2) return -1;
