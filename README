@@ -20,7 +20,7 @@ It consists of:
   different ways. The final executable is called a flavor of
   wdtp. Each flavor corresponds to a unique set of options to cover
   different elements, among which:
-  + compiler: gcc, mvcs, MingW,
+  + compiler: gcc, msvc, MingW...
   + debug format: stabs, Dwarf2, Codeview, PDB...
   + compiler options: mostly optimisations
   + linker option: debug info stripping, prelinking
@@ -35,11 +35,13 @@ Currently, the flavor name is made of:
 - name of compiler (gcc, mingw32...)
 - an underscore
 - a condensed string made out of the options (generally made out of
-debug format and compiler options)
+  debug format and compiler options)
 - the default executable extension (.exe for PEs, .exe.so for Wine modules)
 
 For now, the test suite must be compiled and run against a regular
 Wine compilation tree (not against an installed Wine setup).
+
+The WDTP file describes the syntax of .wdtp files.
 
 LICENSING
 ---------
@@ -102,15 +104,15 @@ All flavors are not equally supported:
   in minidump.wdtp and stack.wdtp for some gcc versions, but that's
   the current behavior)
 - gcc_dwarfO2 produces lots of errors because of internal limitations
-  (see below in TODO).
-- mingw32_stabspO0 produces a couple of errors, that should be fixed.
-- msvc_pdbOd produces a couple of errors, that should be fixed.
+  (see TODO about line numbers)
+- mingw32_stabspO0 produces a couple of errors, that should be fixed
 
 DEPENDENCIES
 ------------
 A full blown Wine tree, with all the tools needed to compile it (gcc,
-make, flex, bison). On top of that: autoconf.
-Optional tools:
+make, flex, bison).
+On top of that:
+- autoconf (mandatory)
 - mingw32 for cross-compilation (optional)
 - Microsoft Visual C++ for cross-compilation (optional)
 
@@ -119,7 +121,6 @@ KNOWN ISSUES
 Enhancements
 - Provide enhanced configuration tools to help defining support for a
   new compiler, different sets of options for a compiler...
-- Document the scripting language (wdtp files)
 - Lots of tests rely on line number, which can be wrong, especially
   with insn optimisation (a line is not made of insequable bag of
   instructions...) => hence lots of errors with gcc_dwarfO2
@@ -130,10 +131,14 @@ Known bugs
 - Setting a breakpoint on a line number which doesn't exist in debug
   info is not supported
 - Evaluating an expression where several symbols of same name are
-  usable is not supported (it generally hang wdbgtest)
+  usable is not supported (it generally hangs wdbgtest)
 - Getting a backtrace on an address without any known function to the
   debugger (or line number info) isn't supported
 - A backtrace where '(nil)' is used isn't properly supported
+
+Things to do:
+- why using the EVAL command for 'set' (could also get rid of mv_null
+  in EVAL)
 
 --------------
 Local variables:
