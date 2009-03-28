@@ -39,12 +39,6 @@ struct titi
 static long long sll;
 static unsigned long long ull;
 
-static void f(struct toto* t)
-{
-    t->toto_a *= 2;
-    t->toto_b += t->toto_a;
-}
-
 static int g(int a)
 {
     sll = -((long long)1234567 * 100000 + 99000);
@@ -52,17 +46,28 @@ static int g(int a)
     return a;
 }
 
+/* we need a separate global function so that the toto struct isn't optimized out */
+int wdtp_test_expr_part(struct toto* t, int argc)
+{
+    t->toto_a += 1 + argc;
+    t->toto_b += 2 + (argc << 3);
+    WDTP_INSN_BARRIER();
+    t->toto_a <<= t->bf1;
+    WDTP_INSN_BARRIER();
+    t->toto_a *= 2;
+    t->toto_b += t->toto_a;
+    return 0;
+}
+
 int test_expr(int argc, const char** ptr)
 {
     struct toto t = {0, 0, 12, 63, -34, -4, 1.23, 4.56e-2, {0x5A5A5A5A, 0xA5A5A5A5}, {0xAAAAAAAA}};
 
+    WDTP_INSN_BARRIER();
     myint0 = -4;
     myint1 = g(argc);
     myint2 = 3 * t.bf1;
-    t.toto_a = 1 + argc;
-    t.toto_b = 2 + (argc << 3);
-    t.toto_a <<= t.bf1;
-    f(&t);
+    wdtp_test_expr_part(&t, argc);
 
     return t.toto_a + t.toto_b;
 }

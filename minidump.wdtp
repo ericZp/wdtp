@@ -20,19 +20,13 @@
 # heavily copied from expr.wdtp
 
 START "wdtp_$flavor$" "expr foo bar"
-	BREAK	"b test_expr"
+	BREAK	"b test_expr : 66"
 	COMMAND	"cont"
-
-	[dwarf]	COMMAND	"step" ss_step
 
 	COMMAND "minidump foo1.mdmp"
 
-	COMMAND "next" ss_step
-	COMMAND "next" ss_step
-	COMMAND "next" ss_step
-	COMMAND "next" ss_step
-	COMMAND "next" ss_step
-	COMMAND "next" ss_step
+	BREAK "b wdtp_test_expr_part : 54"
+	COMMAND "cont"
 
 	COMMAND "minidump foo2.mdmp"
 END
@@ -69,18 +63,18 @@ START "foo2.mdmp"
 	# examine test
 
 	# testing values inside structure
-	EVAL	"p t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
-	EVAL	"p /x t.s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
-	EVAL	"p t.u" mv_struct "i=-1431655766, u=2863311530"
-	EVAL	"p /x t.u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
-	EVAL	"p t.toto_a" mv_integer 3
-	EVAL	"p t.toto_b" mv_integer 18
-	EVAL	"p t.bf1" mv_integer 12
-	EVAL	"p t.bf2" mv_integer 63
-	EVAL	"p t.bf3" mv_integer -34
-	EVAL	"p t.bf4" mv_integer -4
-	EVAL	"p -t.bf4 * 12" mv_integer 48
-	EVAL	"p /x t.u.u" mv_hexa 0xaaaaaaaa
+	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}"
+	EVAL	"p /x t->s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
+	EVAL	"p t->u" mv_struct "i=-1431655766, u=2863311530"
+	EVAL	"p /x t->u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
+	EVAL	"p t->toto_a" mv_integer 3
+	EVAL	"p t->toto_b" mv_integer 18
+	EVAL	"p t->bf1" mv_integer 12
+	EVAL	"p t->bf2" mv_integer 63
+	EVAL	"p t->bf3" mv_integer -34
+	EVAL	"p t->bf4" mv_integer -4
+	EVAL	"p -t->bf4 * 12" mv_integer 48
+	EVAL	"p /x t->u.u" mv_hexa 0xaaaaaaaa
 #	EVAL	"p sll" mv_integer -123456789000
 #	EVAL	"p ull" mv_integer 123456789000
 	# we don't copy global data segments in minidump yet
@@ -88,12 +82,12 @@ START "foo2.mdmp"
 
 	#EVAL	"p myint0" mv_integer -4
 	# test setting values inside structure
-	EVAL	"set t.toto_a=45" mv_error
-	EVAL	"p t.toto_a" mv_integer 3
+	EVAL	"set t->toto_a=45" mv_error
+	EVAL	"p t->toto_a" mv_integer 3
 
-	EVAL	"set t.bf1=0" mv_null 0
-	# EVAL "p t.bf1" mv_integer 0
-	EVAL	"p t.bf2" mv_integer 63
+	EVAL	"set t->bf1=0" mv_null 0
+	# EVAL "p t->bf1" mv_integer 0
+	EVAL	"p t->bf2" mv_integer 63
 
 	SYSTEM "rm -f foo2.mdmp"
 END
