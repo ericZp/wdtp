@@ -1,0 +1,51 @@
+SYNOPSIS
+--------
+This repository is a set of tools to test the winedbg. It consists of:
+- a program to drive winedbg by passing commands to it (wdbgtest),
+- a set of simple programs used to be run under the debugger
+  (wdtp_*.c). In fact, each simple program is compiled in a single
+  executable, each test unit is chosen from a command line parameter.
+- for each of those programs, a set of commands (*.wdtp) (and the
+  expected output) to check if things have done right
+
+wdtp stands for Wine debugger testing package.
+
+For now, the test suite must be run against a wine compilation tree
+(not against an installed wine setup).
+
+CONFIGURATION
+-------------
+This must be done for now by hand.
+
+Edit Makefile and set TOPSRCDIR, TOPOBJDIR, SRCDIR et VPATH to their
+respective value (depending on your setup).
+
+TOPSRCDIR: where the wine source tree is
+TOPOBJDIR: where the wine object tree is (corresponding to TOPSRCDIR)
+SRCDIR et VPATH: where the wdtp
+
+Edit wdtptest to set the location of the wine object tree (topdir).
+
+RUNNING
+-------
+Actually, the simple apps can be compiled with several options from
+gcc. We currently support:
+- stabspO0: stabs+ debug format, no optimization
+- dwarfO0: dwarf2 debug format, no optimization
+- dwarfO2: dwarf2 debug format, optimization at regular level
+
+To test one compilation combination, use make test_stabspO0. It will
+run all available tests with the defined combination.
+
+All combinations are not equally supported (the O2 provide some bad
+results).
+
+TODO
+----
+- Make the configuration step easier
+- Autogenerate the Makefile and wdbgtest files
+- Provide support for msvc compilation ; would require somehow
+  splitting the compilation from the tests in a clean way
+- Document the scripting language
+
+
