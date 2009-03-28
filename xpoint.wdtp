@@ -27,54 +27,54 @@
 
 # simple break point test without hardware assistance
 START "wdtp_$flavor$" "xpoint"
-	BREAK "break test_xpoint : 31" 1 "test_xpoint" "wdtp_xpoint.c" 31
+	BREAK "break test_xpoint : 33" 1 "test_xpoint" "wdtp_xpoint.c" 33
 	COMMAND "cont" ss_xpoint 1
-	CHECK_LOCATION "wdtp_xpoint.c" 31
+	CHECK_LOCATION "wdtp_xpoint.c" 33
 
-	BREAK "break 10" 2 "xpoint_write" "wdtp_xpoint.c" 10
+	BREAK "break 10" 2 "wdtp_test_xpoint_write" "wdtp_xpoint.c" 10
 	# ok(loc.offset != 0, "wrong bp offset\n");
 	# offset = loc.offset;
 
-	EVAL "p xpoint_g" $g_addr$
-	BREAK "break * $g_addr$" 3 "xpoint_g" "wdtp_xpoint.c" 14
+	EVAL "p wdtp_test_xpoint_g" $g_addr$
+	BREAK "break * $g_addr$" 3 "wdtp_test_xpoint_g" "wdtp_xpoint.c" 15
 
 	COMMAND "cont" ss_xpoint 2
 	CHECK_LOCATION "wdtp_xpoint.c" 10
 	# ok(dbg.loc.offset == offset, "wrong offset %d\n", dbg.loc.offset);
 
 	COMMAND "cont" ss_xpoint 3
-	CHECK_LOCATION "xpoint_g" "wdtp_xpoint.c" 14
+	CHECK_LOCATION "wdtp_test_xpoint_g" "wdtp_xpoint.c" 15
 END
 
 # simple break point test with hardware assistance
 START "wdtp_$flavor$" "xpoint"
-	BREAK "break test_xpoint : 31" 1 "test_xpoint" "wdtp_xpoint.c" 31
+	BREAK "break test_xpoint : 33" 1 "test_xpoint" "wdtp_xpoint.c" 33
 	COMMAND "cont" ss_xpoint 1
-	CHECK_LOCATION "wdtp_xpoint.c" 31
+	CHECK_LOCATION "wdtp_xpoint.c" 33
 
-	BREAK "hbreak 10" 2 "xpoint_write" "wdtp_xpoint.c" 10
+	BREAK "hbreak 10" 2 "wdtp_test_xpoint_write" "wdtp_xpoint.c" 10
 	# ok(loc.offset != 0, "wrong bp offset\n");
 	# offset = loc.offset;
 
-	EVAL "p xpoint_g" $g_addr$
-	BREAK "hbreak * $g_addr$" 3 "xpoint_g" "wdtp_xpoint.c" 14
+	EVAL "p wdtp_test_xpoint_g" $g_addr$
+	BREAK "hbreak * $g_addr$" 3 "wdtp_test_xpoint_g" "wdtp_xpoint.c" 15
 
 	COMMAND "cont" ss_xpoint 2
 	CHECK_LOCATION "wdtp_xpoint.c" 10
 	# ok(dbg.loc.offset == offset, "wrong offset %d\n", dbg.loc.offset);
 
 	COMMAND "cont" ss_xpoint 3
-	CHECK_LOCATION "xpoint_g" "wdtp_xpoint.c" 14
+	CHECK_LOCATION "wdtp_test_xpoint_g" "wdtp_xpoint.c" 15
 END
 
 # test for testing a condition on a breakpoint
 START "wdtp_$flavor$" "xpoint"
-	BREAK "break xpoint_g : 17" 1 "xpoint_g" "wdtp_xpoint.c" 17
+	BREAK "break wdtp_test_xpoint_g : 18" 1 "wdtp_test_xpoint_g" "wdtp_xpoint.c" 18
 
 	COMMAND "cond 1 ret == 20"
 
 	COMMAND "cont" ss_xpoint 1
-	CHECK_LOCATION "wdtp_xpoint.c" 17
+	CHECK_LOCATION "wdtp_xpoint.c" 18
 
 	EVAL "p ret" mv_integer 20
 	EVAL "p i" mv_integer 8
@@ -82,12 +82,12 @@ END
 
 # test for testing a condition on a breakpoint with hw assisted bp
 START "wdtp_$flavor$" "xpoint"
-	BREAK "hbreak xpoint_g : 17" 1 "xpoint_g" "wdtp_xpoint.c" 17
+	BREAK "hbreak wdtp_test_xpoint_g : 18" 1 "wdtp_test_xpoint_g" "wdtp_xpoint.c" 18
 
 	COMMAND "cond 1 ret == 20"
 
 	COMMAND "cont" ss_xpoint 1
-	CHECK_LOCATION "wdtp_xpoint.c" 17
+	CHECK_LOCATION "wdtp_xpoint.c" 18
 
 	EVAL "p ret" mv_integer 20
 	EVAL "p i" mv_integer 8
@@ -95,7 +95,7 @@ END
 
 # watch test
 START "wdtp_$flavor$" "xpoint"
-	BREAK "break test_xpoint : 31" 1
+	BREAK "break test_xpoint : 33" 1
 
 	COMMAND "cont" ss_xpoint 1
 	# COMMAND "step" ss_step
