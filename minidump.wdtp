@@ -19,10 +19,6 @@
 
 # heavily copied from expr.wdtp and stack.wdtp
 
-# TODO:
-# - recheck when global variables are properly managed/saved in minidump files
-#   (could be a winedbg option anyway)
-
 START "$flavor$" "expr foo bar"
 	BREAK	"b test_expr : 69"
 	COMMAND	"cont"
