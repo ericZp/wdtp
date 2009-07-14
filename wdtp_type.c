@@ -13,6 +13,7 @@ struct ms
 static int*     foo;
 static int      bar;
 struct ms       first = {0, NULL, NULL};
+struct ms       myarray[] = {{0,NULL, &first},{1,NULL,&myarray[0]},{2,NULL,&myarray[1]}};
 
 static struct ms*       fn(int v, const char* k)
 {

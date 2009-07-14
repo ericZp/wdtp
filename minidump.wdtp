@@ -20,12 +20,12 @@
 # heavily copied from expr.wdtp and stack.wdtp
 
 START "$flavor$" "expr foo bar"
-	BREAK	"b test_expr : 69"
+	BREAK	"b test_expr : 76"
 	COMMAND	"cont"
 
 	COMMAND "minidump foo1.mdmp"
 
-	BREAK "b wdtp_test_expr_part : 57"
+	BREAK "b wdtp_test_expr_part : 64"
 	COMMAND "cont"
 
 	COMMAND "minidump foo2.mdmp"
@@ -81,12 +81,21 @@ START "foo2.mdmp"
 
 #	EVAL	"p sll" mv_integer -123456789000
 #	EVAL	"p ull" mv_integer 123456789000
-	EVAL    "p te" mv_string "three"
 
 	# we don't copy global data segments in minidump yet
 	EVAL	"p titi" mv_struct "pA=*** Invalid address..."
-
+	# a couple of test items to enable when the can read back into data segments
 	#EVAL	"p myint0" mv_integer -4
+	#EVAL   "p wdtp_test_expr_te" mv_string "three"
+	#EVAL	"p mytata[2]" mv_struct "i=14, s=4, c='c'"
+	#EVAL	"p mytata[2].i" mv_integer 14
+	#EVAL	"p mytata[2].s" mv_integer 4
+	#EVAL	"p mytata[2].c" mv_char 'c'
+	#EVAL	"p pmytata[2]" mv_struct "i=14, s=4, c='c'"
+	#EVAL 	"p pmytata[2].i" mv_integer 14
+	#EVAL 	"p pmytata[2].s" mv_integer 4
+	#EVAL	"p pmytata[2].c" mv_char 'c'
+
 	# test setting values inside structure
 	EVAL	"set t->toto_a=45" mv_error
 	EVAL	"p t->toto_a" mv_integer 3

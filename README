@@ -109,6 +109,8 @@ All flavors are not equally supported:
   minidump and stack: the ELF ABI enforces saving some registers on
   the stack, and winedbg/dbghelp doesn't handle it correctly)
 - mingw32_stabspO0 produces a couple of errors, that should be fixed
+- msvc_pdbOd also provides some errors (line numbers, wrongly
+  supported UDT forward declarations, and other quirks)
 
 DEPENDENCIES
 ------------
@@ -122,16 +124,18 @@ On top of that:
 
 KNOWN ISSUES
 ------------
-Enhancements
+Enhancements:
 - Enhance the flavor scheme (and autoconf macros) to support several
   versions of the same compiler.
 
-Known bugs
+Known bugs:
 - Setting a breakpoint on a line number which doesn't exist in debug
   info is not supported
 - Getting a backtrace on an address without any known function to the
   debugger (or line number info) isn't supported
 - A backtrace where '(nil)' is used isn't properly supported
+- Dereference out of array's bound isn't properly managed (message is:
+    "Dereference failed (not a pointer, or out of array bounds)"
 
 Things to do:
 - why using the EVAL command for 'set' (could also get rid of mv_null
@@ -147,7 +151,6 @@ Expr:
 - better test the x and print commands (especially modifiers /x...)
 - casts (integers, pointers)
 - fix the sll and ull tests
-- more tests on arrays
 Minidump:
 - recheck when global variables are properly managed/saved in minidump
   files (could be a winedbg option anyway)
@@ -171,7 +174,7 @@ XPoint:
 - get rid of wdt_evaluate call (or tweak it so that we get the
   returned value from the evaluation)
 - late bp (rechecked when a DLL is loaded)
-New test files
+New test files:
 - add a huge file to test a bit about performance (perhaps requires
   also new commands in winedbg to test time/memory usage)
 

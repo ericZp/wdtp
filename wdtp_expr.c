@@ -40,7 +40,14 @@ struct titi
 
 static long long sll;
 static unsigned long long ull;
-static enum toto_enum te = three;
+enum toto_enum wdtp_test_expr_te = three;
+
+struct tata
+{
+    int                 i;
+    short               s;
+    char                c;
+} mytata[] = {{12,2,'a'},{13,3,'b'},{14,4,'c'}}, *pmytata = mytata;
 
 static int g(int a)
 {

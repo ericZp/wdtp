@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 START "$flavor$" "expr foo bar"
-	BREAK	"b test_expr : 69"
+	BREAK	"b test_expr : 76"
 	COMMAND	"cont"
 
 	# simple expression test
@@ -44,7 +44,7 @@ START "$flavor$" "expr foo bar"
 
 	# examine test
 
-	BREAK "b wdtp_test_expr_part : 57"
+	BREAK "b wdtp_test_expr_part : 64"
 	COMMAND "cont"
 
 	EVAL "p myint0" mv_integer -4
@@ -57,7 +57,17 @@ START "$flavor$" "expr foo bar"
 	EVAL "p myint2" mv_integer 36
 #	EVAL	"p sll" mv_integer -123456789000
 #	EVAL	"p ull" mv_integer 123456789000
-	EVAL "p te" mv_string "three"
+	EVAL "p wdtp_test_expr_te" mv_string "three"
+	EVAL "p mytata[2]" mv_struct "i=14, s=4, c='c'"
+	EVAL "p mytata[2].i" mv_integer 14
+	EVAL "p mytata[2].s" mv_integer 4
+	EVAL "p mytata[2].c" mv_char 'c'
+	EVAL "p mytata[3]" mv_error
+	EVAL "p pmytata[2]" mv_struct "i=14, s=4, c='c'"
+	EVAL "p pmytata[2].i" mv_integer 14
+	EVAL "p pmytata[2].s" mv_integer 4
+	EVAL "p pmytata[2].c" mv_char 'c'
+	EVAL "p mytata[3]" mv_error
 
 	# testing values inside structure
 	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}, x=one"
