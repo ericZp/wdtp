@@ -46,7 +46,7 @@ tmp=AS_VAR_GET(wdtp_cmd1_$1)
 AS_IF([test "x${tmp}" != "x"],[
 	AS_VAR_SET(wdtp_flavors_$1, "AS_VAR_GET(wdtp_flavors_$1) $2")
 	AS_VAR_SET(wdtp_condition_$1_$2, "$3")
-	AS_IF([test "x$5" = "xtrue"],[dllext=""],[dllext="\$(DLLEXT)"])dnl
+	AS_IF([test "x$5" = "xtrue"],[dllext=""],[dllext="\$(DLLEXT)"])
 	AS_VAR_SET(wdtp_target_$1_$2, "wdtp_$1_$2.exe${dllext}")
 	target=AS_VAR_GET(wdtp_target_$1_$2)
 	full_target="$full_target ${target}"

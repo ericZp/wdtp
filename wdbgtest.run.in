@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Wrapper script to run wdbgtest from outside the source tree
 # (derived from tools/winewrapper)
