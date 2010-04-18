@@ -51,6 +51,8 @@ WDTP_DEFINE_FLAVOR(msvc, pdbOd, pdb, [/Od], true)
 WDTP_ADD_COMPILER(mingw32, [${with_msvc}], [\$(WDTP_SRCS)], [\$(MINGW32) \$(WDTPCFLAGS)],
 	 [-B\$(TOOLSDIR)/tools/winebuild -mconsole -o \$@ \$(WDTP_SRCS) -lkernel32])
 WDTP_DEFINE_FLAVOR(mingw32, stabspO0, stabs, [-gstabs+ -O0], true)
+WDTP_DEFINE_FLAVOR(mingw32, dwarfO0, dwarf, [-gdwarf-2 -O0], true)
+WDTP_DEFINE_FLAVOR(mingw32, dwarfO2, dwarf, [-gdwarf-2 -O2], true)
 
 WDTP_FINISH
 
