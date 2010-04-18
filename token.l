@@ -59,9 +59,9 @@ HEXDIGIT   [0-9a-fA-F]
 <astring>\\.                    { add_char(&parse_lval.string, yytext[1]); }
 <astring>[^\\\n\"]              { add_char(&parse_lval.string, yytext[0]); }
 "#".*\n                         { parse_line++; } /* skip comments */
-"0x"{HEXDIGIT}+                 { sscanf(yytext, "%x", &parse_lval.integer); return tNUM; }
+"0x"{HEXDIGIT}+                 { sscanf(yytext, "%lx", &parse_lval.integer); return tNUM; }
 "'"."'"                         { parse_lval.integer = yytext[1]; return tNUM; }
-[+-]?{DIGIT}+             	     { sscanf(yytext, "%d", &parse_lval.integer); return tNUM; }
+[+-]?{DIGIT}+             	     { sscanf(yytext, "%ld", &parse_lval.integer); return tNUM; }
 [+-]?{DIGIT}+(\.{DIGIT}+)?([eE][+-]?{DIGIT}+)?  { sscanf(yytext, "%lf", &parse_lval.flt_number); return tFLOAT; }
 "$"[A-Za-z_]+"$"                { parse_lval.id = fetch_id(yytext); return tID; }
 "[""!"?[A-Za-z_]+"]"            { char* ptr = parse_lval.string = strdup(yytext + 1); ptr[strlen(ptr) - 1] = '\0'; return tCONDITION; }

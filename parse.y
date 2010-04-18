@@ -125,8 +125,8 @@ static const char* id_subst(const char* str)
                 memcpy(tmp, ptr, start - ptr);
                 switch (id->mval.type)
                 {
-                case mv_char: case mv_integer: sprintf(tmp + (start - ptr), "%d", id->mval.u.integer); break;
-                case mv_hexa: case mv_func: sprintf(tmp + (start - ptr), "0x%x", id->mval.u.integer); break;
+                case mv_char: case mv_integer: sprintf(tmp + (start - ptr), "%ld", id->mval.u.integer); break;
+                case mv_hexa: case mv_func: sprintf(tmp + (start - ptr), "0x%lx", id->mval.u.integer); break;
                 case mv_string: case mv_struct: strcpy(tmp + (start - ptr), id->mval.u.str); break;
                 case mv_error: strcpy(tmp + (start - ptr), "<<*** error ***>>"); break;
                 default: assert(0);
@@ -164,7 +164,7 @@ static void check_location(const struct location* loc, const char* name, const c
 {
     if (name) test_ok(loc->name && !strcmp(name, loc->name), "wrong function name %s", loc->name);
     if (src) test_ok(wdt_ends_with(loc->srcfile, src), "wrong src file %s", loc->srcfile);
-    if (line) test_ok(loc->lineno == line, "wrong lineno %d", loc->lineno);
+    if (line) test_ok(loc->lineno == line, "wrong lineno %ld", loc->lineno);
 }
 
 static void set_break(const char* cmd, int bp, const char* name, const char* src, int line)
@@ -209,10 +209,10 @@ static void check_eval(struct mval* mv, const struct mval* mv2)
     switch (mv2->type)
     {
     case mv_null: case mv_error: break;
-    case mv_integer: test_ok(mv2->u.integer == mv->u.integer, "wrong int value (%d)", mv->u.integer); break;
-    case mv_hexa:    test_ok(mv2->u.integer == mv->u.integer, "wrong hexa value (%d)", mv->u.integer); break;
+    case mv_integer: test_ok(mv2->u.integer == mv->u.integer, "wrong int value (%ld)", mv->u.integer); break;
+    case mv_hexa:    test_ok(mv2->u.integer == mv->u.integer, "wrong hexa value (%ld)", mv->u.integer); break;
     case mv_float:   test_ok(mv2->u.flt_number == mv->u.flt_number, "wrong float value (%lf)", mv->u.flt_number); break;
-    case mv_char:    test_ok(mv2->u.integer == mv->u.integer, "wrong char value (%d)", mv->u.integer); break;
+    case mv_char:    test_ok(mv2->u.integer == mv->u.integer, "wrong char value (%ld)", mv->u.integer); break;
     case mv_string:  test_ok(!str_compare(mv2->u.str, mv->u.str), "wrong string value (%s)", mv->u.str); break;
     case mv_struct:  test_ok(!str_compare(mv2->u.str, mv->u.str), "wrong struct value (%s)", mv->u.str); break;
     default: test_ok(0, "Unsupported type %d", mv2->type);
@@ -327,7 +327,7 @@ static unsigned doit(void)
 %union
 {
     char*               string;
-    int                 integer;
+    long int            integer;
     double              flt_number;
     struct id*          id;
 }
@@ -361,7 +361,7 @@ command:
     | tBREAK tSTRING tNUM {if (doit()) set_break($2, $3, NULL, NULL, 0);}
     | tBREAK tSTRING tNUM tSTRING {if (doit()) set_break($2, $3, $4, NULL, 0);}
     | tBREAK tSTRING tNUM tSTRING tSTRING tNUM {if (doit()) set_break($2, $3, $4, $5, $6);}
-    | tCHECK_DISPLAY tNUM {if (doit()) test_ok(dbg.num_display == $2, "Wrong number of displays (%d)", $2);}
+    | tCHECK_DISPLAY tNUM {if (doit()) test_ok(dbg.num_display == $2, "Wrong number of displays (%ld)", $2);}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tNUM {if (doit()) {struct mval mv; mv.type = $4; mv.u.integer = $5; check_display($2, $3, &mv);}}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tFLOAT {if (doit()) {struct mval mv; mv.type = $4; mv.u.flt_number = $5; check_display($2, $3, &mv);}}
     | tCHECK_DISPLAY tNUM tSTRING tEVAL_STATUS tSTRING {if (doit()) {struct mval mv; mv.type = $4; mv.u.str = $5; check_display($2, $3, &mv);}}

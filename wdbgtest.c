@@ -111,11 +111,11 @@ static void dump_data( const char *ptr, const char *prefix )
     printf( "\n" );
 }
 
-static int to_num(struct debuggee* dbg, int idx)
+static long int to_num(struct debuggee* dbg, int idx)
 {
     const char* ptr = &dbg->cl.buf_ptr[rm[idx].rm_so];
     char* end;
-    int val;
+    long int val;
 
     if (ptr[0] == '0' && ptr[1] == 'x')
     {
@@ -334,7 +334,7 @@ int wdt_start(struct debuggee* dbg, char* start)
         dbg->status = ss_started;
         if (to_num(dbg, 1) != dbg->cl.info.dwProcessId)
         {
-            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Debugging wrong process (%x/%x)\n",
+            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Debugging wrong process (%lx/%x)\n",
                      to_num(dbg, 1), dbg->cl.info.dwProcessId);
             return -1;
         }
@@ -520,7 +520,7 @@ int wdt_execute(struct debuggee* dbg, const char* cmd, ...)
               (int)(rm[1].rm_eo - rm[1].rm_so), &dbg->cl.buf_ptr[rm[1].rm_so]);
         if (to_num(dbg, 1) != dbg->cl.info.dwProcessId)
         {
-            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Wrong pid termination (%x/%x)\n",
+            snprintf(dbg->err_msg, sizeof(dbg->err_msg), "Wrong pid termination (%lx/%x)\n",
                      to_num(dbg, 1), dbg->cl.info.dwProcessId);
             ret = -1;
         }

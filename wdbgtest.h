@@ -35,12 +35,12 @@
 /* to store information about a location (address, source file, module...) */
 struct location
 {
-    void*       address;        /* address of location */
-    char*       name;           /* name of var/function at this location */
-    unsigned    offset;         /* offset between <name> and <address> */
-    char*       srcfile;        /* source file of this location */
-    unsigned    lineno;         /* line number in <srcfile> of this location */
-    char*       module;         /* module of this location */
+    void*         address;        /* address of location */
+    char*         name;           /* name of var/function at this location */
+    unsigned long offset;         /* offset between <name> and <address> */
+    char*         srcfile;        /* source file of this location */
+    unsigned long lineno;         /* line number in <srcfile> of this location */
+    char*         module;         /* module of this location */
 };
 
 /* to store the result of an evaluation */
@@ -49,7 +49,7 @@ struct mval
     enum {mv_null, mv_integer, mv_hexa, mv_float, mv_string, mv_char, mv_struct, mv_func, mv_error} type;
     union
     {
-        int             integer;
+        long int        integer;
         double          flt_number;
         const char*     str;
     } u;
