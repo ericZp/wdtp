@@ -31,9 +31,7 @@ START "$flavor$" "type"
 	# FIXME: the last * is suspicious, and shouldn't return void here
 	[stabs]	COMMAND "whatis wdtp_test_pfn" "type = struct ms* (*--none--)(void)*"
 	[dwarf]	COMMAND "whatis wdtp_test_pfn" "type = struct ms* (*--none--)(int, char*)*"
-	[!pdb] COMMAND "whatis myarray" "type = struct ms --none--[3]"
-	# FIXME: the Name is rather strange here !
-	[pdb] COMMAND "whatis myarray" "type = struct ms Name[3]"
+	COMMAND "whatis myarray" "type = struct ms --none--[3]"
 	COMMAND "whatis test_void" "type = void (*--none--)(void)"
 	COMMAND "whatis test_varargs" "type = void (*--none--)(int)"
 END
