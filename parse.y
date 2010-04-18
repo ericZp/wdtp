@@ -43,6 +43,9 @@ static int str_compare(const char* ref, const char* cmp)
     return strcmp(ref, cmp);
 }
 
+#ifdef __GNUC__
+static int test_ok(int condition, const char *msg, ...) __attribute__((format (printf,2,3) ));
+#endif
 static int test_ok(int condition, const char *msg, ...)
 {
     va_list valist;
@@ -153,7 +156,7 @@ static int start_test(const char* exec, const char* args)
     run = malloc(strlen(debugger) + 1 + strlen(exec) + 1 + strlen(args) + 1);
     sprintf(run, "%s %s %s", debugger, exec, args);
     ret = wdt_start(&dbg, run);
-    test_ok(ret != -1, dbg.err_msg);
+    test_ok(ret != -1, "%s", dbg.err_msg);
     return ret;
 }
 
@@ -171,7 +174,7 @@ static void set_break(const char* cmd, int bp, const char* name, const char* src
     struct location     loc;
 
     ret = wdt_set_xpoint(&dbg, id_subst(cmd), &xp_num, &loc);
-    test_ok(ret != -1, dbg.err_msg);
+    test_ok(ret != -1, "%s", dbg.err_msg);
     if (bp) test_ok(xp_num == bp, "Wrong bp number (%d)", xp_num);
     if (name) test_ok(loc.name && !strcmp(name, loc.name), "wrong bp name (%s)", loc.name);
     check_location(&loc, NULL, src, line);
@@ -183,7 +186,7 @@ static void command_run(const char* c, int status, int bp)
     int                 ret;
 
     ret = wdt_execute(&dbg, c);
-    test_ok(ret != -1, dbg.err_msg);
+    test_ok(ret != -1, "%s", dbg.err_msg);
     if (status != -1) test_ok(dbg.status == status, "%s", dbg.err_msg);
     if (status == ss_xpoint) test_ok(dbg.info == bp, "hit wrong bp number %d", dbg.info);
 }
@@ -193,7 +196,7 @@ static void command(const char* c, const char* result)
     int                 ret;
 
     ret = wdt_execute(&dbg, c);
-    test_ok(ret != -1, dbg.err_msg);
+    test_ok(ret != -1, "%s", dbg.err_msg);
     if (result) test_ok(!memcmp(dbg.cl.buf_ptr, result, strlen(result)),
                         "Unexpected command result %s\n", dbg.cl.buf_ptr);
 }
@@ -353,7 +356,7 @@ item:
 
 
 command:
-      tBACKTRACE {if (doit()) test_ok(wdt_backtrace(&dbg) == 0, dbg.err_msg);}
+      tBACKTRACE {if (doit()) test_ok(wdt_backtrace(&dbg) == 0, "%s", dbg.err_msg);}
     | tBREAK tSTRING {if (doit()) set_break($2, 0, NULL, NULL, 0);}
     | tBREAK tSTRING tNUM {if (doit()) set_break($2, $3, NULL, NULL, 0);}
     | tBREAK tSTRING tNUM tSTRING {if (doit()) set_break($2, $3, $4, NULL, 0);}
@@ -390,7 +393,7 @@ start_test:
     | tSTART tSTRING tSTRING {if (start_test($2, $3) == -1) exec_block = FALSE;}
 ;
 end_test:
-      tEND {if (exec_block) test_ok(wdt_stop(&dbg) == 0, dbg.err_msg); else exec_block = TRUE; free_ids()};
+      tEND {if (exec_block) test_ok(wdt_stop(&dbg) == 0, "%s", dbg.err_msg); else exec_block = TRUE; free_ids()};
 
 %%
 
