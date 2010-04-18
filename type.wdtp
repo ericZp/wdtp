@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 START "$flavor$" "type"
-	BREAK "break test_type : 45" 1 "test_type" "wdtp_type.c" 45
+	BREAK "break test_type : 47" 1 "test_type" "wdtp_type.c" 47
 	COMMAND "cont"
 
 	[!pdb] COMMAND "whatis bar" "type = int"
