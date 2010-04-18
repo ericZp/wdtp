@@ -38,7 +38,7 @@ AC_SUBST(MINGW32,${with_mingw32:-false})
 AC_SUBST(MSVC,${with_msvc:-false})
 
 WDTP_ADD_COMPILER(gcc, true, [\$(WDTP_SRCS)], [\$(WINEGCC) \$(WDTPCFLAGS)],
-	[-B\$(TOOLSDIR)/tools/winebuild -mconsole -o \$@ \$(WDTP_SRCS) -lkernel32])
+	[-mconsole -o \$@ \$(WDTP_SRCS) -lkernel32])
 WDTP_DEFINE_FLAVOR(gcc, stabspO0, stabs, [-gstabs+ -O0])
 WDTP_DEFINE_FLAVOR(gcc, dwarfO0, dwarf, [-gdwarf-2 -O0])
 WDTP_DEFINE_FLAVOR(gcc, dwarfO2, dwarf, [-gdwarf-2 -O2])
