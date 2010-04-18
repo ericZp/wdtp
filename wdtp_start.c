@@ -2,9 +2,9 @@
 #include "wdtp.h"
 
 /* just to avoid to include all the Windows stuff */
-extern long __stdcall CreateEventA(void*, unsigned, unsigned, void*);
-extern int  __stdcall WaitForSingleObject(unsigned long, unsigned long);
-extern void __stdcall CloseHandle(unsigned long);
+extern void* __stdcall CreateEventA(void*, unsigned, unsigned, void*);
+extern int   __stdcall WaitForSingleObject(void*, unsigned);
+extern void  __stdcall CloseHandle(void*);
 
 int wdtp_test_start_real(void)
 {
@@ -17,7 +17,7 @@ int wdtp_test_start_real(void)
  */
 int test_start(int argc, const char** argv)
 {
-    long event = CreateEventA(NULL, 0, 0, NULL);
+    void* event = CreateEventA(NULL, 0, 0, NULL);
     WaitForSingleObject(event, 0xFFFFFFFF /* INFINITE */);
     CloseHandle(event);
 
