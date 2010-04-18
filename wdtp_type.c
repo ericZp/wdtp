@@ -27,11 +27,25 @@ static struct ms*       fn(int v, const char* k)
 
 struct ms* (*wdtp_test_pfn)(int, const char*) = fn;
 
+void test_void(void)
+{
+    bar += *foo;
+}
+
+void test_varargs(int toto, ...)
+{
+    bar *= toto;
+}
+
 int test_type(int argc, const char** ptr)
 {
     struct ms*  ms;
     int         lfoo = 3;
     foo = &lfoo;
     ms = wdtp_test_pfn(12, "foo");
+    test_void();
+    test_varargs(12, 3, 4);
+    test_varargs(10, "foo");
+
     return ms->value;
 }

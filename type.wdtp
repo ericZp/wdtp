@@ -18,7 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 START "$flavor$" "type"
-	BREAK "break test_type : 35" 1 "test_type" "wdtp_type.c" 35
+	BREAK "break test_type : 45" 1 "test_type" "wdtp_type.c" 45
 	COMMAND "cont"
 
 	[!pdb] COMMAND "whatis bar" "type = int"
@@ -28,10 +28,12 @@ START "$flavor$" "type"
 	[!pdb] COMMAND "whatis fn" "type = struct ms* (*--none--)(int, char*)"
 	# FIXME: the 'signed char' thingie is to be fixed
 	[pdb] COMMAND "whatis fn" "type = struct ms* (*--none--)(INT4, signed char*)"
-	# FIXME: the last * is suspicious
-	[stabs]	COMMAND "whatis wdtp_test_pfn" "type = struct ms* (*--none--)()*"
+	# FIXME: the last * is suspicious, and shouldn't return void here
+	[stabs]	COMMAND "whatis wdtp_test_pfn" "type = struct ms* (*--none--)(void)*"
 	[dwarf]	COMMAND "whatis wdtp_test_pfn" "type = struct ms* (*--none--)(int, char*)*"
 	[!pdb] COMMAND "whatis myarray" "type = struct ms --none--[3]"
 	# FIXME: the Name is rather strange here !
 	[pdb] COMMAND "whatis myarray" "type = struct ms Name[3]"
+	COMMAND "whatis test_void" "type = void (*--none--)(void)"
+	COMMAND "whatis test_varargs" "type = void (*--none--)(int)"
 END
