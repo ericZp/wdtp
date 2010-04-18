@@ -164,7 +164,7 @@ static void grab_location(struct debuggee* dbg, struct location* loc,
     loc->address = (addr_idx != -1) ? (void*)to_num(dbg, addr_idx) : NULL;
     if (name_idx != -1)
     {
-        unsigned pos = rm[name_idx].rm_eo;
+        int pos = rm[name_idx].rm_eo;
         size_t len = rm[name_idx].rm_eo - rm[name_idx].rm_so;
         char* end;
 
