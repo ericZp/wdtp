@@ -15,7 +15,42 @@ C_SRCS = \
 LEX_SRCS   = token.l
 BISON_SRCS = parse.y
 
-@MAKE_PROG_RULES@
+# Various definitions
+CC	     = @CC@
+BISON        = @BISON@
+FLEX         = @FLEX@
+RM	     = rm -f
+CFLAGS       = @CFLAGS@
+DLLFLAGS     = -D_REENTRANT -fPIC
+DLLEXT	     = .so
+TARGETFLAGS  = @TARGETFLAGS@
+INCLUDES     = -I$(SRCDIR) -I. -I$(TOPSRCDIR)/include -I$(TOPOBJDIR)/include $(EXTRAINCL)
+ALLCFLAGS    = $(INCLUDES) $(EXTRACFLAGS) $(DLLFLAGS) $(CFLAGS)
+WINEGCC      = $(TOPOBJDIR)/tools/winegcc/winegcc $(TARGETFLAGS) -B$(TOPOBJDIR)/tools/winebuild
+
+#
+OBJS = $(C_SRCS:.c=.o) $(BISON_SRCS:.y=.tab.o) $(LEX_SRCS:.l=.yy.o) $(EXTRA_OBJS)
+
+# some simple rules
+.SUFFIXES: .h .y .l .tab.c .tab.h .yy.c
+
+.c.o:
+	$(CC) -c $(ALLCFLAGS) -o $@ $<
+
+.y.tab.c:
+	$(BISON) $(BISONFLAGS) -p $*_ -o $@ $<
+
+.y.tab.h:
+	$(BISON) $(BISONFLAGS) -p $*_ -o $*.tab.c -d $<
+
+.l.yy.c:
+	$(FLEX) $(LEXFLAGS) -o$@ $<
+
+all: $(MODULE)$(DLLEXT)
+
+$(MODULE).so: $(OBJS) Makefile.in
+	$(WINEGCC) $(APPMODE) $(OBJS) -o $@ $(ALL_LIBS) $(DELAYIMPORTS:%=-Wb,-d%)
+
 parse.tab.c: parse.tab.h   # for parallel makes
 
 # Now the various compiler's options to build the wdtp program
@@ -60,7 +95,7 @@ wdtp:@WDTP_LIST_TARGETS@
 
 # Finish cleaning up the mess
 clean::
-	$(RM) *.exe *.pdb
+	$(RM) *.o *.exe.so *.tab.[ch] *.yy.c *.exe *.pdb
 
 distclean:: clean
 	$(RM) config.* configure.lineno TAGS tags wdbgtest.run

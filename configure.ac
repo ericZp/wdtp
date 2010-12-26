@@ -3,7 +3,7 @@ dnl Original author: Michael Patra
 dnl See ChangeLog file for detailed change history.
 
 AC_PREREQ(2.53b)
-AC_INIT([Wdtp],"Wdtp-0.01",[eric.pouech@wanadoo.fr])
+AC_INIT([Wdtp],[Wdtp-0.01],[eric.pouech@wanadoo.fr])
 
 dnl **** Command-line arguments ****
 
@@ -11,6 +11,7 @@ AC_ARG_WITH(wine,AS_HELP_STRING([--with-wine=<dir>],[set Wine directory as <dir>
 AC_ARG_WITH(wine_output,AS_HELP_STRING([--with-wine-output=<dir>],[set Wine output directory as <dir> (same as --with-wine if none)]))
 AC_ARG_WITH(mingw32,AS_HELP_STRING([--with-mingw32=<dir>],[tells where to find MingW32 cross-compilation]))
 AC_ARG_WITH(msvc,AS_HELP_STRING([--with-msvc=<dir>],[tells where to find MS Visual C compiler]))
+AC_ARG_ENABLE(win64,AS_HELP_STRING([--enable-win64],[build a 64bit target]))
 
 dnl **** Checking the provided CL arguments ****
 
@@ -37,6 +38,35 @@ AC_SUBST(WINE_DST_DIR,$with_wine_output)
 AC_SUBST(MINGW32,${with_mingw32:-false})
 AC_SUBST(MSVC,${with_msvc:-false})
 
+dnl **** some basic configuration ****
+
+AC_CONFIG_AUX_DIR([$with_wine/tools])
+
+AC_CANONICAL_HOST
+
+AC_PROG_CC
+AC_CHECK_PROGS(BISON,bison,none)
+AC_CHECK_PROGS(FLEX,flex,none)
+
+dnl check whether we build a 32 vs 64 bit target
+dnl should check that the wine directory contains the right bitness
+dnl FIXME: could also infer wine/wine64/winewow from there
+
+if test "x$enable_win64" = "xyes"
+then
+	case $host in
+	*-darwin*) CC="$CC -m64"; AC_SUBST(TARGETFLAGS,"-m64");;
+	esac
+else
+	case $host in
+	x86_64*) CC="$CC -m32"; AC_SUBST(TARGETFLAGS,"-m32");;
+	esac
+fi
+dnl FIXME should test whether Wall is supported
+CC="$CC -Wall"
+
+dnl the various compilers & flavors
+
 WDTP_ADD_COMPILER(gcc, true, [\$(WDTP_SRCS)], [\$(WINEGCC) \$(WDTPCFLAGS)],
 	[-mconsole -o \$@ \$(WDTP_SRCS) -lkernel32])
 WDTP_DEFINE_FLAVOR(gcc, stabspO0, stabs, [-gstabs+ -O0])
@@ -56,23 +86,7 @@ WDTP_DEFINE_FLAVOR(mingw32, dwarfO2, dwarf, [-gdwarf-2 -O2], true)
 
 WDTP_FINISH
 
-dnl
-
-MAKE_RULES="$with_wine_output/Make.rules"
-AC_SUBST_FILE(MAKE_RULES)
-
-MAKE_DLL_RULES="$with_wine_output/dlls/Makedll.rules"
-AC_SUBST_FILE(MAKE_DLL_RULES)
-
-MAKE_IMPLIB_RULES="$with_wine_output/dlls/Makeimplib.rules"
-AC_SUBST_FILE(MAKE_IMPLIB_RULES)
-
-MAKE_TEST_RULES="$with_wine_output/dlls/Maketest.rules"
-AC_SUBST_FILE(MAKE_TEST_RULES)
-
-MAKE_PROG_RULES="$with_wine_output/programs/Makeprog.rules"
-AC_SUBST_FILE(MAKE_PROG_RULES)
-
 dnl *** Now output the various files ***
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
