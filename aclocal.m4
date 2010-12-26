@@ -74,7 +74,7 @@ for compiler in $wdtp_compilers; do
 		target=AS_VAR_GET(wdtp_target_${compiler}_${flavor})
 		full_string="$full_string
 test_${compiler}_${flavor}: all ${target}
-	for i in \$(WDTPS); do ./wdbgtest.run --condition ${condition} --flavor ${target} \$\$i; done
+	for i in \$(WDTPS); do \$(TOPOBJDIR)/wine wdbgtest.exe.so --debugger \$(TOPOBJDIR)/programs/winedbg/winedbg.exe.so --condition ${condition} --flavor ${target} \$\$i; done
 "
 	done
 full_string="$full_string

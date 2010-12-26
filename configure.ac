@@ -75,5 +75,4 @@ AC_SUBST_FILE(MAKE_PROG_RULES)
 
 dnl *** Now output the various files ***
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([wdbgtest.run],[chmod +x wdbgtest.run])
 AC_OUTPUT

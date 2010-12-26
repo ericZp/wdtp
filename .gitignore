@@ -3,6 +3,7 @@
 *.yy.c
 *~
 *.exe.so
+wdbgtest.exe.fake
 wdtp_*.exe
 wdtp_*.pdb
 vc70.pdb
@@ -13,5 +14,3 @@ config.log
 config.status
 configure
 Makefile
-wdbgtest
-wdbgtest.run
