@@ -78,7 +78,7 @@ WDTP_ADD_COMPILER(msvc, [${with_msvc}], [\$(WDTP_SRCS)], [\$(WINE) \"\$(MSVC_DIR
 	-rm -f \$(WDTP_SRCS:%.c=%.obj) \$(@:%.exe=%.ilk)])
 WDTP_DEFINE_FLAVOR(msvc, pdbOd, pdb, [/Od], true)
 
-WDTP_ADD_COMPILER(mingw32, [${with_msvc}], [\$(WDTP_SRCS)], [\$(MINGW32) \$(WDTPCFLAGS)],
+WDTP_ADD_COMPILER(mingw32, [${with_mingw32}], [\$(WDTP_SRCS)], [\$(MINGW32) \$(WDTPCFLAGS)],
 	 [-B\$(TOOLSDIR)/tools/winebuild -mconsole -o \$@ \$(WDTP_SRCS) -lkernel32])
 WDTP_DEFINE_FLAVOR(mingw32, stabspO0, stabs, [-gstabs+ -O0], true)
 WDTP_DEFINE_FLAVOR(mingw32, dwarfO0, dwarf, [-gdwarf-2 -O0], true)
