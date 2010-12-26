@@ -20,6 +20,7 @@
 # heavily copied from expr.wdtp and stack.wdtp
 
 START "$flavor$" "expr foo bar"
+	COMMAND "dir ."
 	BREAK	"b test_expr : 76"
 	COMMAND	"cont"
 
@@ -32,6 +33,7 @@ START "$flavor$" "expr foo bar"
 END
 
 START "foo1.mdmp"
+	COMMAND "dir ."
 	# simple expression test
 	EVAL 	"p argc" mv_hexa 2
 
@@ -60,6 +62,7 @@ START "foo1.mdmp"
 END
 
 START "foo2.mdmp"
+	COMMAND "dir ."
 	# examine test
 
 	# testing values inside structure
@@ -110,6 +113,7 @@ END
 # heavily derived from stack.wdtp
 
 START "$flavor$" "stack"
+	COMMAND "dir ."
 	BREAK "b wdtp_test_stack_func : 10" 1
 	COMMAND "cont"
 
@@ -117,6 +121,7 @@ START "$flavor$" "stack"
 END
 
 START "foo.mdmp"
+	COMMAND "dir ."
 	BACKTRACE
 	CHECK_FRAME 0 "wdtp_test_stack_func" "wdtp_stack.c" 10 "i=0xa"
 

@@ -19,6 +19,7 @@
 
 # simple break point test without hardware assistance
 START "$flavor$" "xpoint"
+	COMMAND "dir ."
 	BREAK "break test_xpoint : 33" 1 "test_xpoint" "wdtp_xpoint.c" 33
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 33
@@ -40,6 +41,7 @@ END
 
 # simple break point test with hardware assistance
 START "$flavor$" "xpoint"
+	COMMAND "dir ."
 	BREAK "break test_xpoint : 33" 1 "test_xpoint" "wdtp_xpoint.c" 33
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 33
@@ -61,6 +63,7 @@ END
 
 # test for testing a condition on a breakpoint
 START "$flavor$" "xpoint"
+	COMMAND "dir ."
 	BREAK "break wdtp_test_xpoint_g : 18" 1 "wdtp_test_xpoint_g" "wdtp_xpoint.c" 18
 
 	COMMAND "cond 1 ret == 20"
@@ -74,6 +77,7 @@ END
 
 # test for testing a condition on a breakpoint with hw assisted bp
 START "$flavor$" "xpoint"
+	COMMAND "dir ."
 	BREAK "hbreak wdtp_test_xpoint_g : 18" 1 "wdtp_test_xpoint_g" "wdtp_xpoint.c" 18
 
 	COMMAND "cond 1 ret == 20"
@@ -87,6 +91,7 @@ END
 
 # watch test
 START "$flavor$" "xpoint"
+	COMMAND "dir ."
 	BREAK "break test_xpoint : 33" 1
 
 	COMMAND "cont" ss_xpoint 1
