@@ -22,24 +22,24 @@ START "$flavor$" "expr foo bar"
 	COMMAND	"cont"
 
 	# simple expression test
-	EVAL 	"p argc" mv_integer 2
+	EVAL 	"p argc" mv_hexa 2
 
-	EVAL	"p ((argc + 22) * 3) / 4" mv_integer 18
-	# EVAL "p *&argc" mv_integer 2
+	EVAL	"p /d ((argc + 22) * 3) / 4" mv_integer 18
+	# EVAL "p *&argc" mv_hexa 2
 	EVAL	"p ptr[0]" mv_string "foo"
 	EVAL	"p ptr[1]" mv_string "bar"
 	EVAL	"p ptr[0][0]" mv_char 'f'
-	# EVAL "p (unsigned)ptr[0][0]" mv_integer 'f'
-	EVAL	"p 0xffffffff" mv_integer 0xffffffff
-	EVAL	"p (short unsigned)0xffffffff" mv_integer 0xffff
-	EVAL	"p (unsigned char)0x61616161" mv_integer 'a'
+	# EVAL "p (unsigned)ptr[0][0]" mv_hexa 'f'
+	EVAL	"p 0xffffffff" mv_hexa 0xffffffff
+	EVAL	"p (short unsigned)0xffffffff" mv_hexa 0xffff
+	EVAL	"p (unsigned char)0x61616161" mv_hexa 'a'
 	EVAL	"p (char)0x61616161" mv_char 'a'
 	EVAL	"p /x 0xffffffff" mv_hexa 0xffffffff
-	EVAL	"p 3 - 2 - 4" mv_integer -3
-	EVAL	"p 2 + 3 << 4" mv_integer 80
-	EVAL	"p 2 + -3" mv_integer -1
-	EVAL	"p 2 - +3" mv_integer -1
-	EVAL	"p 2 - -3" mv_integer 5
+	EVAL	"p /d 3 - 2 - 4" mv_integer -3
+	EVAL	"p /d 2 + 3 << 4" mv_integer 80
+	EVAL	"p /d 2 + -3" mv_integer -1
+	EVAL	"p /d 2 - +3" mv_integer -1
+	EVAL	"p /d 2 - -3" mv_integer 5
 	# EVAL "p (char*)(unsigned)ptr[0]" mv_string "foo"
 
 	# examine test
@@ -47,40 +47,42 @@ START "$flavor$" "expr foo bar"
 	BREAK "b wdtp_test_expr_part : 64"
 	COMMAND "cont"
 
-	EVAL "p myint0" mv_integer -4
-	EVAL "p myint1" mv_integer 2
-	EVAL "p myint2" mv_integer 36
+	EVAL "p /d myint0" mv_integer -4
+	EVAL "p myint1" mv_hexa 2
+	EVAL "p myint2" mv_hexa 36
 	# setting some values
 	EVAL "set myint1=45" mv_null 0
-	EVAL "p myint0" mv_integer -4
-	EVAL "p myint1" mv_integer 45
-	EVAL "p myint2" mv_integer 36
-#	EVAL	"p sll" mv_integer -123456789000
-#	EVAL	"p ull" mv_integer 123456789000
+	EVAL "p /d myint0" mv_integer -4
+	EVAL "p myint1" mv_hexa 45
+	EVAL "p myint2" mv_hexa 36
+#	EVAL	"p sll" mv_hexa -123456789000
+#	EVAL	"p ull" mv_hexa 123456789000
 	EVAL "p wdtp_test_expr_te" mv_string "three"
-	EVAL "p mytata[2]" mv_struct "i=14, s=4, c='c'"
-	EVAL "p mytata[2].i" mv_integer 14
-	EVAL "p mytata[2].s" mv_integer 4
+	EVAL "p mytata[2]" mv_struct "i=0xe, s=0x4, c='c'"
+	EVAL "p mytata[2].i" mv_hexa 14
+	EVAL "p mytata[2].s" mv_hexa 4
 	EVAL "p mytata[2].c" mv_char 'c'
 	EVAL "p mytata[3]" mv_error
-	EVAL "p pmytata[2]" mv_struct "i=14, s=4, c='c'"
-	EVAL "p pmytata[2].i" mv_integer 14
-	EVAL "p pmytata[2].s" mv_integer 4
+	EVAL "p pmytata[2]" mv_struct "i=0xe, s=0x4, c='c'"
+	EVAL "p pmytata[2].i" mv_hexa 14
+	EVAL "p pmytata[2].s" mv_hexa 4
 	EVAL "p pmytata[2].c" mv_char 'c'
 	EVAL "p mytata[3]" mv_error
 
 	# testing values inside structure
-	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}, x=one"
-	EVAL	"p /x t->s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
-	EVAL	"p t->u" mv_struct "i=-1431655766, u=2863311530"
+	# FIXME: the negative values in hex should be clipped (in output) to real integer size (not 64 bit as winedbg default)
+	EVAL	"p *t" mv_struct "toto_a=0x3, toto_b=0x12, bf1=0xc, bf2=0x3f, bf3=0xffffffde, bf4=0xfffffffc, ff=1.230000, fd=0.045600, s={a=0x5a5a5a5a, b=0xa5a5a5a5}, u={i=0xaaaaaaaa, u=0xaaaaaaaa}, x=one"
+
+	EVAL	"p t->s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
+	EVAL	"p /d t->u" mv_struct "i=-1431655766, u=2863311530"
 	EVAL	"p /x t->u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
-	EVAL	"p t->toto_a" mv_integer 3
-	EVAL	"p t->toto_b" mv_integer 18
-	EVAL	"p t->bf1" mv_integer 12
-	EVAL	"p t->bf2" mv_integer 63
-	EVAL	"p t->bf3" mv_integer -34
-	EVAL	"p t->bf4" mv_integer -4
-	EVAL	"p -t->bf4 * 12" mv_integer 48
+	EVAL	"p t->toto_a" mv_hexa 3
+	EVAL	"p t->toto_b" mv_hexa 18
+	EVAL	"p t->bf1" mv_hexa 12
+	EVAL	"p t->bf2" mv_hexa 63
+	EVAL	"p /d t->bf3" mv_integer -34
+	EVAL	"p /d t->bf4" mv_integer -4
+	EVAL	"p -t->bf4 * 12" mv_hexa 48
 	EVAL	"p /x t->u.u" mv_hexa 0xaaaaaaaa
 	EVAL	"p titi" mv_struct "pA=0x87654321, pB=0x43218765, pC=\"foo\""
 	EVAL	"p t->ff" mv_float 1.23
@@ -89,8 +91,8 @@ START "$flavor$" "expr foo bar"
 
 	# test setting values inside structure
 	EVAL	"set t->toto_a=45" mv_null 0
-	EVAL	"p t->toto_a" mv_integer 45
+	EVAL	"p t->toto_a" mv_hexa 45
 	EVAL	"set t->bf1=0" mv_null 0
-	# EVAL "p t->bf1" mv_integer 0
-	EVAL	"p t->bf2" mv_integer 63
+	# EVAL "p t->bf1" mv_hexa 0
+	EVAL	"p t->bf2" mv_hexa 63
 END

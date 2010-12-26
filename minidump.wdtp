@@ -33,27 +33,27 @@ END
 
 START "foo1.mdmp"
 	# simple expression test
-	EVAL 	"p argc" mv_integer 2
+	EVAL 	"p argc" mv_hexa 2
 
-	EVAL	"p ((argc + 22) * 3) / 4" mv_integer 18
-	# EVAL "p *&argc" mv_integer 2
+	EVAL	"p ((argc + 22) * 3) / 4" mv_hexa 18
+	# EVAL "p *&argc" mv_hexa 2
 	# command line arguments are stored in heap, and we don't store heap
 	# content in minidump, so expect error
 	EVAL	"p ptr[0]" mv_error
 	EVAL	"p ptr[1]" mv_error
 	EVAL	"p ptr[0][0]" mv_error
 
-	# EVAL "p (unsigned)ptr[0][0]" mv_integer 'f'
-	EVAL	"p 0xffffffff" mv_integer 0xffffffff
-	EVAL	"p (short unsigned)0xffffffff" mv_integer 0xffff
-	EVAL	"p (unsigned char)0x61616161" mv_integer 'a'
+	# EVAL "p (unsigned)ptr[0][0]" mv_hexa 'f'
+	EVAL	"p 0xffffffff" mv_hexa 0xffffffff
+	EVAL	"p (short unsigned)0xffffffff" mv_hexa 0xffff
+	EVAL	"p (unsigned char)0x61616161" mv_hexa 'a'
 	EVAL	"p (char)0x61616161" mv_char 'a'
 	EVAL	"p /x 0xffffffff" mv_hexa 0xffffffff
-	EVAL	"p 3 - 2 - 4" mv_integer -3
-	EVAL	"p 2 + 3 << 4" mv_integer 80
-	EVAL	"p 2 + -3" mv_integer -1
-	EVAL	"p 2 - +3" mv_integer -1
-	EVAL	"p 2 - -3" mv_integer 5
+	EVAL	"p /d 3 - 2 - 4" mv_integer -3
+	EVAL	"p /d 2 + 3 << 4" mv_integer 80
+	EVAL	"p /d 2 + -3" mv_integer -1
+	EVAL	"p /d 2 - +3" mv_integer -1
+	EVAL	"p /d 2 - -3" mv_integer 5
 	# EVAL "p (char*)(unsigned)ptr[0]" mv_string "foo"
 
 	SYSTEM "rm -f foo1.mdmp"
@@ -63,17 +63,17 @@ START "foo2.mdmp"
 	# examine test
 
 	# testing values inside structure
-	EVAL	"p *t" mv_struct "toto_a=3, toto_b=18, bf1=12, bf2=63, bf3=-34, bf4=-4, ff=1.230000, fd=0.045600, s={a=1515870810, b=-1515870811}, u={i=-1431655766, u=2863311530}, x=one"
-	EVAL	"p /x t->s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
-	EVAL	"p t->u" mv_struct "i=-1431655766, u=2863311530"
+	EVAL	"p *t" mv_struct "toto_a=0x3, toto_b=0x12, bf1=0xc, bf2=0x3f, bf3=0xffffffde, bf4=0xfffffffc, ff=1.230000, fd=0.045600, s={a=0x5a5a5a5a, b=0xa5a5a5a5}, u={i=0xaaaaaaaa, u=0xaaaaaaaa}, x=one"
+	EVAL	"p t->s" mv_struct "a=0x5a5a5a5a, b=0xa5a5a5a5"
+	EVAL	"p /d t->u" mv_struct "i=-1431655766, u=2863311530"
 	EVAL	"p /x t->u" mv_struct "i=0xaaaaaaaa, u=0xaaaaaaaa"
-	EVAL	"p t->toto_a" mv_integer 3
-	EVAL	"p t->toto_b" mv_integer 18
-	EVAL	"p t->bf1" mv_integer 12
-	EVAL	"p t->bf2" mv_integer 63
-	EVAL	"p t->bf3" mv_integer -34
-	EVAL	"p t->bf4" mv_integer -4
-	EVAL	"p -t->bf4 * 12" mv_integer 48
+	EVAL	"p t->toto_a" mv_hexa 3
+	EVAL	"p t->toto_b" mv_hexa 18
+	EVAL	"p t->bf1" mv_hexa 12
+	EVAL	"p t->bf2" mv_hexa 63
+	EVAL	"p /d t->bf3" mv_integer -34
+	EVAL	"p /d t->bf4" mv_integer -4
+	EVAL	"p /d -t->bf4 * 12" mv_integer 48
 	EVAL	"p /x t->u.u" mv_hexa 0xaaaaaaaa
 	EVAL	"p t->ff" mv_float 1.23
 	EVAL	"p t->fd" mv_float 4.56e-2
@@ -88,21 +88,21 @@ START "foo2.mdmp"
 	#EVAL	"p myint0" mv_integer -4
 	#EVAL   "p wdtp_test_expr_te" mv_string "three"
 	#EVAL	"p mytata[2]" mv_struct "i=14, s=4, c='c'"
-	#EVAL	"p mytata[2].i" mv_integer 14
-	#EVAL	"p mytata[2].s" mv_integer 4
+	#EVAL	"p mytata[2].i" mv_hexa 14
+	#EVAL	"p mytata[2].s" mv_hexa 4
 	#EVAL	"p mytata[2].c" mv_char 'c'
 	#EVAL	"p pmytata[2]" mv_struct "i=14, s=4, c='c'"
-	#EVAL 	"p pmytata[2].i" mv_integer 14
-	#EVAL 	"p pmytata[2].s" mv_integer 4
+	#EVAL 	"p pmytata[2].i" mv_hexa 14
+	#EVAL 	"p pmytata[2].s" mv_hexa 4
 	#EVAL	"p pmytata[2].c" mv_char 'c'
 
 	# test setting values inside structure
 	EVAL	"set t->toto_a=45" mv_error
-	EVAL	"p t->toto_a" mv_integer 3
+	EVAL	"p t->toto_a" mv_hexa 3
 
 	EVAL	"set t->bf1=0" mv_null 0
 	# EVAL "p t->bf1" mv_integer 0
-	EVAL	"p t->bf2" mv_integer 63
+	EVAL	"p t->bf2" mv_hexa 63
 
 	SYSTEM "rm -f foo2.mdmp"
 END
@@ -118,36 +118,36 @@ END
 
 START "foo.mdmp"
 	BACKTRACE
-	CHECK_FRAME 0 "wdtp_test_stack_func" "wdtp_stack.c" 10 "i=10"
+	CHECK_FRAME 0 "wdtp_test_stack_func" "wdtp_stack.c" 10 "i=0xa"
 
-	CHECK_FRAME 1 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=9"
-	CHECK_FRAME 2 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=8"
-	CHECK_FRAME 3 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=7"
-	CHECK_FRAME 4 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=6"
-	CHECK_FRAME 5 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=5"
-	CHECK_FRAME 6 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=4"
-	CHECK_FRAME 7 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=3"
-	CHECK_FRAME 8 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=2"
-	CHECK_FRAME 9 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=1"
+	CHECK_FRAME 1 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x9"
+	CHECK_FRAME 2 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x8"
+	CHECK_FRAME 3 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x7"
+	CHECK_FRAME 4 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x6"
+	CHECK_FRAME 5 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x5"
+	CHECK_FRAME 6 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x4"
+	CHECK_FRAME 7 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x3"
+	CHECK_FRAME 8 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x2"
+	CHECK_FRAME 9 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x1"
 
-	CHECK_FRAME 10 "wdtp_test_stack_float" "wdtp_stack.c" 18 "i=1, f=1.234500, d=-1.456700"
+	CHECK_FRAME 10 "wdtp_test_stack_float" "wdtp_stack.c" 18 "i=0x1, f=1.234500, d=-1.456700"
 	CHECK_FRAME 11 "test_stack" "wdtp_stack.c" 23 "argc=0, argv=..."
-	CHECK_FRAME 12 "main" "wdtp.c" 12 "argc=2, argv=..."
+	CHECK_FRAME 12 "main" "wdtp.c" 12 "argc=0x2, argv=..."
 
 	# testing local variables
-	EVAL "p i" mv_integer 10
+	EVAL "p i" mv_hexa 10
 
 	COMMAND "up"
-	EVAL "p i" mv_integer 9
+	EVAL "p i" mv_hexa 9
 
 	COMMAND "up 3"
-	EVAL "p i" mv_integer 6
+	EVAL "p i" mv_hexa 6
 
 	COMMAND "down 2"
-	EVAL "p i" mv_integer 8
+	EVAL "p i" mv_hexa 8
 
 	COMMAND "down"
-	EVAL "p i" mv_integer 9
+	EVAL "p i" mv_hexa 9
 
 	SYSTEM "rm -f foo.mdmp"
 END

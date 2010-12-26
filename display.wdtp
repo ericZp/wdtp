@@ -32,7 +32,7 @@ START "$flavor$" "display"
 	COMMAND "step" ss_step
 	CHECK_LOCATION "wdtp_display.c" 21
 	CHECK_DISPLAY 1
-	CHECK_DISPLAY 0 "xx" mv_struct "v=22, string=\"first\""
+	CHECK_DISPLAY 0 "xx" mv_struct "v=0x16, string=\"first\""
 
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_display.c" 20
@@ -40,7 +40,7 @@ START "$flavor$" "display"
 	COMMAND "step" ss_step
 	CHECK_LOCATION "wdtp_display.c" 21
 	CHECK_DISPLAY 1
-	CHECK_DISPLAY 0 "xx" mv_struct "v=14, string=\"left\""
+	CHECK_DISPLAY 0 "xx" mv_struct "v=0xe, string=\"left\""
 
 	COMMAND "display b"
 	COMMAND "display a"
@@ -51,8 +51,8 @@ START "$flavor$" "display"
 	COMMAND "step" ss_step
 	CHECK_LOCATION "wdtp_display.c" 21
 	CHECK_DISPLAY 3
-	CHECK_DISPLAY 0 "xx" mv_struct "v=14, string=\"left\""
-	CHECK_DISPLAY 1 "b" mv_integer 4
+	CHECK_DISPLAY 0 "xx" mv_struct "v=0xe, string=\"left\""
+	CHECK_DISPLAY 1 "b" mv_hexa 4
 	CHECK_DISPLAY 2 "a" mv_integer 0
 
 	COMMAND "cont" ss_xpoint 1
@@ -61,7 +61,7 @@ START "$flavor$" "display"
 	COMMAND "step" ss_step
 	CHECK_LOCATION "wdtp_display.c" 21
 	CHECK_DISPLAY 3
-	CHECK_DISPLAY 0 "xx" mv_struct "v=22, string=\"first\""
-	CHECK_DISPLAY 1 "b" mv_integer 4
-	CHECK_DISPLAY 2 "a" mv_integer 1
+	CHECK_DISPLAY 0 "xx" mv_struct "v=0x16, string=\"first\""
+	CHECK_DISPLAY 1 "b" mv_hexa 4
+	CHECK_DISPLAY 2 "a" mv_hexa 1
 END

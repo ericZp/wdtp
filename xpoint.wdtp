@@ -68,8 +68,8 @@ START "$flavor$" "xpoint"
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 18
 
-	EVAL "p ret" mv_integer 20
-	EVAL "p i" mv_integer 8
+	EVAL "p ret" mv_hexa 20
+	EVAL "p i" mv_hexa 8
 END
 
 # test for testing a condition on a breakpoint with hw assisted bp
@@ -81,8 +81,8 @@ START "$flavor$" "xpoint"
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_xpoint.c" 18
 
-	EVAL "p ret" mv_integer 20
-	EVAL "p i" mv_integer 8
+	EVAL "p ret" mv_hexa 20
+	EVAL "p i" mv_hexa 8
 END
 
 # watch test
@@ -98,10 +98,10 @@ START "$flavor$" "xpoint"
 	COMMAND "cont" ss_xpoint 3
 	# yes, we always get the line after where the instruction occured
 	CHECK_LOCATION "wdtp_xpoint.c" 9
-	EVAL "p *ptr" mv_integer 3
+	EVAL "p *ptr" mv_hexa 3
 
 	COMMAND "cont" ss_xpoint 2
 	# yes, we always get the line after where the instruction occured
 	CHECK_LOCATION "wdtp_xpoint.c" 10
-	EVAL "p xpoint_int" mv_integer 6
+	EVAL "p xpoint_int" mv_hexa 6
 END

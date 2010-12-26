@@ -23,35 +23,35 @@ START "$flavor$" "stack"
 	COMMAND "cont"
 
 	BACKTRACE
-	CHECK_FRAME 0 "wdtp_test_stack_func" "wdtp_stack.c" 10 "i=10"
+	CHECK_FRAME 0 "wdtp_test_stack_func" "wdtp_stack.c" 10 "i=0xa"
 
-	CHECK_FRAME 1 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=9"
-	CHECK_FRAME 2 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=8"
-	CHECK_FRAME 3 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=7"
-	CHECK_FRAME 4 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=6"
-	CHECK_FRAME 5 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=5"
-	CHECK_FRAME 6 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=4"
-	CHECK_FRAME 7 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=3"
-	CHECK_FRAME 8 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=2"
-	CHECK_FRAME 9 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=1"
+	CHECK_FRAME 1 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x9"
+	CHECK_FRAME 2 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x8"
+	CHECK_FRAME 3 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x7"
+	CHECK_FRAME 4 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x6"
+	CHECK_FRAME 5 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x5"
+	CHECK_FRAME 6 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x4"
+	CHECK_FRAME 7 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x3"
+	CHECK_FRAME 8 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x2"
+	CHECK_FRAME 9 "wdtp_test_stack_func" "wdtp_stack.c" 7 "i=0x1"
 
-	CHECK_FRAME 10 "wdtp_test_stack_float" "wdtp_stack.c" 18 "i=1, f=1.234500, d=-1.456700"
+	CHECK_FRAME 10 "wdtp_test_stack_float" "wdtp_stack.c" 18 "i=0x1, f=1.234500, d=-1.456700"
 	CHECK_FRAME 11 "test_stack" "wdtp_stack.c" 23 "argc=0, argv=..."
-	CHECK_FRAME 12 "main" "wdtp.c" 12 "argc=2, argv=..."
+	CHECK_FRAME 12 "main" "wdtp.c" 12 "argc=0x2, argv=..."
 
 	# testing local variables
-	EVAL "p i" mv_integer 10
+	EVAL "p i" mv_hexa 10
 
 	COMMAND "up"
-	EVAL "p i" mv_integer 9
+	EVAL "p i" mv_hexa 9
 	EVAL "set i=45" mv_null 0
 
 	COMMAND "up 3"
-	EVAL "p i" mv_integer 6
+	EVAL "p i" mv_hexa 6
 
 	COMMAND "down 2"
-	EVAL "p i" mv_integer 8
+	EVAL "p i" mv_hexa 8
 
 	COMMAND "down"
-	EVAL "p i" mv_integer 45
+	EVAL "p i" mv_hexa 45
 END
