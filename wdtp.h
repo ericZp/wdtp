@@ -12,7 +12,8 @@ extern int wdtp_dummy_counter;
  * it's also supposed to be breakable (ie to contain code that's not optimized out)
  */
 #ifdef __GNUC__
-#define WDTP_INSN_BARRIER() { asm volatile ("" ::: "memory"); wdtp_dummy_counter++; }
+#  define WDTP_INSN_BARRIER() { asm volatile ("" ::: "memory"); wdtp_dummy_counter++; }
+#  define WDTP_DONT_INLINE __attribute__ ((noinline))
 #elif defined(_MSC_VER)
 #  if _MSC_VER < 1400
      extern void _ReadWriteBarrier();
@@ -21,7 +22,8 @@ extern int wdtp_dummy_counter;
 #  endif
 #  pragma intrinsic(_ReadWriteBarrier)
 #  define WDTP_INSN_BARRIER() { _ReadWriteBarrier(); wdtp_dummy_counter++; }
+#  define WDTP_DONT_INLINE __declspec(noinline)
 #else
-#error Undefined WDTP_INSN_BARRIER macro
+#  error Undefined WDTP_INSN_BARRIER, WDTP_DONT_INLINE macros
 #endif
 

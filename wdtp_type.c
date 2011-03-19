@@ -29,12 +29,12 @@ static struct ms*       fn2(int v, const char* k) {return NULL;}
 
 struct ms* (*wdtp_test_pfn)(int, const char*) = fn;
 
-void test_void(void)
+static WDTP_DONT_INLINE void test_void(void)
 {
     wdtp_bar += *foo;
 }
 
-void test_varargs(int toto, ...)
+static WDTP_DONT_INLINE void test_varargs(int toto, ...)
 {
     wdtp_bar *= toto;
 }

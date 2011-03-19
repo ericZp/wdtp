@@ -3,7 +3,7 @@
 
 static int xpoint_int = 3;
 
-int wdtp_test_xpoint_write(int* ptr)
+WDTP_DONT_INLINE int wdtp_test_xpoint_write(int* ptr)
 {
     *ptr = 3;
     xpoint_int += *ptr;
@@ -11,7 +11,7 @@ int wdtp_test_xpoint_write(int* ptr)
     return *ptr ^ xpoint_int;
 }
 
-int wdtp_test_xpoint_g(int i)
+WDTP_DONT_INLINE int wdtp_test_xpoint_g(int i)
 {
     volatile int ret;
     ret = 12 + i;
@@ -19,7 +19,7 @@ int wdtp_test_xpoint_g(int i)
     return ret;
 }
 
-int wdtp_test_xpoint_cond(void)
+WDTP_DONT_INLINE int wdtp_test_xpoint_cond(void)
 {
     int i;
     int ret = 0;
@@ -28,7 +28,8 @@ int wdtp_test_xpoint_cond(void)
         ret += wdtp_test_xpoint_g(i);
     return ret;
 }
-int test_xpoint(int v1, const char** ptr)
+
+WDTP_DONT_INLINE int test_xpoint(int v1, const char** ptr)
 {
     wdtp_test_xpoint_write(&v1);
     wdtp_test_xpoint_cond();

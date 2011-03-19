@@ -13,7 +13,7 @@ int wdtp_test_stack_func(int i)
     return i * 2;
 }
 
-int wdtp_test_stack_float(int i, float f, double d)
+WDTP_DONT_INLINE int wdtp_test_stack_float(int i, float f, double d)
 {
     return i + wdtp_test_stack_func(i) - (int)(d/f);
 }

@@ -249,23 +249,24 @@ V Tips for writing source files:
 ===============================
 When dealing with various compilers and optimization options, here are
 a few tips (and conventions) used throughout the source files:
-- a static function can be inlined. If you really want to be sure it's
-  not inlined by the compiler, don't declare it as static. By
-  convention, all global functions start with wdtp_test_XXX_, where
-  XXX is the name of the test, to avoid name collisions.
-- the compiler can reorder the instructions from several source
-  lines. Hence if you really want, when the debugger is on line N that
-  all code of previous line(s) has been executed, use the
-  WDTP_INSN_BARRIER() macro that tells the compiler not to reorder the
-  instructions from previous and next lines.
-- in general, don't be too picky on line numbers, it's hard to have
-  them right
+- By convention and to avoir name collisions, all global functions
+  must start with wdtp_test_XXX_, where XXX is the name of the test.
 - wdbgtest, when prompted to pick from different variables, always
   chooses the local/parameter one over the global ones. This allows
   the global variables from any (known/unknown) DLL/library not to
   interfere with the locals variables from the program. To ensure
   access to global variables, prefix them with wdtp_test_XXX_ (as
-  already mentionned above).
+  already mentionned just above).
+- the compiler can reorder the instructions from several source
+  lines. Hence if you really want, when the debugger is on line N that
+  all code of previous line(s) has been executed, use the
+  WDTP_INSN_BARRIER() macro that tells the compiler not to reorder the
+  instructions from previous and next lines.
+- the compiler can also automatically inline some functions, so you
+  won't be able to set a breakpoint in them. You can ensure that a given
+  function will not be inlined by using the WDTP_DONT_INLINE macro.
+- in general, don't be too picky on line numbers, it's hard to have
+  them right
 
 --------------
 Local variables:

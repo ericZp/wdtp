@@ -6,7 +6,7 @@ extern void* __stdcall CreateEventA(void*, unsigned, unsigned, void*);
 extern int   __stdcall WaitForSingleObject(void*, unsigned);
 extern void  __stdcall CloseHandle(void*);
 
-int wdtp_test_start_real(int a, int z)
+static WDTP_DONT_INLINE int start_real(int a, int z)
 {
     return a + z;
 }
@@ -21,5 +21,5 @@ int test_start(int argc, const char** argv)
     int z = WaitForSingleObject(event, 0xFFFFFFFF /* INFINITE */);
     CloseHandle(event);
 
-    return wdtp_test_start_real(argc, z);
+    return start_real(argc, z);
 }
