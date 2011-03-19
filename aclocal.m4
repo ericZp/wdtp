@@ -32,8 +32,7 @@ AS_IF([test "x$2" != "x"],[
 	AS_VAR_SET(wdtp_deps_$1, "$3")
 	AS_VAR_SET(wdtp_cmd1_$1, "$4")
 	AS_VAR_SET(wdtp_cmd2_$1, "$5")
-	full_test="$full_test test_$1"
-	AC_SUBST(WDTP_LIST_TESTS, $full_test)
+	wdtp_full_test="$wdtp_full_test test_$1"
 	])dnl
 ])
 
@@ -45,20 +44,42 @@ AC_DEFUN([WDTP_DEFINE_FLAVOR],[
 tmp=AS_VAR_GET(wdtp_cmd1_$1)
 AS_IF([test "x${tmp}" != "x"],[
 	AS_VAR_SET(wdtp_flavors_$1, "AS_VAR_GET(wdtp_flavors_$1) $2")
-	AS_VAR_SET(wdtp_condition_$1_$2, "$3")
+	AS_VAR_SET(wdtp_flavor_condition_$1_$2, "$3")
+	AS_VAR_SET(wdtp_flavor_option_$1_$2, "$4")
 	AS_IF([test "x$5" = "xtrue"],[dllext=""],[dllext="\$(DLLEXT)"])
-	AS_VAR_SET(wdtp_target_$1_$2, "wdtp_$1_$2.exe${dllext}")
-	target=AS_VAR_GET(wdtp_target_$1_$2)
-	full_target="$full_target ${target}"
-	AC_SUBST(WDTP_LIST_TARGETS, $full_target)
-	deps=AS_VAR_GET(wdtp_deps_$1)
-	cmd1=AS_VAR_GET(wdtp_cmd1_$1)
-	cmd2=AS_VAR_GET(wdtp_cmd2_$1)
-	full_cmds="$full_cmds
+	AS_VAR_SET(wdtp_flavor_dllext_$1_$2, "${dllext}")
+      ])
+])
+
+dnl **** Finish generation of WDTP information (Helper) ****
+dnl
+dnl Usage: WDTP_FINISH_COMPILER(compiler-name)
+dnl
+AC_DEFUN([WDTP_FINISH_COMPILER],[
+compiler=$1
+test_flavors="test_${compiler}:"
+for flavor in AS_VAR_GET(wdtp_flavors_${compiler}); do
+	test_flavors="$test_flavors test_${compiler}_${flavor}"
+	condition=AS_VAR_GET(wdtp_flavor_condition_${compiler}_${flavor})
+	option=AS_VAR_GET(wdtp_flavor_option_${compiler}_${flavor})
+	target=AS_VAR_GET(wdtp_flavor_dllext_${compiler}_${flavor})
+	target="wdtp_${compiler}_${flavor}.exe${target}"
+	wdtp_full_target="$wdtp_full_target ${target}"
+	deps=AS_VAR_GET(wdtp_deps_${compiler})
+	cmd1=AS_VAR_GET(wdtp_cmd1_${compiler})
+	cmd2=AS_VAR_GET(wdtp_cmd2_${compiler})
+	wdtp_full_cmds="$wdtp_full_cmds
 ${target}: ${deps}
-	${cmd1} $4 ${cmd2}
+	${cmd1} ${option} ${cmd2}
 "
-	])dnl
+	wdtp_full_string="$wdtp_full_string
+test_${compiler}_${flavor}: all ${target}
+	for i in \$(WDTPS); do \$(TOPOBJDIR)/wine wdbgtest.exe.so --debugger \$(TOPOBJDIR)/programs/winedbg/winedbg.exe.so --condition ${condition} --flavor ${target} \$\$i; done
+"
+done
+wdtp_full_string="$wdtp_full_string
+$test_flavors
+"
 ])
 
 dnl **** Finish generation of WDTP information ****
@@ -67,24 +88,14 @@ dnl Usage: WDTP_FINISH
 dnl
 AC_DEFUN([WDTP_FINISH],[
 for compiler in $wdtp_compilers; do
-	test_flavors="test_${compiler}:"
-	for flavor in AS_VAR_GET(wdtp_flavors_${compiler}); do
-		test_flavors="$test_flavors test_${compiler}_${flavor}"
-		condition=AS_VAR_GET(wdtp_condition_${compiler}_${flavor})
-		target=AS_VAR_GET(wdtp_target_${compiler}_${flavor})
-		full_string="$full_string
-test_${compiler}_${flavor}: all ${target}
-	for i in \$(WDTPS); do \$(TOPOBJDIR)/wine wdbgtest.exe.so --debugger \$(TOPOBJDIR)/programs/winedbg/winedbg.exe.so --condition ${condition} --flavor ${target} \$\$i; done
-"
-	done
-full_string="$full_string
-$test_flavors
-"
+	WDTP_FINISH_COMPILER(${compiler})
 done
-full_string="$full_cmds
-$full_string
+wdtp_full_string="$wdtp_full_cmds
+$wdtp_full_string
 "
-AC_SUBST(WDTP_INCLUDE_TESTS, $full_string)
+AC_SUBST(WDTP_LIST_TESTS, $wdtp_full_test)
+AC_SUBST(WDTP_LIST_TARGETS, $wdtp_full_target)
+AC_SUBST(WDTP_INCLUDE_TESTS, $wdtp_full_string)
 ])
 
 dnl Local Variables:
