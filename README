@@ -127,6 +127,12 @@ KNOWN ISSUES
 Enhancements:
 - Enhance the flavor scheme (and autoconf macros) to support several
   versions of the same compiler.
+- The conditions in wdtp are hard to maintain (ie no default is
+  expressed), and don't scale well when adding new debug formats. So
+  we'd better get rid of them (in that form) and replace them by
+  values with conditions (ie extend, when expecting value 'val' to
+  rather replace val by [3;pdb=1;stabs=2] which will enforce a default
+  value.
 
 Known bugs:
 - Setting a breakpoint on a line number which doesn't exist in debug

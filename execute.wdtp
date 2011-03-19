@@ -69,6 +69,7 @@ START "$flavor$" "execute"
 	COMMAND "step" ss_step
 	[stabs] CHECK_LOCATION "wdtp_test_exec_g" "wdtp_execute.c" 8
 	[dwarf] CHECK_LOCATION "wdtp_test_exec_g" "wdtp_execute.c" 7
+	[pdb]   CHECK_LOCATION "wdtp_test_exec_g" "wdtp_execute.c" 8
 	EVAL "p a" mv_hexa 168
 
 	COMMAND "finish" ss_step
