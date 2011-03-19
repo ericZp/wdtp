@@ -89,12 +89,18 @@ RUNNING & TESTING
 -----------------
 As already mentionned, wdtp is compiled with different "flavors". We
 currently support:
-- gcc_stabspO0:     gcc, stabs+ debug format, no optimization
-- gcc_dwarfO0:      gcc, dwarf2 debug format, no optimization
-- gcc_dwarfO2:      gcc, dwarf2 debug format, optimization at regular level
-- mingw32_stabspO0: cross-compilation with mingw32, stabs+ debug
-		    format, no optimization
-- msvc_pdbOd:	    msvc, PDB format, no optimization
++----------------+----------+------+-------------+
+|    flavor      | compiler |debug |optimization |
++----------------+----------+------+-------------+
+|gcc_stabspO0    |   gcc    |stabs+|none         |
+|gcc_dwarfO0     |   gcc    |dwarf2|none         |
+|gcc_dwarfO2     |   gcc    |dwarf2|regular level|
+|mingw32_stabspO0|cc mingw32|stabs+|none         |
+|mingw32_dwarfO0 |cc mingw32|dwarf2|none         |
+|mingw32_dwarfO2 |cc mingw32|dwarf2|regular level|
+|msvc_pdbOd      |   msvc   | PDB  |none         |
++----------------+----------+------+-------------+
+(cc means cross-compilation)
 
 To test one flavor, use (for example):
 	make test_gcc_stabspO0
@@ -115,16 +121,13 @@ tests against all versions. Use
 to focus the test on a given compiler version.
 
 All flavors are not equally supported:
-- the gcc_{dwarf, stabsp}O0 should be ok (they may provide two errors
-  in minidump.wdtp and stack.wdtp for some gcc versions, but that's
-  the current behavior)
-- gcc_dwarfO2 produces a couple of errors (execute: mishandling of
-  instruction reordering, which mixes insn from different lines;
-  minidump and stack: the ELF ABI enforces saving some registers on
-  the stack, and winedbg/dbghelp doesn't handle it correctly)
-- mingw32_stabspO0 produces a couple of errors, that should be fixed
-- msvc_pdbOd also provides some errors (line numbers, wrongly
-  supported UDT forward declarations, and other quirks)
+- the gcc_dwarfO0 is ok
+- the {gcc,mingw32}_stabsp0 can provide errors in minidump.wdtp and
+  stack.wdtp (likely in main() and below but depends of your gcc version)
+- {gcc,mingw32}_dwarfO2 produces a couple of errors (execute:
+  mishandling of instruction reordering, which mixes insn from different lines)
+- msvc_pdbOd also provides some errors in type.wdtp (mainly due to
+  INT4 definition)
 
 DEPENDENCIES
 ------------
