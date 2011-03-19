@@ -12,6 +12,7 @@ AC_ARG_WITH(wine_output,AS_HELP_STRING([--with-wine-output=<dir>],[set Wine outp
 AC_ARG_WITH(mingw32,AS_HELP_STRING([--with-mingw32=<dir>],[tells where to find MingW32 cross-compilation]))
 AC_ARG_WITH(msvc,AS_HELP_STRING([--with-msvc=<dir>],[tells where to find MS Visual C compiler]))
 AC_ARG_ENABLE(win64,AS_HELP_STRING([--enable-win64],[build a 64bit target]))
+AC_ARG_ENABLE(gcc_auto,AS_HELP_STRING([--enable-gcc-auto],[auto-detects all gcc versions present on machine]))
 
 dnl **** Checking the provided CL arguments ****
 
@@ -67,8 +68,20 @@ CC="$CC -Wall"
 
 dnl the various compilers & flavors
 
-WDTP_ADD_COMPILER(gcc, true, [\$(WDTP_SRCS)], [\$(WINEGCC) \$(WDTPCFLAGS)],
+WDTP_ADD_COMPILER(gcc, true, [\$(WDTP_SRCS)], [],
 	[-mconsole -o \$@ \$(WDTP_SRCS) -lkernel32])
+
+if test "x$enable_gcc_auto" = "xyes"
+then
+	for p in `echo $PATH | sed -e 's/:/ /g'`; do
+		for gccinst in `find $p -executable -name 'gcc-*' | sort`; do
+			gccdotver=`echo $gccinst | sed -e 's/.*\/gcc-//'`
+			gccver=`echo $gccdotver | sed -e 's/\.//'`
+			WDTP_ADD_COMPILER_VERSION(gcc, $gccver, [], [\$(WINEGCC) -V $gccdotver \$(WDTPCFLAGS)], [])
+		done
+	done
+fi
+
 WDTP_DEFINE_FLAVOR(gcc, stabspO0, stabs, [-gstabs+ -O0])
 WDTP_DEFINE_FLAVOR(gcc, dwarfO0, dwarf, [-gdwarf-2 -O0])
 WDTP_DEFINE_FLAVOR(gcc, dwarfO2, dwarf, [-gdwarf-2 -O2])

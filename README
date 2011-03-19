@@ -33,10 +33,11 @@ It consists of:
    +-------------+                          +--------------------------+
 
 Currently, the flavor name is made of:
-- name of compiler (gcc, mingw32...)
-- an underscore
+- name of compiler (gcc, mingw32...), followed by underscore
+- if version management is enabled for this compiler, a version
+  identifier, followed by an underscore
 - a condensed string made out of the options (generally made out of
-  debug format and compiler options)
+  debug format and compiler options), followed by an underscore
 - the default executable extension (.exe for PEs, .exe.so for Wine modules)
 
 For now, the test suite must be compiled and run against a regular
@@ -64,6 +65,11 @@ configuration is done with:
 		--with-wine-output=<wine_dst_dir>
 where <wine_src_dir> is the path to the top of your Wine source tree,
 and <wine_dst_dir> is the path to the top of your Wine object tree.
+
+If you have several gcc versions installed on your computer, and you
+want to test them all, use
+	./configure --enable-gcc-auto
+Otherwise, the default gcc version will be used.
 
 If you want to enable mingw32 cross-compilation, use the
 --with-mingw32 option to give the name of the version of the
@@ -93,12 +99,20 @@ currently support:
 To test one flavor, use (for example):
 	make test_gcc_stabspO0
 It will run all available tests with the defined flavor.
+Note: if you have enabled versionning for the compiler, you must use
+	make test_gcc_45_stabspO0
+to test a given version of the compiler (otherwise, it will test the
+flavor against all known compiler version).
 
 To run all the tests for all flavors, do:
 	make test_all
 
 To run all the tests for a given compiler, do:
 	make test_gcc
+Note: if you have enabled versionning for a compiler, it will run all
+tests against all versions. Use
+	make test_gcc_45
+to focus the test on a given compiler version.
 
 All flavors are not equally supported:
 - the gcc_{dwarf, stabsp}O0 should be ok (they may provide two errors

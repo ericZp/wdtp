@@ -24,7 +24,7 @@ dnl that program.
 
 dnl **** Add a new compiler to the known set ****
 dnl
-dnl Usage: WDTP_ADD_COMPILER(compiler-name, path-to-compiler, deps, cmd1, cmd2)
+dnl Usage: WDTP_ADD_COMPILER(compiler-name, path-to-compiler, depends, cmd1, cmd2)
 dnl
 AC_DEFUN([WDTP_ADD_COMPILER],[
 AS_IF([test "x$2" != "x"],[
@@ -36,44 +36,61 @@ AS_IF([test "x$2" != "x"],[
 	])dnl
 ])
 
+dnl **** Define a compiler version for a given compiler ****
+dnl
+dnl Usage: WDTP_ADD_COMPILER_VERSION(compiler-name, version, depends, cmd1, cmd2)
+dnl
+dnl FIXME: should test that $1 is defined as a compiler
+AC_DEFUN([WDTP_ADD_COMPILER_VERSION],[
+AS_IF([test "x$2" != "x"],[
+	AS_VAR_SET(wdtp_versions_$1, "AS_VAR_GET(wdtp_versions_$1) $2")
+	AS_IF([test "x$3" != "x"],[tmp="$3"],[tmp=AS_VAR_GET("wdtp_deps_$1")])
+	AS_VAR_SET(wdtp_deps_$1_$2, "$tmp")
+	AS_IF([test "x$4" != "x"],[tmp="$4"],[tmp=AS_VAR_GET("wdtp_cmd1_$1")])
+	AS_VAR_SET(wdtp_cmd1_$1_$2, "$tmp")
+	AS_IF([test "x$5" != "x"],[tmp="$5"],[tmp=AS_VAR_GET("wdtp_cmd2_$1")])
+	AS_VAR_SET(wdtp_cmd2_$1_$2, "$tmp")
+	tmp=AS_VAR_GET(full_test_$1)
+	AS_VAR_SET(full_test_$1, "$tmp test_$1_$2")
+	AC_SUBST(WDTP_LIST_TESTS, $full_test)
+	])dnl
+])
+
 dnl **** Define a flavor for a known compiler ****
 dnl
 dnl Usage: WDTP_DEFINE_FLAVOR(compiler-name, flavor-name, flavor-condition, flavor-options, native)
 dnl
 AC_DEFUN([WDTP_DEFINE_FLAVOR],[
-tmp=AS_VAR_GET(wdtp_cmd1_$1)
-AS_IF([test "x${tmp}" != "x"],[
-	AS_VAR_SET(wdtp_flavors_$1, "AS_VAR_GET(wdtp_flavors_$1) $2")
-	AS_VAR_SET(wdtp_flavor_condition_$1_$2, "$3")
-	AS_VAR_SET(wdtp_flavor_option_$1_$2, "$4")
-	AS_IF([test "x$5" = "xtrue"],[dllext=""],[dllext="\$(DLLEXT)"])
-	AS_VAR_SET(wdtp_flavor_dllext_$1_$2, "${dllext}")
-      ])
+AS_VAR_SET(wdtp_flavors_$1, "AS_VAR_GET(wdtp_flavors_$1) $2")
+AS_VAR_SET(wdtp_flavor_condition_$1_$2, "$3")
+AS_VAR_SET(wdtp_flavor_option_$1_$2, "$4")
+AS_IF([test "x$5" = "xtrue"],[dllext=""],[dllext="\$(DLLEXT)"])
+AS_VAR_SET(wdtp_flavor_dllext_$1_$2, "${dllext}")
 ])
 
 dnl **** Finish generation of WDTP information (Helper) ****
 dnl
-dnl Usage: WDTP_FINISH_COMPILER(compiler-name)
+dnl Usage: WDTP_FINISH_COMPILER(compiler-name, compiler-ver-name)
 dnl
 AC_DEFUN([WDTP_FINISH_COMPILER],[
 compiler=$1
-test_flavors="test_${compiler}:"
+compiler_ver=$2
+test_flavors="test_${compiler_ver}:"
 for flavor in AS_VAR_GET(wdtp_flavors_${compiler}); do
-	test_flavors="$test_flavors test_${compiler}_${flavor}"
+	test_flavors="$test_flavors test_${compiler_ver}_${flavor}"
 	condition=AS_VAR_GET(wdtp_flavor_condition_${compiler}_${flavor})
 	option=AS_VAR_GET(wdtp_flavor_option_${compiler}_${flavor})
-	target=AS_VAR_GET(wdtp_flavor_dllext_${compiler}_${flavor})
-	target="wdtp_${compiler}_${flavor}.exe${target}"
+	target="wdtp_${compiler_ver}_${flavor}.exe""AS_VAR_GET(wdtp_flavor_dllext_${compiler}_${flavor})"
 	wdtp_full_target="$wdtp_full_target ${target}"
-	deps=AS_VAR_GET(wdtp_deps_${compiler})
-	cmd1=AS_VAR_GET(wdtp_cmd1_${compiler})
-	cmd2=AS_VAR_GET(wdtp_cmd2_${compiler})
+	deps=AS_VAR_GET(wdtp_deps_${compiler_ver})
+	cmd1=AS_VAR_GET(wdtp_cmd1_${compiler_ver})
+	cmd2=AS_VAR_GET(wdtp_cmd2_${compiler_ver})
 	wdtp_full_cmds="$wdtp_full_cmds
 ${target}: ${deps}
 	${cmd1} ${option} ${cmd2}
 "
 	wdtp_full_string="$wdtp_full_string
-test_${compiler}_${flavor}: all ${target}
+test_${compiler_ver}_${flavor}: all ${target}
 	for i in \$(WDTPS); do \$(TOPOBJDIR)/wine wdbgtest.exe.so --debugger \$(TOPOBJDIR)/programs/winedbg/winedbg.exe.so --condition ${condition} --flavor ${target} \$\$i; done
 "
 done
@@ -88,14 +105,22 @@ dnl Usage: WDTP_FINISH
 dnl
 AC_DEFUN([WDTP_FINISH],[
 for compiler in $wdtp_compilers; do
-	WDTP_FINISH_COMPILER(${compiler})
-done
-wdtp_full_string="$wdtp_full_cmds
-$wdtp_full_string
+	tmp=AS_VAR_GET(wdtp_versions_${compiler})
+	AS_IF([test "x${tmp}" = "x"],
+		[WDTP_FINISH_COMPILER(${compiler},${compiler})],
+		wdtp_full_compiler_ver="test_${compiler}:"
+		[for ver in ${tmp}; do
+			wdtp_full_compiler_ver="${wdtp_full_compiler_ver} test_${compiler}_${ver}"
+			WDTP_FINISH_COMPILER(${compiler},"${compiler}_${ver}")
+		 done
+		wdtp_full_string="$wdtp_full_string
+${wdtp_full_compiler_ver}
 "
+		])
+done
 AC_SUBST(WDTP_LIST_TESTS, $wdtp_full_test)
 AC_SUBST(WDTP_LIST_TARGETS, $wdtp_full_target)
-AC_SUBST(WDTP_INCLUDE_TESTS, $wdtp_full_string)
+AC_SUBST(WDTP_INCLUDE_TESTS, "${wdtp_full_cmds}${wdtp_full_string}")
 ])
 
 dnl Local Variables:
