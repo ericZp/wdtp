@@ -6,9 +6,9 @@ extern void* __stdcall CreateEventA(void*, unsigned, unsigned, void*);
 extern int   __stdcall WaitForSingleObject(void*, unsigned);
 extern void  __stdcall CloseHandle(void*);
 
-int wdtp_test_start_real(void)
+int wdtp_test_start_real(int a, int z)
 {
-    return 0;
+    return a + z;
 }
 
 /* internal startup code... test code won't depend on it
@@ -18,8 +18,8 @@ int wdtp_test_start_real(void)
 int test_start(int argc, const char** argv)
 {
     void* event = CreateEventA(NULL, 0, 0, NULL);
-    WaitForSingleObject(event, 0xFFFFFFFF /* INFINITE */);
+    int z = WaitForSingleObject(event, 0xFFFFFFFF /* INFINITE */);
     CloseHandle(event);
 
-    return wdtp_test_start_real();
+    return wdtp_test_start_real(argc, z);
 }

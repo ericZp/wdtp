@@ -15,7 +15,7 @@ int wdtp_test_stack_func(int i)
 
 int wdtp_test_stack_float(int i, float f, double d)
 {
-    return wdtp_test_stack_func(i);
+    return i + wdtp_test_stack_func(i) - (int)(d/f);
 }
 
 int test_stack(int argc, const char** argv)
