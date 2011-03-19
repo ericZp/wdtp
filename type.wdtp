@@ -19,7 +19,7 @@
 
 START "$flavor$" "type"
 	COMMAND "dir ."
-	BREAK "break test_type : 47" 1 "test_type" "wdtp_type.c" 47
+	BREAK "break \"*/wdtp_type.c\" : 47" 1 "test_type" "wdtp_type.c" 47
 	COMMAND "cont"
 
 	[!pdb] COMMAND "whatis wdtp_bar" "type = int"

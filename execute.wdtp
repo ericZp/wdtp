@@ -19,7 +19,7 @@
 
 START "$flavor$" "execute"
 	COMMAND "dir ."
-	BREAK "b wdtp_test_exec_f : 15" 1
+	BREAK "break \"*/wdtp_execute.c\" : 15" 1 "wdtp_test_exec_f" "wdtp_execute.c" 15
 	COMMAND "cont" ss_xpoint 1
 
 	EVAL "p a" mv_hexa 12

@@ -19,7 +19,7 @@
 
 START "$flavor$" "stack"
 	COMMAND "dir ."
-	BREAK "b wdtp_test_stack_func : 10" 1
+	BREAK "b \"*/wdtp_stack.c\" : 10" 1 "wdtp_test_stack_func" "wdtp_stack.c" 10
 
 	COMMAND "cont"
 

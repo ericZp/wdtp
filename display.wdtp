@@ -19,7 +19,7 @@
 
 START "$flavor$" "display"
 	COMMAND "dir ."
-	BREAK "break wdtp_test_display_foo : 20" 1 "wdtp_test_display_foo" "wdtp_display.c" 20
+	BREAK "break \"*/wdtp_display.c\" : 20" 1 "wdtp_test_display_foo" "wdtp_display.c" 20
 	COMMAND "cont" ss_xpoint 1
 	CHECK_LOCATION "wdtp_display.c" 20
 

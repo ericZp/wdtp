@@ -19,7 +19,7 @@
 
 START "$flavor$" "expr foo bar"
 	COMMAND "dir ."
-	BREAK	"b test_expr : 76"
+	BREAK	"break \"*/wdtp_expr.c\" : 76" 1 "test_expr" "wdtp_expr.c" 76
 	COMMAND	"cont"
 
 	# simple expression test
@@ -45,7 +45,7 @@ START "$flavor$" "expr foo bar"
 
 	# examine test
 
-	BREAK "b wdtp_test_expr_part : 64"
+	BREAK "break \"*/wdtp_expr.c\" : 64" 2 "wdtp_test_expr_part" "wdtp_expr.c" 64
 	COMMAND "cont"
 
 	EVAL "p /d myint0" mv_integer -4

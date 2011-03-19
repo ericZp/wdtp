@@ -21,12 +21,13 @@
 
 START "$flavor$" "expr foo bar"
 	COMMAND "dir ."
-	BREAK	"b test_expr : 76"
+	BREAK "break \"*/wdtp_expr.c\" : 76" 1 "test_expr" "wdtp_expr.c" 76
+
 	COMMAND	"cont"
 
 	COMMAND "minidump foo1.mdmp"
 
-	BREAK "b wdtp_test_expr_part : 64"
+	BREAK   "break \"*/wdtp_expr.c\" : 64" 2 "wdtp_test_expr_part" "wdtp_expr.c" 64
 	COMMAND "cont"
 
 	COMMAND "minidump foo2.mdmp"
@@ -114,7 +115,7 @@ END
 
 START "$flavor$" "stack"
 	COMMAND "dir ."
-	BREAK "b wdtp_test_stack_func : 10" 1
+	BREAK "b \"*/wdtp_stack.c\" : 10" 1 "wdtp_test_stack_func" "wdtp_stack.c" 10
 	COMMAND "cont"
 
 	COMMAND "minidump foo.mdmp"
