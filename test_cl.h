@@ -156,7 +156,7 @@ static inline int _wtcl_recv_raw_b(struct cl_child_info* cci, char* buffer, unsi
     *eof = FALSE;
     do
     {
-      //if (WaitForSingleObject(cci->hInput, to) != WAIT_OBJECT_0) return -1;
+        if (WaitForSingleObject(cci->hInput, to) != WAIT_OBJECT_0) return -1;
         if (!ReadFile(cci->hInput, buffer + in, sz - in, &r, NULL))// || r == 0) /* FIXME: the last part is the Wine's bug workaround */
         {
             *eof = TRUE;

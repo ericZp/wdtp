@@ -64,7 +64,7 @@ WDTP_SRCS= \
         wdtp_type.c \
         wdtp_xpoint.c
 
-WDTPCFLAGS = $(INCLUDES) $(DEFS) $(DLLFLAGS)
+WDTPCFLAGS = $(INCLUDES) $(DEFS)
 
 MINGW32 = @MINGW32@
 
@@ -103,6 +103,9 @@ distclean:: clean
 
 # The rule for uploading the git tree
 .PHONY: upload
+
+depend: $(C_SRCS) $(LEX_SRCS) $(BISON_SRCS) $(WDTP_SRCS)
+	$(TOPOBJDIR)/tools/makedep -S$(TOPSRCDIR) -T$(TOPOBJDIR) $(INCLUDES) $(C_SRCS) $(LEX_SRCS) $(BISON_SRCS) $(WDTP_SRCS)
 
 upload:
 	git update-server-info
